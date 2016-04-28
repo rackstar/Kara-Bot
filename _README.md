@@ -1,12 +1,12 @@
 # Kara-Bot
 
-> Pithy project description
+Care about your project.
 
 ## Team
 
-  - __Product Owner__: teamMember
-  - __Scrum Master__: teamMember
-  - __Development Team Members__: teamMember, teamMember
+  - __Product Owner__: Aaron Hildebrand
+  - __Scrum Master__: Rocky Murdoch
+  - __Development Team Members__: Kris Stange, Amanda Pattridge
 
 ## Table of Contents
 
