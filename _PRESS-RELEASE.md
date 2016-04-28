@@ -23,10 +23,10 @@ Once the project moves into development, the press release can be used as a touc
   > KaraBot is a Slack bot that checks your team's GitHub repo, JIRA issues and calendar to keep everyone on the same page through Slack messages.
 
 ## Problem ##
-  > Coordinating pull requests, JIRA issues and meetings can be a challenge for enguneering teams, especially remote ones. 
+  > Coordinating pull requests, JIRA issues and meetings can be a challenge for engineering teams, especially remote ones. 
 
 ## Solution ##
-  > KaraBot uses Slack as well as GitHub, JIRA and Google Calendar APIs to keep everyone on teh same page. Automatically notify team members of incoming pull requests, recieve notifications for urgent problems, send meeting reminders and more.
+  > KaraBot uses Slack as well as GitHub, JIRA and Google Calendar APIs to keep everyone on the same page. Automatically notify team members of incoming pull requests, receive notifications for urgent problems, send meeting reminders and more.
 
 ## From the KaraBot Team ##
   > "KaraBot eliminates many of the communication issues that pop up in most engineering teams.""
