@@ -16,29 +16,26 @@ Oh, and I also like to write press-releases in what I call "Oprah-speak" for mai
 Once the project moves into development, the press release can be used as a touchstone; a guiding light. The product team can ask themselves, "Are we building what is in the press release?" If they find they're spending time building things that aren't in the press release (overbuilding), they need to ask themselves why. This keeps product development focused on achieving the customer benefits and not building extraneous stuff that takes longer to build, takes resources to maintain, and doesn't provide real customer benefit (at least not enough to warrant inclusion in the press release).
  -->
  
-## Heading ##
-  > Name the product in a way the reader (i.e. your target customers) will understand.
-
 ## Sub-Heading ##
-  > Describe who the market for the product is and what benefit they get. One sentence only underneath the title.
+  >KaraBot's integrated slack tools help your team work more efficiently.
 
-## Summary ##
-  > Give a summary of the product and the benefit. Assume the reader will not read anything else so make this paragraph good.
+## What is KaraBot? ##
+  > KaraBot is a Slack bot that checks your team's GitHub repo, JIRA issues and calendar to keep everyone on the same page through Slack messages.
 
 ## Problem ##
-  > Describe the problem your product solves.
+  > Coordinating pull requests, JIRA issues and meetings can be a challenge for enguneering teams, especially remote ones. 
 
 ## Solution ##
-  > Describe how your product elegantly solves the problem.
+  > KaraBot uses Slack as well as GitHub, JIRA and Google Calendar APIs to keep everyone on teh same page. Automatically notify team members of incoming pull requests, recieve notifications for urgent problems, send meeting reminders and more.
 
-## Quote from You ##
-  > A quote from a spokesperson in your company.
+## From the KaraBot Team ##
+  > "KaraBot eliminates many of the communication issues that pop up in most engineering teams.""
 
 ## How to Get Started ##
-  > Describe how easy it is to get started.
+  > Just install the KaraBot app, add your team members and you're ready to go!
 
 ## Customer Quote ##
-  > Provide a quote from a hypothetical customer that describes how they experienced the benefit.
+  > "KaraBot made collaborating with my team so much easier!" 
 
-## Closing and Call to Action ##
-  > Wrap it up and give pointers where the reader should go next.
+## Try it out! ##
+  > Make great things together with KaraBot.
