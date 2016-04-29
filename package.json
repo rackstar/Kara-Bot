@@ -25,5 +25,10 @@
   "dependencies": {
     "botkit": "^0.1.1",
     "dotenv": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^2.9.0",
+    "eslint-config-airbnb-base": "^1.0.4",
+    "eslint-plugin-import": "^1.6.1"
   }
 }

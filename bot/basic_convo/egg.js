@@ -1,14 +1,9 @@
 var Botkit = require('botkit');
-var os = require('os');
 
 var controller = Botkit.slackbot({
-  debug: true,
+  debug: true
 });
 
-module.exports = {
-  hitch: hitch,
-  konami: konami
-};
 
 function hitch(bot, message) {
   bot.reply(message, '42');
@@ -17,3 +12,8 @@ function hitch(bot, message) {
 function konami(bot, message) {
   bot.reply(message, '↑ ↑ ↓ ↓ ← → ← → Ⓑ Ⓐ START');
 }
+
+module.exports = {
+  hitch: hitch,
+  konami: konami
+};
