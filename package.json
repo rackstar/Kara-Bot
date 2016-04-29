@@ -1,0 +1,29 @@
+{
+  "name": "kara-bot",
+  "version": "1.0.0",
+  "description": "A Slack Bot to assist Engineering teams with Github PR workflow and JIRA issue tracking.",
+  "main": "karabot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kara-Bot/Kara-Bot.git"
+  },
+  "author": "Team KARA",
+  "contributors": [
+    "Aaron Hildebrand <aaron.hildebrand@gmail.com>",
+    "Amanda Pattridge <apattridge@gmail.com>",
+    "Kris Stange <kris.stange2015@gmail.com>",
+    "Rocky Murdoch <rockysta009@gmail.com>"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kara-Bot/Kara-Bot/issues"
+  },
+  "homepage": "https://github.com/Kara-Bot/Kara-Bot#readme",
+  "dependencies": {
+    "botkit": "^0.1.1",
+    "dotenv": "^2.0.0"
+  }
+}
