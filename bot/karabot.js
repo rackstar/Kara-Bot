@@ -180,3 +180,11 @@ function formatUptime(uptime) {
     uptime = uptime + ' ' + unit;
     return uptime;
 }
+
+controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, '42');
+});
+
+controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', function(bot, message) {
+  bot.reply(message, '↑ ↑ ↓ ↓ ← → ← → Ⓑ Ⓐ START');
+});
