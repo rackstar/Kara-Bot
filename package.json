@@ -4,7 +4,8 @@
   "description": "A Slack Bot to assist Engineering teams with Github PR workflow and JIRA issue tracking.",
   "main": "karabot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon ./bot/karabot.js",
+    "test": "mocha ./spec/karabot.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,9 @@
   "devDependencies": {
     "eslint": "^2.9.0",
     "eslint-config-airbnb-base": "^1.0.4",
-    "eslint-plugin-import": "^1.6.1"
+    "eslint-plugin-import": "^1.6.1",
+    "chai": "^3.5.0",
+    "chai-http": "^2.0.1",
+    "mocha": "^2.4.5"
   }
 }
