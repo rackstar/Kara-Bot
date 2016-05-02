@@ -4,7 +4,7 @@
   "description": "A Slack Bot to assist Engineering teams with Github PR workflow and JIRA issue tracking.",
   "main": "karabot.js",
   "scripts": {
-    "start": "nodemon ./bot/karabot.js",
+    "start": "nodemon server.js",
     "test": "mocha ./spec/karabot.js"
   },
   "repository": {
