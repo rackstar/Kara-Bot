@@ -1,9 +1,4 @@
-var Botkit = require('botkit');
-
-var controller = Botkit.slackbot({
-  debug: true
-});
-
+var kara = require('../karabot.js');
 
 function hitch(bot, message) {
   bot.reply(message, '42');

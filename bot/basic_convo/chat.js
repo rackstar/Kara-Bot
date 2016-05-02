@@ -1,9 +1,5 @@
-var Botkit = require('botkit');
 var os = require('os');
-
-var controller = Botkit.slackbot({
-  debug: true
-});
+var kara = require('../karabot.js');
 
 function greet(bot, message) {
   bot.api.reactions.add({
@@ -16,7 +12,7 @@ function greet(bot, message) {
     }
   });
 
-  controller.storage.users.get(message.user, function sayHello(err, user) {
+  kara.controller.storage.users.get(message.user, function sayHello(err, user) {
     if (user && user.name) {
       bot.reply(message, 'Hello ' + user.name + '!!');
     } else {
@@ -27,21 +23,21 @@ function greet(bot, message) {
 
 function myname(bot, message) {
   var name = message.match[1];
-  controller.storage.users.get(message.user, function storeName(err, user) {
+  kara.controller.storage.users.get(message.user, function storeName(err, user) {
     if (!user) {
       user = {
         id: message.user
       };
     }
     user.name = name;
-    controller.storage.users.save(user, function saveName(err, id) {
+    kara.controller.storage.users.save(user, function saveName(err, id) {
       bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
     });
   });
 }
 
 function sayname(bot, message) {
-  controller.storage.users.get(message.user, function findName(err, user) {
+  kara.controller.storage.users.get(message.user, function findName(err, user) {
     if (user && user.name) {
       bot.reply(message, 'Your name is ' + user.name);
     } else {
@@ -80,14 +76,14 @@ function sayname(bot, message) {
             if (convo.status === 'completed') {
               bot.reply(message, 'OK! I will update my dossier...');
 
-              controller.storage.users.get(message.user, function getUser(err, user) {
+              kara.controller.storage.users.get(message.user, function getUser(err, user) {
                 if (!user) {
                   user = {
                     id: message.user
                   };
                 }
                 user.name = convo.extractResponse('nickname');
-                controller.storage.users.save(user, function saveName(err, res) {
+                kara.controller.storage.users.save(user, function saveName(err, res) {
                   bot.reply(message, 'Got it. I will call you ' + user.name + ' from now on.');
                 });
               });
@@ -153,7 +149,6 @@ function uptime(bot, message) {
     ':robot_face: I am a bot named <@' + bot.identity.name +
     '>. I have been running for ' + time + ' on ' + hostname + '.');
 }
-
 
 module.exports = {
   greet: greet,

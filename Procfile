@@ -1,2 +1,2 @@
-web: node bot/karabot.js
-worker: node bot/karabot.js
+web: node server.js
+worker: node server.js
