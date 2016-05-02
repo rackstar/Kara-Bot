@@ -6,6 +6,8 @@ var controller = Botkit.slackbot({
   debug: true
 });
 
+exports.controller = controller;
+
 require('dotenv').config();
 
 controller.spawn({
