@@ -1,7 +1,6 @@
 var GitHubApi = require('github');
 var helper = require('../config/helper');
 
-
 var github = new GitHubApi({
   version: '3.0.0',
   debug: true,
