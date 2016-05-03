@@ -1,9 +1,6 @@
 var GitHubApi = require('github');
 var helper = require('../config/helper');
-var fs = require('fs');
 
-var serverUrl = 'https://karabot-eng.herokuapp.com/github'
-var slackHookUrl = 'https://hooks.slack.com/services/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';
 
 var github = new GitHubApi({
   version: '3.0.0',
@@ -25,11 +22,11 @@ github.authenticate({
   password: process.env.password
 });
 
-
+// function to format each repo info, utilised by getRepo
 function repoInfo(repos) {
   var info = [];
 
-  repos.forEach(function(repo) {
+  repos.forEach(function repoMsg(repo) {
     var repoLinked = helper.hyperLink(repo.full_name, repo.html_url);
     info.push(repoLinked + '\n');
   });
@@ -37,62 +34,80 @@ function repoInfo(repos) {
   return info.join('');
 }
 
-function repoList(repoInfo, count) {
-  var text = count + ' most recent repositories:';
-
-  if (typeof count === 'string') {
-    text = 'All your current repositories:';
-  }
-
+// function to format repo message, utilised by getRepo
+function repoList(repoInfo, argument) {
   var slackMessage = {
-    text: text,
+    response_type: 'ephemeral',
+    text: argument + ' most recent repositories:',
     attachments: [{
       text: repoInfo,
-      color: 'good'
+      color: 'good',
+      mrkdwn_in: ['text']
     }]
   };
 
+  // if argument is not number show all repo
+  if (typeof argument === 'string') {
+    slackMessage.text = 'All your current repositories:';
+  }
+
+  if (argument === 'help' || argument === 'Help') {
+    slackMessage.text = 'How to use /repo';
+    slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo [number]` will show you `[number]` of your most recent repositories';
+  }
+
   return slackMessage;
 }
+
 // Repo
 exports.getRepo = function getRepo(req, res) {
   var list;
-  // verify token
+  // TO DO - verify token
   var slashToken = req.body.token;
 
-  var resUrl = req.body.response_url;
-  var count = req.body.text;
+  var slashUrl = req.body.response_url;
+  var argument = req.body.text;
 
   github.repos.getAll(
     {
-      type: 'all', // all, owner, public, member or private.
-      sort: 'updated' //  created|updated|pushed|full_name
+      type: 'all',
+      sort: 'updated'
     },
-    function resAllRepo(err, repos) {
+    function responseRepo(err, repos) {
       if (err) console.log(err);
 
-      if (Number(count)) {
+      if (Number(argument)) {
         // round the number if not an integer
-        count = Math.round(count);
+        argument = Math.round(argument);
         // only show the number of requested repos
-        repos = repos.slice(0, count);
+        repos = repos.slice(0, argument);
       }
 
-      // regex validation integer or empty string
-      var reg = /^(\s*|\d+)$/
+      // regex validation empty string, integer or help
+      var reg = /^(\s*|\d+|help|Help)$/
 
-      if (reg.test(count)) {
-        list = repoList(repoInfo(repos), count);
-        helper.sendHook(resUrl, list);
+      if (reg.test(argument)) {
+        list = repoList(repoInfo(repos), argument);
+        helper.sendHook(slashUrl, list);
       } else {
-        res.json({error: 'must be an integer or all'});
+        res.json({error: 'wrong use of command, please check /repo help'});
       }
     }
   );
-}
+};
 
 // WebHook
-function createHook(user, repo, url) {
+// TO DO - user can select events to subscribe to
+// TO DO - /watch help
+// TO DO - /watch list
+// TO DO - /watch - no arguments / invalid arguments
+exports.createHook = function createHook(req, res) {
+  var slashUrl = req.body.response_url;
+  var argument = req.body.text.split('/');
+  var user = argument[0];
+  var repo = argument[1];
+  var url = slackHookUrl;
+
   var hookData = {
     name: 'web',
     active: true,
@@ -112,26 +127,37 @@ function createHook(user, repo, url) {
       'fork'
     ],
     config: {
-      url: url,
+      url: process.env.serverUrl,
       content_type: 'json'
     }
   };
 
-  github.repos.createHook(hookData, function resHook(err, res) {
-    if (err) console.log(err);
-    console.log(res, 'WebHook Created');
+  github.repos.createHook(hookData, function resHook(err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(data, 'WebHook Created');
+      // TO DO - if hook already exists inform user
+      var text = {
+        text: 'I am now watching ' + req.body.text + ' very closely'
+      };
+      helper.sendHook(slashUrl, text);
+    }
   });
-}
+};
 
-function prMessage(payload) {
-  var pr = payload.pull_request;
-  var action = payload.action;
+// TO DO - unwatch repository - hook destroy
+
+// function to format new PR message to Slack, utilised by webHookReceiver
+function prMessage(data) {
+  var pr = data.pull_request;
+  var action = data.action;
   var slackMessage;
   var attachments;
   var text;
 
   // Repo and PR title
-  var repo = '[' + payload.repository.full_name + '] ';
+  var repo = '[' + data.repository.full_name + '] ';
   var prTitle = '#' + pr.number + ' ' + pr.title;
 
   // Linked Title and User
@@ -163,6 +189,7 @@ function prMessage(payload) {
   return slackMessage;
 }
 
+// function utilised by mergeMessage to list and format all commits of a PR
 function commitsInfo(commits) {
   var info = [];
 
@@ -182,24 +209,27 @@ function commitsInfo(commits) {
 
     tag = message + ' - ' + commit.committer.name + '\n';
 
+    // push formatted commit info to info array
     info.push(idLinked + '  ' + tag);
   });
 
   return info.join('');
 }
 
-function mergeMessage(payload) {
-  var commits = payload.commits;
-  var repo = payload.repository;
+// function to format Push / Merge messages to Slack, utilised by webHookReceiver
+// TO DO - make slightly different message for merge and push
+function mergeMessage(data) {
+  var commits = data.commits;
+  var repo = data.repository;
 
   // Branch
-  var branch = payload.ref.split('/')[2];
+  var branch = data.ref.split('/')[2];
   var branchUrl = repo.url + '/tree/' + branch;
   var branchLinked = helper.hyperLink('[' + repo.name + ':' + branch + ']', branchUrl);
 
   // Commit Header
   var commitMessage = commits.length + ' new commits ';
-  var commitMessageLinked = helper.hyperLink(commitMessage, payload.compare);
+  var commitMessageLinked = helper.hyperLink(commitMessage, data.compare);
   var committer = ' by ' + commits[0].committer.name;
 
   // Individual Commits
@@ -221,35 +251,37 @@ function mergeMessage(payload) {
   return slackMessage;
 }
 
-function prSlackMsg(PR) {
+// function to format PR and send PR message to Slack, utilised by checkPRqueue
+function prSendSlackMsg(pr) {
   // Repo and Title
-  var repo = '[' + PR.base.repo.full_name + ']';
-  var title = '#' + PR.number + ' ' + PR.title;
+  var repo = '[' + pr.base.repo.full_name + ']';
+  var title = '#' + pr.number + ' ' + pr.title;
 
   // Linked PR and user
-  var PRLinked = helper.hyperLink(title, PR.html_url);
-  var userLink = helper.hyperLink(PR.user.login, PR.user.html_url);
+  var PRLinked = helper.hyperLink(title, pr.html_url);
+  var userLink = helper.hyperLink(pr.user.login, pr.user.html_url);
 
   // Message
   var PRMsg = {
     text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' must be synchronized'
   };
 
-  helper.sendHook(slackHookUrl, PRMsg);
+  helper.sendHook(process.env.hookUrl, PRMsg);
 }
 
+// checks for any remaining PR in queue, called after Push / Merge events
 function checkPRqueue(user, repo) {
   // TO DO - delete hard coded user and repo
   github.pullRequests.getAll(
     {
-      user: user || 'Kara-Bot',
-      repo: repo || 'Test-Repo'
+      user: user,
+      repo: repo
     },
     function synchronizePR(error, remainingPR) {
       if (error) console.log(error);
       if (remainingPR.length > 0) {
         // send Slack notification of every PR remaining in queue
-        remainingPR.forEach(prSlackMsg);
+        remainingPR.forEach(prSendSlackMsg);
       }
     }
   );
@@ -257,20 +289,21 @@ function checkPRqueue(user, repo) {
 
 exports.webHookReceiver = function webHook(req, res) {
   var event = req.headers['x-github-event'];
+  var user = req.body.repository.owner.name;
+  var repo = req.body.repository.name;
 
   // PR
   if (event === 'pull_request') {
     // TO DO - include syncronized PR on slack notification or not?
-    helper.sendHook(slackHookUrl, prMessage(req.body));
+    helper.sendHook(process.env.hookUrl, prMessage(req.body));
     res.sendStatus(200);
   }
 
   // Push / Merge
   if (event === 'push') {
-    helper.sendHook(slackHookUrl, mergeMessage(req.body));
+    helper.sendHook(process.env.hookUrl, mergeMessage(req.body));
     res.sendStatus(200);
     // check for any remaining PR
-    // TO DO - pass in user and repo
-    checkPRqueue();
+    checkPRqueue(user, repo);
   }
 };

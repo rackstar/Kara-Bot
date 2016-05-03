@@ -18,6 +18,7 @@ module.exports = function (app) {
   // Github WebHook
   app.post('/github', github.webHookReceiver);
   app.post('/repo', github.getRepo);
+  app.post('/watch', github.createHook);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);
