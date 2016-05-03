@@ -17,7 +17,7 @@ function errorHandler(error, req, res, next) {
 module.exports = function (app) {
   // Github WebHook
   app.post('/github', github.webHookReceiver);
-
+  app.post('/repo', github.getRepo);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);

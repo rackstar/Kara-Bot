@@ -2,6 +2,7 @@ var GitHubApi = require('github');
 var helper = require('../config/helper');
 var fs = require('fs');
 
+var serverUrl = 'https://karabot-eng.herokuapp.com/github'
 var slackHookUrl = 'https://hooks.slack.com/services/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';
 
 var github = new GitHubApi({
@@ -24,59 +25,103 @@ github.authenticate({
   password: process.env.password
 });
 
+
+function repoInfo(repos) {
+  var info = [];
+
+  repos.forEach(function(repo) {
+    var repoLinked = helper.hyperLink(repo.full_name, repo.html_url);
+    info.push(repoLinked + '\n');
+  });
+
+  return info.join('');
+}
+
+function repoList(repoInfo, count) {
+  var text = count + ' most recent repositories:';
+
+  if (typeof count === 'string') {
+    text = 'All your current repositories:';
+  }
+
+  var slackMessage = {
+    text: text,
+    attachments: [{
+      text: repoInfo,
+      color: 'good'
+    }]
+  };
+
+  return slackMessage;
+}
 // Repo
-// get all repo and let user pick which one should be watched
-// github.repos.getAll(
-//   {
-//     type: 'owner', // all, owner, public, or private.
-//     page: 1,
-//     // sort: 'updated'
+exports.getRepo = function getRepo(req, res) {
+  var list;
+  // verify token
+  var slashToken = req.body.token;
 
+  var resUrl = req.body.response_url;
+  var count = req.body.text;
 
-//     // direction: 'String',
-//     // per_page: 'Number'*/
-//   },
-//   function resAllRepo(err, res) {
-//     // TO DO error handling
-//     // TO DO - show user list of repo
-//     // then make them choose repos to be watched
-//     console.log(res, 'REPO');
-//   }
-// );
+  github.repos.getAll(
+    {
+      type: 'all', // all, owner, public, member or private.
+      sort: 'updated' //  created|updated|pushed|full_name
+    },
+    function resAllRepo(err, repos) {
+      if (err) console.log(err);
+
+      if (Number(count)) {
+        // round the number if not an integer
+        count = Math.round(count);
+        // only show the number of requested repos
+        repos = repos.slice(0, count);
+      }
+
+      // regex validation integer or empty string
+      var reg = /^(\s*|\d+)$/
+
+      if (reg.test(count)) {
+        list = repoList(repoInfo(repos), count);
+        helper.sendHook(resUrl, list);
+      } else {
+        res.json({error: 'must be an integer or all'});
+      }
+    }
+  );
+}
 
 // WebHook
-// create webhook for chosen repo
-// github.repos.createHook(
-//   {
-//     name: 'web',
-//     active: true,
-//     user: 'Kara-Bot',
-//     repo: 'Test-Repo',
-//     events: [
-//       'commit_comment',
-//       'create',
-//       'delete',
-//       'deployment_status',
-//       'issues',
-//       'issue_comment',
-//       'pull_request',
-//       'pull_request_review_comment',
-//       'push',
-//       'release',
-//       'fork'
-//     ],
-//     config: {
-//       url: 'https://karabot-eng.herokuapp.com/github',
-//       content_type: 'json'
-//     }
-//   },
-//   function resCreateHook(err, res) {
-//     // TO DO error handling
-//     if (res) {
-//       console.log(res, 'WebHook Created');
-//     }
-//   }
-// );
+function createHook(user, repo, url) {
+  var hookData = {
+    name: 'web',
+    active: true,
+    user: user,
+    repo: repo,
+    events: [
+      'commit_comment',
+      'create',
+      'delete',
+      'deployment_status',
+      'issues',
+      'issue_comment',
+      'pull_request',
+      'pull_request_review_comment',
+      'push',
+      'release',
+      'fork'
+    ],
+    config: {
+      url: url,
+      content_type: 'json'
+    }
+  };
+
+  github.repos.createHook(hookData, function resHook(err, res) {
+    if (err) console.log(err);
+    console.log(res, 'WebHook Created');
+  });
+}
 
 function prMessage(payload) {
   var pr = payload.pull_request;
