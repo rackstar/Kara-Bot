@@ -1,6 +1,8 @@
 var GitHubApi = require('github');
+var helper = require('../config/helper');
 var fs = require('fs');
-var request = require('request');
+
+var slackHookUrl = 'https://hooks.slack.com/services/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';
 
 var github = new GitHubApi({
   version: '3.0.0',
@@ -13,8 +15,7 @@ var github = new GitHubApi({
   }
 });
 
-require('dotenv')
-  .config();
+require('dotenv').config();
 
 // Authentication
 github.authenticate({
@@ -65,8 +66,7 @@ github.authenticate({
 //       'fork'
 //     ],
 //     config: {
-//       url: 'https://hooks.slack.com/services/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', // TO DO - create heroku website to receive payload
-//       // or slack webhook url
+//       url: 'https://karabot-eng.herokuapp.com/github',
 //       content_type: 'json'
 //     }
 //   },
@@ -77,153 +77,155 @@ github.authenticate({
 //     }
 //   }
 // );
-//
-var hyperLink = function(string, url) {
-  return '<' + url + '|' + string + '>';
-};
 
-var prMessage = function prMessage(payload) {
+function prMessage(payload) {
   var pr = payload.pull_request;
   var action = payload.action;
+  var slackMessage;
+  var attachments;
+  var text;
 
-  var prTitle = '#' + pr.number + ' ' + pr.title;
+  // Repo and PR title
   var repo = '[' + payload.repository.full_name + '] ';
-  var userLink = hyperLink(pr.user.login, pr.user.html_url);
+  var prTitle = '#' + pr.number + ' ' + pr.title;
 
-  // convert PR opened to PR submitted
+  // Linked Title and User
+  var titleLinked = helper.hyperLink(prTitle, pr.html_url);
+  var userLink = helper.hyperLink(pr.user.login, pr.user.html_url);
+
+  // PR submitted
   if (action === 'opened') {
     action = 'submitted';
+    text = repo + 'Pull request ' + action + ' by ' + userLink;
+    attachments = [{
+      title: prTitle,
+      title_link: pr.html_url,
+      text: pr.body,
+      color: 'good'
+    }];
   }
 
-  var slackMessage = {
-    text: repo + 'Pull request ' + action + ' by ' + userLink,
-    attachments: [
-      {
-        title: prTitle,
-        title_link: pr.html_url,
-        text: pr.body,
-        color: 'good',
-      }
-    ]
-  };
-  // make a more concise message on PR close
+  // PR closed
   if (action === 'closed') {
-    delete slackMessage.attachments;
-    var titleLinked = hyperLink(prTitle, pr.html_url);
-    slackMessage.text = repo + 'Pull request ' + action + ': ' + titleLinked + ' by ' + userLink;
+    text = repo + 'Pull request ' + action + ': ' + titleLinked + ' by ' + userLink;
   }
+
+  slackMessage = {
+    text: text,
+    attachments: attachments || []
+  };
 
   return slackMessage;
-};
+}
 
-var commitsInfo = function commitsInfo(commits) {
+function commitsInfo(commits) {
   var info = [];
 
-  commits.forEach(function (commit, i, commits) {
-    var id = '`' + commit.id.slice(0,8) + '` ';
-    var idLinked = hyperLink(id, commit.url);
-    // show only commit title
+  commits.forEach(function commitInfo(commit) {
     var message = commit.message;
-    var index = message.indexOf('\n\n');
+    var tag;
 
+    // only show first 8 characters of commit id
+    var id = '`' + commit.id.slice(0, 8) + '` ';
+    var idLinked = helper.hyperLink(id, commit.url);
+
+    // show only commit title, delete body if it exists
+    var index = message.indexOf('\n\n');
     if (index > 0) {
       message = message.slice(0, index);
     }
 
-    var tag = message + ' - ' + commit.committer.name + '\n';
+    tag = message + ' - ' + commit.committer.name + '\n';
 
     info.push(idLinked + '  ' + tag);
   });
 
   return info.join('');
-};
+}
 
-var mergeMessage = function mergeMessage(payload) {
+function mergeMessage(payload) {
   var commits = payload.commits;
   var repo = payload.repository;
+
   // Branch
   var branch = payload.ref.split('/')[2];
   var branchUrl = repo.url + '/tree/' + branch;
-  var branchLinked = hyperLink('[' + repo.name + ':' + branch + ']', branchUrl);
+  var branchLinked = helper.hyperLink('[' + repo.name + ':' + branch + ']', branchUrl);
+
   // Commit Header
   var commitMessage = commits.length + ' new commits ';
-  var commitMessageLinked = hyperLink(commitMessage, payload.compare);
+  var commitMessageLinked = helper.hyperLink(commitMessage, payload.compare);
   var committer = ' by ' + commits[0].committer.name;
+
   // Individual Commits
   var info = commitsInfo(commits);
 
+  // Slack Message
+  var text = branchLinked + ' ' + commitMessageLinked + committer + ' and 1 other:';
+  var attachments = [{
+    text: info,
+    color: 'good',
+    mrkdwn_in: ['text']
+  }];
+
   var slackMessage = {
-    text: branchLinked + ' ' + commitMessageLinked + committer + ' and 1 other:',
-    attachments: [
-      {
-        text: info,
-        color: 'good',
-        mrkdwn_in: ['text']
-      }
-    ],
-    mrkdwn: true
+    text: text,
+    attachments: attachments
   };
 
   return slackMessage;
-};
+}
 
-var sendHook = function sendHook(url, json) {
-  request(
+function prSlackMsg(PR) {
+  // Repo and Title
+  var repo = '[' + PR.base.repo.full_name + ']';
+  var title = '#' + PR.number + ' ' + PR.title;
+
+  // Linked PR and user
+  var PRLinked = helper.hyperLink(title, PR.html_url);
+  var userLink = helper.hyperLink(PR.user.login, PR.user.html_url);
+
+  // Message
+  var PRMsg = {
+    text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' must be synchronized'
+  };
+
+  helper.sendHook(slackHookUrl, PRMsg);
+}
+
+function checkPRqueue(user, repo) {
+  // TO DO - delete hard coded user and repo
+  github.pullRequests.getAll(
     {
-      url: url,
-      method: 'POST',
-      json: json
+      user: user || 'Kara-Bot',
+      repo: repo || 'Test-Repo'
     },
-    function(err, httpResponse, body) {
-      console.log(body);
+    function synchronizePR(error, remainingPR) {
+      if (error) console.log(error);
+      if (remainingPR.length > 0) {
+        // send Slack notification of every PR remaining in queue
+        remainingPR.forEach(prSlackMsg);
+      }
     }
   );
-};
+}
 
 exports.webHookReceiver = function webHook(req, res) {
-  console.log(req.body, 'BODY REQ');
   var event = req.headers['x-github-event'];
-  var slackHookUrl = 'https://hooks.slack.com/services/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';
 
   // PR
   if (event === 'pull_request') {
-    // synchronized PR are not posted
-    // if (req.body.action !== 'synchronized') {
-      var slackMessage = prMessage(req.body);
-      sendHook(slackHookUrl, slackMessage);
-    // }
+    // TO DO - include syncronized PR on slack notification or not?
+    helper.sendHook(slackHookUrl, prMessage(req.body));
     res.sendStatus(200);
   }
 
-  // MERGE
+  // Push / Merge
   if (event === 'push') {
-    var slackMessage = mergeMessage(req.body);
-    sendHook(slackHookUrl, slackMessage);
+    helper.sendHook(slackHookUrl, mergeMessage(req.body));
     res.sendStatus(200);
-    // check if there are remaining PR
-      // if yes, tell user has to synchronize PR and rebase
-    // Pull Request
-    github.pullRequests.getAll(
-      {
-        user: 'Kara-Bot',
-        repo: 'Test-Repo' // TO DO - change to chose repo
-      },
-      function allPR(error, response) {
-        // TO DO error handling
-        if (error) { console.log(error); }
-        if (response.length > 0) {
-          response.forEach(function(PR) {
-            var title = '#' + PR.number + ' ' + PR.title;
-            var PRLinked = hyperLink(title, PR.html_url);
-            var userLink = hyperLink(PR.user.login, PR.user.html_url);
-            var repo = '[' + PR.base.repo.full_name + ']';
-            var PRMsg = {
-              text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' must be synchronized'
-            };
-            sendHook(slackHookUrl, PRMsg);
-          });
-        }
-      }
-    );
+    // check for any remaining PR
+    // TO DO - pass in user and repo
+    checkPRqueue();
   }
 };
