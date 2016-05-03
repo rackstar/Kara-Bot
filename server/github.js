@@ -23,20 +23,6 @@ github.authenticate({
   password: process.env.password
 });
 
-// Pull Request
-github.pullRequests.getAll(
-  {
-    user: 'Kara-Bot',
-    repo: 'Test-Repo' // TO DO - change to chose repo
-      // state: 'open'
-  },
-  function allPR(err, res) {
-    // TO DO error handling
-    if (err) { console.log(err); }
-    console.log(res, 'PR');
-  }
-);
-
 // Repo
 // get all repo and let user pick which one should be watched
 // github.repos.getAll(
@@ -215,5 +201,28 @@ exports.webHookReceiver = function webHook(req, res) {
     res.sendStatus(200);
     // check if there are remaining PR
       // if yes, tell user has to synchronize PR and rebase
+    // Pull Request
+    github.pullRequests.getAll(
+      {
+        user: 'Kara-Bot',
+        repo: 'Test-Repo' // TO DO - change to chose repo
+      },
+      function allPR(error, response) {
+        // TO DO error handling
+        if (error) { console.log(error); }
+        if (response.length > 0) {
+          response.forEach(function(PR) {
+            var title = '#' + PR.number + ' ' + PR.title;
+            var PRLinked = hyperLink(title, PR.html_url);
+            var userLink = hyperLink(PR.user.login, PR.user.html_url);
+            var repo = '[' + PR.base.repo.full_name + ']';
+            var PRMsg = {
+              text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' must be synchronized'
+            };
+            sendHook(slackHookUrl, PRMsg);
+          });
+        }
+      }
+    );
   }
 };
