@@ -50,7 +50,7 @@ function repoList(repoInfo, argument) {
     slackMessage.text = 'All your current repositories:';
   }
 
-  if (argument === 'help' || argument === 'Help') {
+  if (argument.toLowerCase() === 'help') {
     slackMessage.text = 'How to use /repo';
     slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo [number]` will show you `[number]` of your most recent repositories';
   }
@@ -61,6 +61,10 @@ function repoList(repoInfo, argument) {
 // Repo
 exports.getRepo = function getRepo(req, res) {
   var list;
+  // regex validation empty string, integer or help
+  // TO DO - case insensitive help
+  var reg = /^(\s*|\d+|help|Help)$/;
+
   // TO DO - verify token
   var slashToken = req.body.token;
 
@@ -73,7 +77,7 @@ exports.getRepo = function getRepo(req, res) {
       sort: 'updated'
     },
     function responseRepo(err, repos) {
-      if (err) console.log(err);
+      if (err) res.json(err);
 
       if (Number(argument)) {
         // round the number if not an integer
@@ -82,14 +86,12 @@ exports.getRepo = function getRepo(req, res) {
         repos = repos.slice(0, argument);
       }
 
-      // regex validation empty string, integer or help
-      var reg = /^(\s*|\d+|help|Help)$/
 
       if (reg.test(argument)) {
         list = repoList(repoInfo(repos), argument);
         helper.sendHook(slashUrl, list);
       } else {
-        res.json({error: 'wrong use of command, please check /repo help'});
+        res.json('invalid command, please check /repo help');
       }
     }
   );
@@ -97,14 +99,41 @@ exports.getRepo = function getRepo(req, res) {
 
 // WebHook
 // TO DO - user can select events to subscribe to
-// TO DO - /watch help
-// TO DO - /watch list
-// TO DO - /watch - no arguments / invalid arguments
-exports.createHook = function createHook(req, res) {
+exports.watchRepo = function watchRepo(req, res) {
+  var argument = req.body.text;
   var slashUrl = req.body.response_url;
-  var argument = req.body.text.split('/');
-  var user = argument[0];
-  var repo = argument[1];
+  var userRepo = argument.split('/');
+  var user = userRepo[0];
+  var repo = userRepo[1];
+
+  var regWhiteSpace = /^\s*$/;
+
+  // /watch or /watch list
+  if (regWhiteSpace.test(argument) || argument === 'list') {
+    // get list of watched repo
+    // needs to store in database or in file a list of watched repo
+    return;
+  }
+
+  // /watch help
+  if (argument.toLowerCase() === 'help') {
+    var slackMessage = {
+      text: 'How to use /watch',
+      attachments: [{
+        text: '`/watch` will show you all current watched repositories.\n`/watch [user/repo]` will subscribe you to the repository\'s events',
+        color: 'good',
+        mrkdwn_in: ['text']
+      }]
+    };
+    helper.sendHook(slashUrl, slackMessage);
+    return;
+  }
+
+  // validation for repo
+  if (repo === undefined || repo === '' || repo === ' ') {
+    res.json('empty value for repo, please read /watch help');
+    return;
+  }
 
   var hookData = {
     name: 'web',
@@ -132,19 +161,85 @@ exports.createHook = function createHook(req, res) {
 
   github.repos.createHook(hookData, function resHook(err, data) {
     if (err) {
-      console.log(err);
+      err = JSON.parse(err);
+      var errorMsg = user + '/' + repo + ' ' + err.message;
+
+      // send error logs instead if available
+      if (err.errors !== undefined) {
+        errorMsg = err.errors[0].message;
+      }
+
+      res.json(errorMsg);
     } else {
-      console.log(data, 'WebHook Created');
-      // TO DO - if hook already exists inform user
-      var text = {
-        text: 'I am now watching ' + req.body.text + ' very closely'
-      };
-      helper.sendHook(slashUrl, text);
+      if (data.active) {
+        var text = {
+          text: 'I am now watching ' + req.body.text + ' very closely'
+        };
+        helper.sendHook(slashUrl, text);
+      }
     }
   });
 };
 
-// TO DO - unwatch repository - hook destroy
+// call back function that finds id of hook and deletes it, utilised by unwatchRepo
+function findHookId(err, hooks, callback) {
+  hooks.forEach(function hookId(hook) {
+    // find the relevant hook
+    if (hook.config.url === process.env.serverUrl) {
+      // pass in id to callback
+      callback(hook.id);
+    }
+  });
+}
+
+// TO DO - validation
+exports.unwatchRepo = function unwatchRepo(req, res) {
+  var argument = req.body.text;
+  var slashUrl = req.body.response_url;
+  var userRepo = argument.split('/');
+  var user = userRepo[0];
+  var repo = userRepo[1];
+
+  // unwatch help
+  if (argument.toLowerCase() === 'help') {
+    var slackMessage = {
+      text: 'How to use /unwatch',
+      attachments: [{
+        text: '`/unwatch [user/repo]` will unsubscribe from the repository\'s events',
+        color: 'good',
+        mrkdwn_in: ['text']
+      }]
+    };
+    helper.sendHook(slashUrl, slackMessage);
+    return;
+  }
+
+  // get list of hooks
+  github.repos.getHooks(
+    {
+      user: user,
+      repo: repo
+    },
+    // find the id of hook associated to the app
+    function getHookCb(err, hooks) {
+      findHookId(err, hooks, function deleteHook(id) {
+        // delete hook
+        github.repos.deleteHook(
+          {
+            user: user,
+            repo: repo,
+            id: id
+          },
+          function deleteHookCb(err, response) {
+            if (response.meta.status === '204 No Content') {
+              res.send('Successfully unsubscribed to ' + argument);
+            }
+          }
+        );
+      });
+    }
+  );
+};
 
 // function to format new PR message to Slack, utilised by webHookReceiver
 function prMessage(data) {
