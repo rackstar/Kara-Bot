@@ -6,6 +6,31 @@ var testName = 'Foo';
 require('dotenv').config();
 
 chai.use(chaiHttp);
+// Time between API calls set as such to avoid rate limiting (1 second per message)
+function responseTest(input, output, done) {
+  var text;
+  chai.request('https://slack.com/api/chat.postMessage')
+    .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
+      + '&text=' + input + '&as_user=true&pretty=1')
+    .end(function testResponse(err, res) {
+      setTimeout(function waitRequest() {
+        chai.request('https://slack.com/api/im.history')
+          .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
+            + '&count=5&pretty=1')
+          .end(function assignText(err, res) {
+            if (err) {
+              console.log('err ', err);
+            } else {
+              text = res.body.messages[0].text;
+            }
+          });
+      }, 1200);
+    });
+  setTimeout(function waitCheck() {
+    expect(text).to.equal(output);
+    done();
+  }, 2400);
+}
 
 
 // Tests built utilizing Slack API calls to see if bot responds with expected response.
@@ -13,161 +38,32 @@ chai.use(chaiHttp);
 // Must get personal test token at https://api.slack.com/docs/oauth-test-tokens and set
 // me=thetokenyoureceive in the .env file.
 describe('Responds to strings it knows', function () {
+  this.timeout(3000);
   it('replies to "hello" with "Hello"', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.have.string('Hello');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=hello&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+    responseTest('hello', 'Hello.', done);
   });
 
-  it('can store name', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.equal('Got it. I will call you ' + testName + ' from now on.');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=my name is ' + testName + '&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+  it('can store a name', function (done) {
+    responseTest(('my name is ' + testName), ('Got it. I will call you ' + testName
+      + ' from now on.'), done);
   });
 
   it('will include stored name in reply', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.equal('Hello ' + testName + '!!');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=hello&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+    responseTest('hello', ('Hello ' + testName + '!!'), done);
   });
 
   it('replies to "life the universe and everything" with "42"', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.equal('42');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=life, the universe and everything&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+    responseTest('life, the universe and everything', '42', done);
   });
 
   it('replies to "master code" with THE code', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.equal('↑ ↑ ↓ ↓ ← → ← → Ⓑ Ⓐ START');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=master code&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+    responseTest('master code', ('↑ ↑ ↓ ↓ ← → ← → Ⓑ Ⓐ START'), done);
   });
 });
 
 describe('Does not respond to unrecognized strings', function () {
+  this.timeout(3000);
   it('does not reply to "jello"', function (done) {
-    var text;
-    setTimeout(function () {
-      expect(text).to.be.a('string');
-      expect(text).to.equal('jello');
-      done();
-    }, 1500);
-    chai.request('https://slack.com/api/chat.postMessage')
-      .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
-        + '&text=jello&as_user=true&pretty=1')
-      .end(function (err, res) {
-        setTimeout(function () {
-          chai.request('https://slack.com/api/im.history')
-            .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
-              + '&count=5&pretty=1')
-            .end(function (err, res) {
-              if (err) {
-                console.log('err ', err);
-              } else {
-                text = res.body.messages[0].text;
-              }
-            });
-        }, 750);
-      });
+    responseTest('jello', 'jello', done);
   });
 });
