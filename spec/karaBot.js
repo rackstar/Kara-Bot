@@ -6,6 +6,31 @@ var testName = 'Foo';
 require('dotenv').config();
 
 chai.use(chaiHttp);
+// Time between API calls set as such to avoid rate limiting (1 second per message)
+function responseTest(input, output, done) {
+  var text;
+  chai.request('https://slack.com/api/chat.postMessage')
+    .post('?token=' + process.env.me + '&channel=' + process.env.botDirect
+      + '&text=' + input + '&as_user=true&pretty=1')
+    .end(function testResponse(err, res) {
+      setTimeout(function waitRequest() {
+        chai.request('https://slack.com/api/im.history')
+          .get('?token=' + process.env.me + '&channel=' + process.env.botDirect
+            + '&count=5&pretty=1')
+          .end(function assignText(err, res) {
+            if (err) {
+              console.log('err ', err);
+            } else {
+              text = res.body.messages[0].text;
+            }
+          });
+      }, 1200);
+    });
+  setTimeout(function waitCheck() {
+    expect(text).to.equal(output);
+    done();
+  }, 2400);
+}
 
 
 // Tests built utilizing Slack API calls to see if bot responds with expected response.
