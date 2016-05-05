@@ -1,6 +1,7 @@
 var Botkit = require('botkit');
 var chat = require('./basic_convo/chat.js');
 var egg = require('./basic_convo/egg.js');
+var jira = require('./jira/jira.js')
 
 var controller = Botkit.slackbot({
   debug: true
@@ -19,7 +20,6 @@ if (!process.env.token) {
   process.exit(1);
 }
 
-
 // Listening routes
 controller.hears(['hello'], 'direct_message,direct_mention,mention', chat.greet);
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention',
@@ -33,3 +33,9 @@ controller.hears(['life, the universe and everything', 'life the universe and ev
   'direct_message,direct_mention,mention', egg.hitch);
 controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention',
   egg.konami);
+  controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', egg.hitch);
+  controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', egg.konami);
+
+  //Get highest priority issues
+
+  controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);

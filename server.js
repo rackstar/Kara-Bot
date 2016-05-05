@@ -1,9 +1,10 @@
-// modules =================================================
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var dotenv = require('dotenv');
+var JiraClient = require('jira-connector');
+var jiraController = require('./server/jira/jiraController')
 
 // configuration ===========================================
 
