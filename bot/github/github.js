@@ -52,7 +52,7 @@ function repoList(repoInfo, argument) {
 
     if (argument.toLowerCase() === 'help') {
       slackMessage.text = 'How to use /repo';
-      slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo [number]` will show you `[number]` of your most recent repositories';
+      slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo <number>` will show you `<number>` of your most recent repositories';
     }
   }
 
@@ -131,7 +131,7 @@ exports.watchRepo = function watchRepo(req, res) {
     var slackMessage = {
       text: 'How to use /watch',
       attachments: [{
-        text: '`/watch` will show you all current watched repositories.\n`/watch [user/repo]` will subscribe you to the repository\'s events',
+        text: '`/watch` will show you all current watched repositories.\n`/watch <user>/<repo>` will subscribe you to the repository\'s events',
         color: 'good',
         mrkdwn_in: ['text']
       }]
@@ -227,7 +227,7 @@ exports.unwatchRepo = function unwatchRepo(req, res) {
     var slackMessage = {
       text: 'How to use /unwatch',
       attachments: [{
-        text: '`/unwatch [user/repo]` will unsubscribe from the repository\'s events',
+        text: '`/unwatch <user>/<repo>` will unsubscribe from the repository\'s events',
         color: 'good',
         mrkdwn_in: ['text']
       }]
