@@ -31,8 +31,9 @@
     "github": "^0.2.4",
     "request": "^2.72.0",
     "jira-connector": "^2.3.0",
-    "unirest": "^0.4.2"
-
+    "unirest": "^0.4.2",
+    "google-auth-library": "^0.9.7",
+    "googleapis": "^5.2.1"
   },
   "devDependencies": {
     "eslint": "^2.9.0",

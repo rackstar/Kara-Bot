@@ -1,5 +1,9 @@
 node_modules
 
+# Keys
+config/calendar-nodejs-quickstart.json
+config/client_secret.json
+
 # Env files
 .env
 
