@@ -12,8 +12,6 @@ function ctoday(bot, message) {
   googCal.authCallFunction( function(data) {
     bot.reply(message, data)
   }, 'days events');  
-
-  // googCal.authCallFunction( 'null', 'days events');
 }
 
 module.exports = {
