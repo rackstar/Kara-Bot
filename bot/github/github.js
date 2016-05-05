@@ -71,8 +71,11 @@ exports.getRepo = function getRepo(req, res) {
   var slashUrl = req.body.response_url;
   var argument = req.body.text;
 
-  // respond immediately to avoid timeout error
-  res.json({response_type: 'ephemeral', text: 'BeepBop.. Fetching repos.'});
+  // send an initial response to avoid timeout error
+  res.json({
+    response_type: 'ephemeral',
+    text: 'BeepBop.. Fetching repos.'
+  });
 
   github.repos.getAll(
     {
@@ -110,14 +113,16 @@ exports.watchRepo = function watchRepo(req, res) {
 
   var regWhiteSpace = /^\s*$/;
 
-  // respond immediately to avoid timeout error
-  res.json({response_type: 'ephemeral', text: 'BeepBop.. Targeting repo.'});
+  // send an initial response to avoid timeout error
+  res.json({
+    response_type: 'ephemeral',
+    text: 'BeepBop.. Targeting repo.'
+  });
 
   // /watch or /watch list
   if (regWhiteSpace.test(argument) || argument === 'list') {
     // get list of watched repo
     // needs to store in database or in file a list of watched repo
-    return;
   }
 
   // /watch help
@@ -136,7 +141,9 @@ exports.watchRepo = function watchRepo(req, res) {
 
   // validation for repo
   if (repo === undefined || repo === '' || repo === ' ') {
-    helper.sendHook(slashUrl, {text: 'empty value for repo, please read /watch help'});
+    helper.sendHook(slashUrl, {
+      text: 'empty value for repo, please read /watch help'
+    });
     return;
   }
 
@@ -172,12 +179,14 @@ exports.watchRepo = function watchRepo(req, res) {
 
       // send error logs instead if available
       if (err.errors !== undefined) {
-          errorMsg = 'I am already watching ' +  argument;
+        errorMsg = 'I am already watching ' + argument;
         // TO DO enable error logging for other types of errors
         // errorMsg = err.errors[0].message;
       }
 
-      helper.sendHook(slashUrl, {text: errorMsg});
+      helper.sendHook(slashUrl, {
+        text: errorMsg
+      });
     } else {
       if (data.active) {
         var text = {
@@ -208,8 +217,10 @@ exports.unwatchRepo = function unwatchRepo(req, res) {
   var user = userRepo[0];
   var repo = userRepo[1];
 
-  // respond immediately to avoid timeout error
-  res.json({text: 'Hmmm..'});
+  // send an initial response to avoid timeout error
+  res.json({
+    text: 'Hmmm..'
+  });
 
   // unwatch help
   if (argument.toLowerCase() === 'help') {
@@ -243,7 +254,9 @@ exports.unwatchRepo = function unwatchRepo(req, res) {
           },
           function deleteHookCb(err, response) {
             if (response.meta.status === '204 No Content') {
-              helper.sendHook(slashUrl, {text: 'Ok! I\'ll stop notifying you of ' + argument + '\'s events'});
+              helper.sendHook(slashUrl, {
+                text: 'Ok! I\'ll stop notifying you of ' + argument + '\'s events'
+              });
             }
           }
         );
