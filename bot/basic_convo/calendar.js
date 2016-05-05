@@ -10,7 +10,7 @@ function clist(bot, message) {
 function ctoday(bot, message) {
   bot.reply(message, '_I\'m searching..._');
   googCal.authCallFunction( function(data) {
-    bot.reply(message, 'Ok, here\'s the results:\n' + data)
+    bot.reply(message, data)
   }, 'days events');  
 
   // googCal.authCallFunction( 'null', 'days events');

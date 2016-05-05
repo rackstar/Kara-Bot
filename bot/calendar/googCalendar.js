@@ -133,13 +133,13 @@ function listEvents(auth, cb) {
     } else {
       var todayDate = ((new Date()).toISOString()).slice(0, 10)
       console.log('Upcoming 10 events:');
-      var cData = '```';
+      var cData = '*' + events[0].organizer.displayName + '*```';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
         if (start.slice(0, 10) === todayDate) {
           if (start.length > 10) {
-            cData += start.slice(11, 16) + ' to ' + event.end.dateTime.slice(11, 16) + '\n';
+            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true) + '\n';
           } else {
             cData += '* All Day Event *\n';
           }
@@ -150,12 +150,6 @@ function listEvents(auth, cb) {
             }
             cData += '\n';
           }
-          
-          // if (event.reminders.overrides) {
-          //   for (var j = 0; j < event.reminders.overrides.length; j++) {
-          //     console.log('        %d minute warning for above', event.reminders.overrides[j].minutes);
-          //   }
-          // }
         }
       }
       cb(cData + '```');
@@ -172,7 +166,6 @@ function listCalendars(auth, cb) {
       console.log('The API returned an error: ' + err);
       return;
     }
-    // console.log(response);
     var events = response.items;
     if (events.length === 0) {
       console.log('No calendars were found.');
@@ -189,6 +182,12 @@ function listCalendars(auth, cb) {
       cb(cData);
     }
   });
+}
+
+function dmzTime(dmzString, noLeadSpace) {
+  var hour = Number(dmzString.slice(0, 2));
+  hour -= hour > 12 ? 12 : 0;
+  return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3);
 }
 
 module.exports = {
