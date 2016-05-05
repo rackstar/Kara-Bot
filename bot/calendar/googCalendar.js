@@ -28,7 +28,7 @@ function authCallFunction(cb, reqType) {
       authorize(JSON.parse(content), listCalendars, cb);
     }
     if (reqType === 'days events') {
-      authorize(JSON.parse(content), listEvents, cb);  
+      authorize(JSON.parse(content), listEvents, cb);
     }
   });
 }
@@ -160,7 +160,7 @@ function listEvents(auth, cb) {
 function listCalendars(auth, cb) {
   var calendar = google.calendar('v3');
   calendar.calendarList.list({
-    auth: auth,
+    auth: auth
   }, function (err, response) {
     if (err) {
       console.log('The API returned an error: ' + err);
@@ -191,5 +191,5 @@ function dmzTime(dmzString, noLeadSpace) {
 }
 
 module.exports = {
-  authCallFunction: authCallFunction,
+  authCallFunction: authCallFunction
 };
