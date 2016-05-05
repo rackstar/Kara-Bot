@@ -15,10 +15,11 @@ function errorHandler(error, req, res, next) {
 
 // frontend routes =========================================================
 module.exports = function (app) {
-  // Github WebHook
+  // Github
   app.post('/github', github.webHookReceiver);
   app.post('/repo', github.getRepo);
-  app.post('/watch', github.createHook);
+  app.post('/watch', github.watchRepo);
+  app.post('/unwatch', github.unwatchRepo);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);

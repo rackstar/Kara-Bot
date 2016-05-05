@@ -37,7 +37,7 @@ function repoInfo(repos) {
 function repoList(repoInfo, argument) {
   var slackMessage = {
     response_type: 'ephemeral',
-    text: argument + ' most recent repositories:',
+    text: 'Here are your ' + argument + ' most recent repositories:',
     attachments: [{
       text: repoInfo,
       color: 'good',
@@ -47,12 +47,12 @@ function repoList(repoInfo, argument) {
 
   // if argument is not number show all repo
   if (typeof argument === 'string') {
-    slackMessage.text = 'All your current repositories:';
-  }
+    slackMessage.text = 'Here are all your current repositories:';
 
-  if (argument === 'help' || argument === 'Help') {
-    slackMessage.text = 'How to use /repo';
-    slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo [number]` will show you `[number]` of your most recent repositories';
+    if (argument.toLowerCase() === 'help') {
+      slackMessage.text = 'How to use /repo';
+      slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo [number]` will show you `[number]` of your most recent repositories';
+    }
   }
 
   return slackMessage;
@@ -61,11 +61,18 @@ function repoList(repoInfo, argument) {
 // Repo
 exports.getRepo = function getRepo(req, res) {
   var list;
+  // regex validation empty string, integer or help
+  // TO DO - case insensitive help
+  var reg = /^(\s*|\d+|help|Help)$/;
+
   // TO DO - verify token
   var slashToken = req.body.token;
 
   var slashUrl = req.body.response_url;
   var argument = req.body.text;
+
+  // respond immediately to avoid timeout error
+  res.json({response_type: 'ephemeral', text: 'BeepBop.. Fetching repos.'});
 
   github.repos.getAll(
     {
@@ -73,7 +80,7 @@ exports.getRepo = function getRepo(req, res) {
       sort: 'updated'
     },
     function responseRepo(err, repos) {
-      if (err) console.log(err);
+      if (err) res.json(err);
 
       if (Number(argument)) {
         // round the number if not an integer
@@ -82,14 +89,11 @@ exports.getRepo = function getRepo(req, res) {
         repos = repos.slice(0, argument);
       }
 
-      // regex validation empty string, integer or help
-      var reg = /^(\s*|\d+|help|Help)$/
-
       if (reg.test(argument)) {
         list = repoList(repoInfo(repos), argument);
         helper.sendHook(slashUrl, list);
       } else {
-        res.json({error: 'wrong use of command, please check /repo help'});
+        res.json('invalid command, please check /repo help');
       }
     }
   );
@@ -97,14 +101,44 @@ exports.getRepo = function getRepo(req, res) {
 
 // WebHook
 // TO DO - user can select events to subscribe to
-// TO DO - /watch help
-// TO DO - /watch list
-// TO DO - /watch - no arguments / invalid arguments
-exports.createHook = function createHook(req, res) {
+exports.watchRepo = function watchRepo(req, res) {
+  var argument = req.body.text;
   var slashUrl = req.body.response_url;
-  var argument = req.body.text.split('/');
-  var user = argument[0];
-  var repo = argument[1];
+  var userRepo = argument.split('/');
+  var user = userRepo[0];
+  var repo = userRepo[1];
+
+  var regWhiteSpace = /^\s*$/;
+
+  // respond immediately to avoid timeout error
+  res.json({response_type: 'ephemeral', text: 'BeepBop.. Targeting repo.'});
+
+  // /watch or /watch list
+  if (regWhiteSpace.test(argument) || argument === 'list') {
+    // get list of watched repo
+    // needs to store in database or in file a list of watched repo
+    return;
+  }
+
+  // /watch help
+  if (argument.toLowerCase() === 'help') {
+    var slackMessage = {
+      text: 'How to use /watch',
+      attachments: [{
+        text: '`/watch` will show you all current watched repositories.\n`/watch [user/repo]` will subscribe you to the repository\'s events',
+        color: 'good',
+        mrkdwn_in: ['text']
+      }]
+    };
+    helper.sendHook(slashUrl, slackMessage);
+    return;
+  }
+
+  // validation for repo
+  if (repo === undefined || repo === '' || repo === ' ') {
+    helper.sendHook(slashUrl, {text: 'empty value for repo, please read /watch help'});
+    return;
+  }
 
   var hookData = {
     name: 'web',
@@ -130,28 +164,100 @@ exports.createHook = function createHook(req, res) {
     }
   };
 
+
   github.repos.createHook(hookData, function resHook(err, data) {
     if (err) {
-      console.log(err);
+      err = JSON.parse(err);
+      var errorMsg = user + '/' + repo + ' ' + err.message;
+
+      // send error logs instead if available
+      if (err.errors !== undefined) {
+          errorMsg = 'I am already watching ' +  argument;
+        // TO DO enable error logging for other types of errors
+        // errorMsg = err.errors[0].message;
+      }
+
+      helper.sendHook(slashUrl, {text: errorMsg});
     } else {
-      console.log(data, 'WebHook Created');
-      // TO DO - if hook already exists inform user
-      var text = {
-        text: 'I am now watching ' + req.body.text + ' very closely'
-      };
-      helper.sendHook(slashUrl, text);
+      if (data.active) {
+        var text = {
+          text: 'I am now watching ' + req.body.text + '\'s every move'
+        };
+        helper.sendHook(slashUrl, text);
+      }
     }
   });
 };
 
-// TO DO - unwatch repository - hook destroy
+// call back function that finds id of hook and deletes it, utilised by unwatchRepo
+function findHookId(err, hooks, callback) {
+  hooks.forEach(function hookId(hook) {
+    // find the relevant hook
+    if (hook.config.url === process.env.serverUrl) {
+      // pass in id to callback
+      callback(hook.id);
+    }
+  });
+}
+
+// TO DO - validation
+exports.unwatchRepo = function unwatchRepo(req, res) {
+  var argument = req.body.text;
+  var slashUrl = req.body.response_url;
+  var userRepo = argument.split('/');
+  var user = userRepo[0];
+  var repo = userRepo[1];
+
+  // respond immediately to avoid timeout error
+  res.json({text: 'Hmmm..'});
+
+  // unwatch help
+  if (argument.toLowerCase() === 'help') {
+    var slackMessage = {
+      text: 'How to use /unwatch',
+      attachments: [{
+        text: '`/unwatch [user/repo]` will unsubscribe from the repository\'s events',
+        color: 'good',
+        mrkdwn_in: ['text']
+      }]
+    };
+    helper.sendHook(slashUrl, slackMessage);
+    return;
+  }
+
+  // get list of hooks
+  github.repos.getHooks(
+    {
+      user: user,
+      repo: repo
+    },
+    // find the id of hook associated to the app
+    function getHookCb(err, hooks) {
+      findHookId(err, hooks, function deleteHook(id) {
+        // delete hook
+        github.repos.deleteHook(
+          {
+            user: user,
+            repo: repo,
+            id: id
+          },
+          function deleteHookCb(err, response) {
+            if (response.meta.status === '204 No Content') {
+              helper.sendHook(slashUrl, {text: 'Ok! I\'ll stop notifying you of ' + argument + '\'s events'});
+            }
+          }
+        );
+      });
+    }
+  );
+};
 
 // function to format new PR message to Slack, utilised by webHookReceiver
 function prMessage(data) {
   var pr = data.pull_request;
   var action = data.action;
+  var attachments = [];
   var slackMessage;
-  var attachments;
   var text;
 
   // Repo and PR title
@@ -161,6 +267,16 @@ function prMessage(data) {
   // Linked Title and User
   var titleLinked = helper.hyperLink(prTitle, pr.html_url);
   var userLink = helper.hyperLink(pr.user.login, pr.user.html_url);
+
+  // PR updated
+  if (action === 'synchronize') {
+    text = repo + 'Pull request updated: ' + titleLinked + ' by ' + userLink;
+  }
+
+  // PR closed
+  if (action === 'closed') {
+    text = repo + 'Pull request ' + action + ': ' + titleLinked + ' by ' + userLink;
+  }
 
   // PR submitted
   if (action === 'opened') {
@@ -174,14 +290,9 @@ function prMessage(data) {
     }];
   }
 
-  // PR closed
-  if (action === 'closed') {
-    text = repo + 'Pull request ' + action + ': ' + titleLinked + ' by ' + userLink;
-  }
-
   slackMessage = {
     text: text,
-    attachments: attachments || []
+    attachments: attachments
   };
 
   return slackMessage;
@@ -261,7 +372,7 @@ function prSendSlackMsg(pr) {
 
   // Message
   var PRMsg = {
-    text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' must be synchronized'
+    text: repo + ' Pull request ' + PRLinked + ' by ' + userLink + ' needs to be updated'
   };
 
   helper.sendHook(process.env.hookUrl, PRMsg);
@@ -294,14 +405,14 @@ exports.webHookReceiver = function webHook(req, res) {
   if (event === 'pull_request') {
     // TO DO - include syncronized PR on slack notification or not?
     helper.sendHook(process.env.hookUrl, prMessage(req.body));
-    res.sendStatus(200);
   }
 
   // Push / Merge
   if (event === 'push') {
     helper.sendHook(process.env.hookUrl, mergeMessage(req.body));
-    res.sendStatus(200);
     // check for any remaining PR
     checkPRqueue(user, repo);
   }
+
+  res.sendStatus(200);
 };
