@@ -105,7 +105,6 @@ exports.createHook = function createHook(req, res) {
   var argument = req.body.text.split('/');
   var user = argument[0];
   var repo = argument[1];
-  var url = slackHookUrl;
 
   var hookData = {
     name: 'web',
