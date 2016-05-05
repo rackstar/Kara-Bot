@@ -12,7 +12,7 @@ var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 // var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 // Load client secrets from a local file.
-var secretsPath = __dirname + '/../config/';
+var secretsPath = __dirname + '/../../config/';
 var TOKEN_DIR = secretsPath;
 var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 

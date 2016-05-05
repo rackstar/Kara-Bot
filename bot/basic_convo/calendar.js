@@ -1,4 +1,4 @@
-var googCal = require('../../calendar/googCalendar.js');
+var googCal = require('../calendar/googCalendar.js');
 
 function clist(bot, message) {
   bot.reply(message, '_I\'m searching..._');
