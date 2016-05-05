@@ -28,7 +28,7 @@ function authCallFunction(cb, reqType) {
       authorize(JSON.parse(content), listCalendars, cb);
     }
     if (reqType === 'days events') {
-      authorize(JSON.parse(content), listEvents);  
+      authorize(JSON.parse(content), listEvents, cb);  
     }
   });
 }
@@ -111,7 +111,7 @@ function storeToken(token) {
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth) {
+function listEvents(auth, cb) {
   var calendar = google.calendar('v3');
   calendar.events.list({
     auth: auth,
@@ -127,20 +127,38 @@ function listEvents(auth) {
       return;
     }
     var events = response.items;
+    console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
     } else {
+      var todayDate = ((new Date()).toISOString()).slice(0, 10)
       console.log('Upcoming 10 events:');
+      var cData = '```';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
-        console.log('%s - %s', start, event.summary);
-        if (event.reminders.overrides) {
-          for (var j = 0; j < event.reminders.overrides.length; j++) {
-            console.log('        %d minute warning for above', event.reminders.overrides[j].minutes);
+        if (start.slice(0, 10) === todayDate) {
+          if (start.length > 10) {
+            cData += start.slice(11, 16) + ' to ' + event.end.dateTime.slice(11, 16) + '\n';
+          } else {
+            cData += '* All Day Event *\n';
           }
+          if (event.summary) {
+            cData += '  ' + event.summary;
+            if (event.location) {
+              cData += ' --> ' + event.location;
+            }
+            cData += '\n';
+          }
+          
+          // if (event.reminders.overrides) {
+          //   for (var j = 0; j < event.reminders.overrides.length; j++) {
+          //     console.log('        %d minute warning for above', event.reminders.overrides[j].minutes);
+          //   }
+          // }
         }
       }
+      cb(cData + '```');
     }
   });
 }
