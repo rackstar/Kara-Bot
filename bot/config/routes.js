@@ -1,5 +1,6 @@
 var kara = require('../karabot');
 var github = require('../github/github');
+var jiraController = require('../../server/jira/jiraController');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -23,4 +24,10 @@ module.exports = function (app) {
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);
+
+  //recieve incoming POST requests from JIRA webhooks
+  app.post('/', jiraController.handleJiraWebhooksIssues);
+
+  //get highest priority JIRA issues on request
+  app.get('/getHighestPriorityIssues', jiraController.getHighestPriorityIssues);
 };

@@ -3,6 +3,8 @@ var app = express();
 var bodyParser = require('body-parser');
 var http = require('http').Server(app);
 var dotenv = require('dotenv');
+var JiraClient = require('jira-connector');
+var jiraController = require('./server/jira/jiraController')
 
 // configuration ===========================================
 
@@ -32,22 +34,3 @@ http.listen(app.get('port'), function () {
   console.log('listening on port ' + app.get('port'));
 });
 
-=======
-var express = require('botkit/node_modules/express');
-var JiraClient = require('jira-connector');
-var jiraController = require('./server/jira/jiraController')
-var app = express();
-
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
-
-app.get('/getIssueTest', jiraController.getJiraIssue)
-app.get('/getDashboards', jiraController.getAllDashboards)
-app.get('/getProjects', jiraController.getAllProjects)
-app.get('/getComponents', jiraController.getProjectComponents)
-app.get('/getHighestPriorityIssues', jiraController.getHighestPriorityIssues)
-
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});

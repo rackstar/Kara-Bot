@@ -20,7 +20,6 @@ if (!process.env.token) {
   process.exit(1);
 }
 
-
 // Listening routes
 controller.hears(['hello'], 'direct_message,direct_mention,mention', chat.greet);
 controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention',
