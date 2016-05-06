@@ -24,6 +24,7 @@ function authCallFunction(cb, reqType) {
   //     return;
   //   }
   if (!process.env.googleCalAPIKey) {
+    cb(':anguished: Darn! The API key is `undefined`');
     console.log('Error loading client secret file: process.env.googleCalAPIKey is undefined');
     return;
   }
@@ -65,7 +66,9 @@ function authorize(credentials, callback, cb) {
 
   // Refactor this to actually retrieve new key as above
   if (!process.env.googleCalToken) {
+    cb(':anguished: Darn! The auth token is `undefined`');
     console.log('Error loading OAuth2 token: process.env.googleCalToken is undefined');
+    return;
   }
   oauth2Client.credentials = JSON.parse(process.env.googleCalToken);
   callback(oauth2Client, cb);
@@ -127,6 +130,7 @@ function storeToken(token) {
  */
 function listEvents(auth, cb) {
   var calendar = google.calendar('v3');
+  var cData = ''; // Our return data, declare here for use in later branches
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
@@ -138,6 +142,8 @@ function listEvents(auth, cb) {
   }, function (err, response) {
     if (err) {
       console.log('The API returned an error: ' + err);
+      cData = ':anguished: Darn! The API returned an error with that option';
+      cb(cData);
       return;
     }
     var events = response.items;
@@ -147,7 +153,7 @@ function listEvents(auth, cb) {
     } else {
       var todayDate = ((new Date()).toISOString()).slice(0, 10)
       console.log('Upcoming 10 events:');
-      var cData = '*' + events[0].organizer.displayName + '*```';
+      cData = '*' + events[0].organizer.displayName + '*```';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
@@ -173,10 +179,13 @@ function listEvents(auth, cb) {
 
 function listCalendars(auth, cb) {
   var calendar = google.calendar('v3');
+  var cData = ''; // Our return data, declare here for use in later branches
   calendar.calendarList.list({
     auth: auth
   }, function (err, response) {
     if (err) {
+      cData = ':anguished: Darn! The API returned an error with that option';
+      cb(cData);
       console.log('The API returned an error: ' + err);
       return;
     }
@@ -184,7 +193,7 @@ function listCalendars(auth, cb) {
     if (events.length === 0) {
       console.log('No calendars were found.');
     } else {
-      var cData = '*' + events.length + ' calendars found*\n```';
+      cData = '*' + events.length + ' calendars found*\n```';
       for (var i = 0; i < events.length; i++) {
         cData += '     id:' + events[i].id + '\n';
         cData += 'summary:' + events[i].summary;
