@@ -89,7 +89,7 @@ exports.getRepo = function getRepo(bot, message) {
   );
 }
 
-exports.slashCommRepo = function slashCommRepo(req, res) {
+exports.slashRepo = function slashRepo(req, res) {
   var list;
   // regex validation empty string, integer or help
   // TO DO - case insensitive help
@@ -134,7 +134,7 @@ exports.slashCommRepo = function slashCommRepo(req, res) {
 
 // WebHook
 // TO DO - user can select events to subscribe to
-exports.watchRepo = function watchRepo(req, res) {
+exports.slashWatch = function slashWatch(req, res) {
   var argument = req.body.text;
   var slashUrl = req.body.response_url;
   var userRepo = argument.split('/');
@@ -240,7 +240,7 @@ function findHookId(err, hooks, callback) {
 }
 
 // TO DO - validation
-exports.unwatchRepo = function unwatchRepo(req, res) {
+exports.slashUnwatch = function slashUnwatch(req, res) {
   var argument = req.body.text;
   var slashUrl = req.body.response_url;
   var userRepo = argument.split('/');

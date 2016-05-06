@@ -18,9 +18,9 @@ function errorHandler(error, req, res, next) {
 module.exports = function (app) {
   // Github
   app.post('/github', github.webHookReceiver);
-  app.post('/repo', github.getRepo);
-  app.post('/watch', github.watchRepo);
-  app.post('/unwatch', github.unwatchRepo);
+  app.post('/repo', github.slashRepo);
+  app.post('/watch', github.slashWatch);
+  app.post('/unwatch', github.slashUnwatch);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);
