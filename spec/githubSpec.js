@@ -82,10 +82,16 @@ beforeEach(function githubSetup() {
 
 //Repositories
 // lists repo
-describe('Slash command "show repos"'), function() {
+describe('show repos'), function() {
   describe('"/repo [number]"', function () {
     this.timeout(3000);
     it('should list all repositories for "show repos"', function (done) {
+      var messages = channelHistory(1, 3000);
+
+      expect(text).to.equal(output);
+      done();
+    });
+    it('should list all repositories for "repos"', function (done) {
       var messages = channelHistory(1, 3000);
 
       expect(text).to.equal(output);
@@ -107,8 +113,7 @@ describe('Slash command "show repos"'), function() {
   });
 
   describe('"help repos"', function () {
-    this.timeout(3000);
-    it('should show repos help instructions on "help repos"', function (done) {
+    it('should show repos instructions on "help repos"', function (done) {
       responseTest('hello', 'Hello.', done);
     });
     // describe('case insensitive', function () {
@@ -138,30 +143,72 @@ describe('Slash command "show repos"'), function() {
 }
 
 // watch repo
-beforeEach(function() {
-  // delete any webhook that is already there
-}
-// /watch help
-// /watch invalid command
-//
+describe('watch repo', function() {
+  beforeEach(function() {
+    // delete any webhook that is already there
+  });
+  describe('response', function () {
+    it('should reply with appropriate responses if successful', function (done) {
+      'BeepBop.. Targeting repo.'
+      'I am now watching ' + req.body.text + '\'s every move'
+      responseTest('hello', 'Hello.', done);
+    });  
+  });
+  describe('Repo Events', function () {
+    it('should notify of new pull requests submission', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should notify of pull request closure', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should notify of merged pull request and its commits', function (done) {
+      // same as above but testing for the second message
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should detect other pull requests in the queue and send notification to update them', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should notify when pull requests in queue are updated', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+  });
+  describe('watch commands', function () {
+    it('should show watch instructions on "help watch"', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should show watch instructions when no argument is given to watch command - "@karabot watch"', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+    it('should respond with invalid command message when argument when pull request in queue are updated', function (done) {
+      responseTest('hello', 'Hello.', done);
+    });
+  });
+})
+
 // unwatches repo
-describe('Responds to strings it knows', function () {
-  this.timeout(3000);
-  it('replies to "hello" with "Hello"', function (done) {
+describe('unwatch', function () {
+  beforeEach(function () {
+    // delete any webhooks present
+    // add webhook
+    // verify webhook is working
+  });
+
+  it('should stop sending notification on unwatch', function (done) {
+    // unwatch command
+    // send PR
+    // verify that it there is no notification
+    responseTest('hello', 'Hello.', done);
+  });
+  it('should show watch instructions on "help watch"', function (done) {
+    responseTest('hello', 'Hello.', done);
+  });
+  it('should show watch instructions when no argument is given to watch command - "@karabot watch"', function (done) {
+    responseTest('hello', 'Hello.', done);
+  });
+  it('should respond with invalid command message when argument when pull request in queue are updated', function (done) {
     responseTest('hello', 'Hello.', done);
   });
 }
-// /unwatch help
-// /unwatch invalid command
-//
-// PR
-describe('Responds to strings it knows', function () {
-  this.timeout(3000);
-  it('replies to "hello" with "Hello"', function (done) {
-    responseTest('hello', 'Hello.', done);
-  });
-}
-// notify of new PR
-// notify of PR close / merge
-// notify of PR in queue
-// notify of PR update/synchronize
+
+// DO everything again but in direct message
+
