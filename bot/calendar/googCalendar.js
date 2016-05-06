@@ -12,25 +12,31 @@ var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 // var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 // Load client secrets from a local file.
-var secretsPath = __dirname + '/../../config/';
-var TOKEN_DIR = secretsPath;
-var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
+// var secretsPath = __dirname + '/../../config/';
+// var TOKEN_DIR = secretsPath;
+// var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
 function authCallFunction(cb, reqType) {
-  fs.readFile(secretsPath + 'client_secret.json', function processClientSecrets(err, content) {
-    if (err) {
-      console.log('Error loading client secret file: ' + err);
-      return;
-    }
-    // Authorize a client with the loaded credentials, then call the
-    // Google Calendar API, pass callback to execute on data provided
-    if (reqType === 'calendar list') {
-      authorize(JSON.parse(content), listCalendars, cb);
-    }
-    if (reqType === 'days events') {
-      authorize(JSON.parse(content), listEvents, cb);
-    }
-  });
+  // Refactor to .ENV pass-in of Calendar API key, instead of loading from disk:
+  // fs.readFile(secretsPath + 'client_secret.json', function processClientSecrets(err, content) {
+  //   if (err) {
+  //     console.log('Error loading client secret file: ' + err);
+  //     return;
+  //   }
+  if (!process.env.googleCalAPIKey) {
+    console.log('Error loading client secret file: process.env.googleCalAPIKey is undefined');
+    return;
+  }
+  var content = process.env.googleCalAPIKey;
+  // Authorize a client with the loaded credentials, then call the
+  // Google Calendar API, pass callback to execute on data provided
+  if (reqType === 'calendar list') {
+    authorize(JSON.parse(content), listCalendars, cb);
+  }
+  if (reqType === 'days events') {
+    authorize(JSON.parse(content), listEvents, cb);
+  }
+  // });
 }
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -46,15 +52,23 @@ function authorize(credentials, callback, cb) {
   var auth = new googleAuth();
   var oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
+  // Refactor to .ENV pass-in of OAuth2 key, instead of loading from disk:
   // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function (err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, cb);
-    }
-  });
+  // fs.readFile(TOKEN_PATH, function (err, token) {
+    // if (err) {
+      // getNewToken(oauth2Client, callback);
+    // } else {
+      // oauth2Client.credentials = JSON.parse(token);
+      // callback(oauth2Client, cb);
+    // }
+  // });
+
+  // Refactor this to actually retrieve new key as above
+  if (!process.env.googleCalToken) {
+    console.log('Error loading OAuth2 token: process.env.googleCalToken is undefined');
+  }
+  oauth2Client.credentials = JSON.parse(process.env.googleCalToken);
+  callback(oauth2Client, cb);
 }
 
 /**
