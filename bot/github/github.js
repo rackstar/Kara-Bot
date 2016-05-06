@@ -29,14 +29,12 @@ function repoInfo(repos) {
     var repoLinked = helper.hyperLink(repo.full_name, repo.html_url);
     info.push(repoLinked + '\n');
   });
-
   return info.join('');
 }
 
 // formats repo message, utilised by getRepo
 function repoList(repoInfo, argument) {
   var slackMessage = {
-    response_type: 'ephemeral',
     text: 'Here are your ' + argument + ' most recent repositories:',
     attachments: [{
       text: repoInfo,
@@ -45,22 +43,53 @@ function repoList(repoInfo, argument) {
     }]
   };
 
-  if (argument === )
-  // if argument is not number show all repo
-  if (typeof argument === 'string') {
+  // if argument no argument show all repos
+  if (!argument) {
     slackMessage.text = 'Here are all your current repositories:';
-
-    if (argument.toLowerCase() === 'help') {
-      slackMessage.text = 'How to use /repo';
-      slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo <number>` will show you `<number>` of your most recent repositories';
-    }
   }
 
+  if (argument === 1) {
+    slackMessage.text = 'Here is your most recent repository:';
+  }
+  // HELP
+    // if (argument.toLowerCase() === 'help') {
+    //   slackMessage.text = 'How to use show repo';
+    //   // TO DO - change to show repos
+    //   slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo <number>` will show you `<number>` of your most recent repositories';
+    // }
   return slackMessage;
 }
 
 // Repo
-exports.getRepo = function getRepo(req, res) {
+exports.getRepo = function getRepo(bot, message) {
+  var numberOfRepos = message.match[1];
+  var list;
+
+  bot.reply(message, 'BeepBop.. Fetching repos.');
+
+  github.repos.getAll(
+    {
+      type: 'all',
+      sort: 'updated'
+    },
+    function responseRepo(err, repos) {
+      if (err) {
+        console.log(err);
+        bot.reply(message, 'I\'m sorry I cannot process your request right now');
+      }
+      // process only the number of repos required
+      if (numberOfRepos) {
+        numberOfRepos = Math.round(Number(numberOfRepos));
+        repos = repos.slice(0, numberOfRepos);
+      }
+
+      list = repoList(repoInfo(repos), numberOfRepos);
+      bot.reply(message, list);
+    }
+  );
+}
+
+exports.slashCommRepo = function slashCommRepo(req, res) {
   var list;
   // regex validation empty string, integer or help
   // TO DO - case insensitive help
