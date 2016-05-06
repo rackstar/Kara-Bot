@@ -3,17 +3,21 @@ var chat = require('./basic_convo/chat.js');
 var egg = require('./basic_convo/egg.js');
 var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
+var github = require('./github/github.js');
+
+var directMessage = 'direct_message,direct_mention,mention';
 
 var controller = Botkit.slackbot({
   debug: true
 });
+
 
 exports.controller = controller;
 
 require('dotenv').config();
 
 controller.spawn({
-  token: process.env.token
+    token: process.env.token
 }).startRTM();
 
 if (!process.env.token) {
@@ -22,24 +26,20 @@ if (!process.env.token) {
 }
 
 // Listening routes
-controller.hears(['hello'], 'direct_message,direct_mention,mention', chat.greet);
-controller.hears(['call me (.*)', 'my name is (.*)'], 'direct_message,direct_mention,mention',
-  chat.myname);
-controller.hears(['what is my name', 'who am i'], 'direct_message,direct_mention,mention',
-  chat.sayname);
-controller.hears(['shutdown'], 'direct_message,direct_mention,mention', chat.shutdown);
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'],
-    'direct_message,direct_mention,mention', chat.uptime);
-controller.hears(['life, the universe and everything', 'life the universe and everything'],
-  'direct_message,direct_mention,mention', egg.hitch);
-controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention',
-  egg.konami);
-controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', egg.hitch);
-controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', egg.konami);
+controller.hears(['hello'], directMessage, chat.greet);
+controller.hears(['call me (.*)', 'my name is (.*)'], directMessage, chat.myname);
+controller.hears(['what is my name', 'who am i'], directMessage, chat.sayname);
+controller.hears(['shutdown'], directMessage, chat.shutdown);
+controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], directMessage, chat.uptime);
+controller.hears(['life, the universe and everything', 'life the universe and everything'], directMessage, egg.hitch);
+controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
-//Get highest priority issues
+// Get highest priority issues
+controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
 
-controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);
-controller.hears(['clist'], 'direct_message,direct_mention,mention', calendar.clist);
-controller.hears(['ctoday'], 'direct_message,direct_mention,mention', calendar.ctoday);
+// Google Calendar
+controller.hears(['clist'], directMessage, calendar.clist);
+controller.hears(['ctoday'], directMessage, calendar.ctoday);
 controller.hears(['ctomo*', 'ctomm*'], 'direct_message,direct_mention,mention', calendar.ctomo);
+// Github
+controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)', 'show repos', 'repos', 'repo', 'show repo'], directMessage, github.getRepo);
