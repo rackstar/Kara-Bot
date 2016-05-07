@@ -15,11 +15,13 @@ var github = new GitHubApi({
 require('dotenv').config();
 
 // Authentication
-github.authenticate({
-  type: 'basic',
-  username: process.env.username,
-  password: process.env.password
-});
+exports.auth = function githubAuth() {
+  github.authenticate({
+    type: 'basic',
+    username: process.env.username,
+    password: process.env.password
+  });
+};
 
 // formats each repo info, utilised by getRepo
 function repoInfo(repos) {
@@ -89,75 +91,20 @@ exports.getRepo = function getRepo(bot, message) {
   );
 }
 
-exports.slashRepo = function slashRepo(req, res) {
-  var list;
-  // regex validation empty string, integer or help
-  // TO DO - case insensitive help
-  var reg = /^(\s*|\d+|help|Help)$/;
 
-  // TO DO - verify token
-  var slashToken = req.body.token;
-
-  var slashUrl = req.body.response_url;
-  var argument = req.body.text;
-
-  // send an initial response to avoid timeout error
-  res.json({
-    response_type: 'ephemeral',
-    text: 'BeepBop.. Fetching repos.'
-  });
-
-  github.repos.getAll(
-    {
-      type: 'all',
-      sort: 'updated'
-    },
-    function responseRepo(err, repos) {
-      if (err) res.json(err);
-
-      if (Number(argument)) {
-        // round the number if not an integer
-        argument = Math.round(argument);
-        // only show the number of requested repos
-        repos = repos.slice(0, argument);
-      }
-
-      if (reg.test(argument)) {
-        list = repoList(repoInfo(repos), argument);
-        helper.sendHook(slashUrl, list);
-      } else {
-        res.json('invalid command, please check /repo help');
-      }
-    }
-  );
-};
 
 // WebHook
-// TO DO - user can select events to subscribe to
-exports.slashWatch = function slashWatch(req, res) {
-  var argument = req.body.text;
-  var slashUrl = req.body.response_url;
-  var userRepo = argument.split('/');
+
+exports.watchRepo = function watchRepo(bot, message) {
+  var userRepo = message.match[1].split('/');
   var user = userRepo[0];
   var repo = userRepo[1];
-
-  var regWhiteSpace = /^\s*$/;
-
-  // send an initial response to avoid timeout error
-  res.json({
-    response_type: 'ephemeral',
-    text: 'BeepBop.. Targeting repo.'
-  });
-
-  // /watch or /watch list
-  if (regWhiteSpace.test(argument) || argument === 'list') {
-    // get list of watched repo
-    // needs to store in database or in file a list of watched repo
-  }
+  console.log(userRepo, user, repo, 'USER REPO');
+  bot.reply(message, 'BeepBop.. Targeting repo.');
 
   // /watch help
-  if (argument.toLowerCase() === 'help') {
-    var slackMessage = {
+  if (repo.toLowerCase() === 'help') {
+    var helpMessage = {
       text: 'How to use /watch',
       attachments: [{
         text: '`/watch` will show you all current watched repositories.\n`/watch <user>/<repo>` will subscribe you to the repository\'s events',
@@ -165,15 +112,14 @@ exports.slashWatch = function slashWatch(req, res) {
         mrkdwn_in: ['text']
       }]
     };
-    helper.sendHook(slashUrl, slackMessage);
+    bot.reply(message, helpMessage);
     return;
   }
 
   // validation for repo
+  // TO DO - whitespace validation for repo
   if (repo === undefined || repo === '' || repo === ' ') {
-    helper.sendHook(slashUrl, {
-      text: 'empty value for repo, please read /watch help'
-    });
+    bot.reply(message, 'empty value for repo, please read /watch help');
     return;
   }
 
@@ -211,22 +157,25 @@ exports.slashWatch = function slashWatch(req, res) {
 
       // send error logs instead if available
       if (err.errors !== undefined) {
-        errorMsg.text = 'I am already watching ' + argument;
+        errorMsg.text = 'I am already watching ' + user + '/' + repo;
+        bot.reply(message, errorMsg);
         // TO DO enable error logging for other types of errors
         // errorMsg = err.errors[0].message;
       }
 
-      helper.sendHook(slashUrl, errorMsg);
     } else {
       if (data.active) {
         var text = {
-          text: 'I am now watching ' + req.body.text + '\'s every move'
+          text: 'I am now watching ' + user + '/' + repo + '\'s every move'
         };
-        helper.sendHook(slashUrl, text);
+        bot.reply(message, text);
       }
     }
   });
 };
+
+// TO DO - user can select events to subscribe to
+
 
 // call back function that finds id of hook and deletes it, utilised by unwatchRepo
 function findHookId(err, hooks, callback) {
@@ -239,8 +188,8 @@ function findHookId(err, hooks, callback) {
   });
 }
 
-// TO DO - validation
-exports.slashUnwatch = function slashUnwatch(req, res) {
+// TO DO - finish refactor of unwatch
+exports.unwatch = function unwatch(req, res) {
   var argument = req.body.text;
   var slashUrl = req.body.response_url;
   var userRepo = argument.split('/');
@@ -294,6 +243,8 @@ exports.slashUnwatch = function slashUnwatch(req, res) {
     }
   );
 };
+
+
 
 // function to format new PR message to Slack, utilised by webHookReceiver
 function prMessage(data) {
