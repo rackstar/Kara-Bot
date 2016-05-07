@@ -16,7 +16,7 @@ function ctoday(bot, message) {
 
 function ctomo(bot, message) {
   bot.reply(message, '_I\'m searching..._');
-  var tomorrow = (new Date);
+  var tomorrow = new Date;
   // This is 12:00:00am next day in THIS time zone
   tomorrow.setHours(24,0,0,0);
   googCal.authCallFunction(function (data) {

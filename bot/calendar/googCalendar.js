@@ -132,11 +132,14 @@ function storeToken(token) {
 function listEvents(auth, cb, param1, param2) {
   var calendar = google.calendar('v3');
   var cData = ''; // Our return data, declare here for use in later branches
+  var maxDate = new Date(param1);
+  maxDate.setHours(24,0,0,0); // setHours returns numeric value, must do 2 step process
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
     calendarId: '62ao9jj5es0se62blotv8p5up0@group.calendar.google.com',
-    timeMin: param1.toISOString(), // timeMin takes into account the time zone difference!!
+    timeMin: param1.toISOString(), // Google takes into account the time zone difference!!
+    timeMax: maxDate.toISOString(),
     maxResults: 20,
     singleEvents: true,
     orderBy: 'startTime'
@@ -151,20 +154,28 @@ function listEvents(auth, cb, param1, param2) {
     console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
+      cData = '*' + 'KaraBot Sub Calendar' + '*```' + param1.toString().slice(0,10) + '\n';
+      cData += ' no events found```';
+      cb(cData);
     } else {
       // Fun with JavaScript dates, ISO will roll date forward by time zone offset, so roll hours back
-      // by number of hours of time zone offset, then create ISO string
+      // by number of hours of time zone offset first, then create ISO string
       var ISODate = new Date(param1);
-      ISODate.setHours(ISODate.getHours() - (ISODate.getTimezoneOffset() / 60))
+      ISODate.setHours(ISODate.getHours() - (ISODate.getTimezoneOffset() / 60)) // setHours returns numeric value!
       ISODate = ISODate.toISOString().slice(0, 10)
       console.log('Upcoming 20 events:');  
       cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0,10) + '\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
-        if (start.slice(0, 10) === ISODate) {
-          if (start.length > 10) {
-            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true) + '\n';
+        var end = event.end.dateTime || event.end.date;
+        if (start.slice(0, 10) === ISODate || end.slice(0, 10) === ISODate) {
+          if (start.length > 10 || end.length > 10) {
+            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
+            if (start.slice(0, 10) !== ISODate) {
+              cData += ' (starts day before)';
+            }
+            cData += '\n';
           } else {
             cData += '* All Day Event *\n';
           }
@@ -214,8 +225,12 @@ function listCalendars(auth, cb) {
 
 function dmzTime(dmzString, noLeadSpace) {
   var hour = Number(dmzString.slice(0, 2));
-  hour -= hour > 12 ? 12 : 0;
-  return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3);
+  var ap = 'a';
+  if (hour > 12) {
+    hour -= 12;
+    ap = 'p';
+  }
+  return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3) + ap;
 }
 
 module.exports = {
