@@ -16,7 +16,7 @@ var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 // var TOKEN_DIR = secretsPath;
 // var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
-function authCallFunction(cb, reqType) {
+function authCallFunction(cb, reqType, addParam1, addParam2) {
   // Refactor to .ENV pass-in of Calendar API key, instead of loading from disk:
   // fs.readFile(secretsPath + 'client_secret.json', function processClientSecrets(err, content) {
   //   if (err) {
@@ -35,7 +35,7 @@ function authCallFunction(cb, reqType) {
     authorize(JSON.parse(content), listCalendars, cb);
   }
   if (reqType === 'days events') {
-    authorize(JSON.parse(content), listEvents, cb);
+    authorize(JSON.parse(content), listEvents, cb, addParam1, addParam2);
   }
   // });
 }
@@ -46,7 +46,7 @@ function authCallFunction(cb, reqType) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback, cb) {
+function authorize(credentials, callback, cb, addParam1, addParam2) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -71,7 +71,7 @@ function authorize(credentials, callback, cb) {
     return;
   }
   oauth2Client.credentials = JSON.parse(process.env.googleCalToken);
-  callback(oauth2Client, cb);
+  callback(oauth2Client, cb, addParam1, addParam2);
 }
 
 /**
@@ -124,19 +124,19 @@ function storeToken(token) {
 }
 
 /**
- * Lists the next 10 events on the user's primary calendar.
+ * Lists the next 20 events on the user's primary calendar.
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth, cb) {
+function listEvents(auth, cb, addParam1, addParam2) {
   var calendar = google.calendar('v3');
   var cData = ''; // Our return data, declare here for use in later branches
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
     calendarId: '62ao9jj5es0se62blotv8p5up0@group.calendar.google.com',
-    timeMin: (new Date()).toISOString(),
-    maxResults: 10,
+    timeMin: addParam1,
+    maxResults: 20,
     singleEvents: true,
     orderBy: 'startTime'
   }, function (err, response) {
@@ -151,9 +151,9 @@ function listEvents(auth, cb) {
     if (events.length === 0) {
       console.log('No upcoming events found.');
     } else {
-      var todayDate = ((new Date()).toISOString()).slice(0, 10)
+      var todayDate = addParam1.slice(0, 10)
       console.log('Upcoming 10 events:');
-      cData = '*' + events[0].organizer.displayName + '*```';
+      cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
