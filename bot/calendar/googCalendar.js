@@ -225,11 +225,9 @@ function listCalendars(auth, cb) {
 
 function dmzTime(dmzString, noLeadSpace) {
   var hour = Number(dmzString.slice(0, 2));
-  var ap = 'a';
-  if (hour > 12) {
-    hour -= 12;
-    ap = 'p';
-  }
+  var ap = hour > 11 ? 'p' : 'a';
+  hour -= hour > 12 ? 12 : 0;
+  hour = hour > 0 ? hour : 12;
   return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3) + ap;
 }
 
