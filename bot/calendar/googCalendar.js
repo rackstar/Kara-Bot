@@ -16,7 +16,7 @@ var SCOPES = ['https://www.googleapis.com/auth/calendar'];
 // var TOKEN_DIR = secretsPath;
 // var TOKEN_PATH = TOKEN_DIR + 'calendar-nodejs-quickstart.json';
 
-function authCallFunction(cb, reqType) {
+function authCallFunction(cb, reqType, param1, param2) {
   // Refactor to .ENV pass-in of Calendar API key, instead of loading from disk:
   // fs.readFile(secretsPath + 'client_secret.json', function processClientSecrets(err, content) {
   //   if (err) {
@@ -25,8 +25,10 @@ function authCallFunction(cb, reqType) {
   //   }
   if (!process.env.googleCalAPIKey) {
     console.log('Error loading client secret file: process.env.googleCalAPIKey is undefined');
+    cb(':anguished: Darn! The API key is `undefined`');
     return;
   }
+  
   var content = process.env.googleCalAPIKey;
   // Authorize a client with the loaded credentials, then call the
   // Google Calendar API, pass callback to execute on data provided
@@ -34,7 +36,7 @@ function authCallFunction(cb, reqType) {
     authorize(JSON.parse(content), listCalendars, cb);
   }
   if (reqType === 'days events') {
-    authorize(JSON.parse(content), listEvents, cb);
+    authorize(JSON.parse(content), listEvents, cb, param1, param2);
   }
   // });
 }
@@ -45,7 +47,7 @@ function authCallFunction(cb, reqType) {
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback, cb) {
+function authorize(credentials, callback, cb, param1, param2) {
   var clientSecret = credentials.installed.client_secret;
   var clientId = credentials.installed.client_id;
   var redirectUrl = credentials.installed.redirect_uris[0];
@@ -66,9 +68,11 @@ function authorize(credentials, callback, cb) {
   // Refactor this to actually retrieve new key as above
   if (!process.env.googleCalToken) {
     console.log('Error loading OAuth2 token: process.env.googleCalToken is undefined');
+    cb(':anguished: Darn! The auth token is `undefined`');
+    return;
   }
   oauth2Client.credentials = JSON.parse(process.env.googleCalToken);
-  callback(oauth2Client, cb);
+  callback(oauth2Client, cb, param1, param2);
 }
 
 /**
@@ -121,39 +125,57 @@ function storeToken(token) {
 }
 
 /**
- * Lists the next 10 events on the user's primary calendar.
+ * Lists the next 20 events on the user's primary calendar.
  *
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-function listEvents(auth, cb) {
+function listEvents(auth, cb, param1, param2) {
   var calendar = google.calendar('v3');
+  var cData = ''; // Our return data, declare here for use in later branches
+  var maxDate = new Date(param1);
+  maxDate.setHours(24,0,0,0); // setHours returns numeric value, must do 2 step process
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
     calendarId: '62ao9jj5es0se62blotv8p5up0@group.calendar.google.com',
-    timeMin: (new Date()).toISOString(),
-    maxResults: 10,
+    timeMin: param1.toISOString(), // Google takes into account the time zone difference!!
+    timeMax: maxDate.toISOString(),
+    maxResults: 20,
     singleEvents: true,
     orderBy: 'startTime'
   }, function (err, response) {
     if (err) {
       console.log('The API returned an error: ' + err);
+      cData = ':anguished: Darn! The API returned an error with that option';
+      cb(cData);
       return;
     }
     var events = response.items;
     console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
+      cData = '*' + 'KaraBot Sub Calendar' + '*```' + param1.toString().slice(0,10) + '\n';
+      cData += ' no events found```';
+      cb(cData);
     } else {
-      var todayDate = ((new Date()).toISOString()).slice(0, 10)
-      console.log('Upcoming 10 events:');
-      var cData = '*' + events[0].organizer.displayName + '*```';
+      // Fun with JavaScript dates, ISO will roll date forward by time zone offset, so roll hours back
+      // by number of hours of time zone offset first, then create ISO string
+      var ISODate = new Date(param1);
+      ISODate.setHours(ISODate.getHours() - (ISODate.getTimezoneOffset() / 60)) // setHours returns numeric value!
+      ISODate = ISODate.toISOString().slice(0, 10)
+      console.log('Upcoming 20 events:');  
+      cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0,10) + '\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
-        if (start.slice(0, 10) === todayDate) {
-          if (start.length > 10) {
-            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true) + '\n';
+        var end = event.end.dateTime || event.end.date;
+        if (start.slice(0, 10) === ISODate || end.slice(0, 10) === ISODate) {
+          if (start.length > 10 || end.length > 10) {
+            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
+            if (start.slice(0, 10) !== ISODate) {
+              cData += ' (starts day before)';
+            }
+            cData += '\n';
           } else {
             cData += '* All Day Event *\n';
           }
@@ -173,18 +195,21 @@ function listEvents(auth, cb) {
 
 function listCalendars(auth, cb) {
   var calendar = google.calendar('v3');
+  var cData = ''; // Our return data, declare here for use in later branches
   calendar.calendarList.list({
     auth: auth
   }, function (err, response) {
     if (err) {
       console.log('The API returned an error: ' + err);
+      cData = ':anguished: Darn! The API returned an error with that option';
+      cb(cData);
       return;
     }
     var events = response.items;
     if (events.length === 0) {
       console.log('No calendars were found.');
     } else {
-      var cData = '*' + events.length + ' calendars found*\n```';
+      cData = '*' + events.length + ' calendars found*\n```';
       for (var i = 0; i < events.length; i++) {
         cData += '     id:' + events[i].id + '\n';
         cData += 'summary:' + events[i].summary;
@@ -200,8 +225,10 @@ function listCalendars(auth, cb) {
 
 function dmzTime(dmzString, noLeadSpace) {
   var hour = Number(dmzString.slice(0, 2));
+  var ap = hour > 11 ? 'p' : 'a';
   hour -= hour > 12 ? 12 : 0;
-  return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3);
+  hour = hour > 0 ? hour : 12;
+  return ((noLeadSpace ? '' : ' ') + hour).slice(-2) + dmzString.slice(-3) + ap;
 }
 
 module.exports = {

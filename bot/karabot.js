@@ -37,8 +37,9 @@ controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,
 controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', egg.hitch);
 controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', egg.konami);
 
-  //Get highest priority issues
+//Get highest priority issues
 
 controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);
 controller.hears(['clist'], 'direct_message,direct_mention,mention', calendar.clist);
 controller.hears(['ctoday'], 'direct_message,direct_mention,mention', calendar.ctoday);
+controller.hears(['ctomo*', 'ctomm*'], 'direct_message,direct_mention,mention', calendar.ctomo);
