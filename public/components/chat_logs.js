@@ -21,12 +21,26 @@ export default class ChatLogs extends Component {
   render() {
     return (
       <div>
-        <h3>Chat</h3>
-        <ul>
-          <li>Data to be displayed later</li>
-          <li>Data to be displayed later</li>
-          <li>Data to be displayed later</li>
-        </ul>
+        <h1>Chat</h1>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th>User</th>
+              <th>Message</th>
+              <th>Date/Time</th>
+              <th>Other?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+          </tbody>
+        </table>
       </div>
     );
   }

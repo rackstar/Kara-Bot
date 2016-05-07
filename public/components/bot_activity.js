@@ -21,12 +21,26 @@ export default class BotActivity extends Component {
   render() {
     return (
       <div>
-        <h3>Bot Activity</h3>
-        <ul>
-          <li>Data to be displayed later</li>
-          <li>Data to be displayed later</li>
-          <li>Data to be displayed later</li>
-        </ul>
+        <h1>Activity</h1>
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th>Date/Time</th>
+              <th>Channel</th>
+              <th>Bot Message</th>
+              <th>API/Response</th>
+              <th>Activity Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+            <tr><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td><td>Temp</td></tr>
+          </tbody>
+        </table>
       </div>
     );
   }
