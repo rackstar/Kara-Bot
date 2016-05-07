@@ -1,7 +1,7 @@
 var Botkit = require('botkit');
 var chat = require('./basic_convo/chat.js');
 var egg = require('./basic_convo/egg.js');
-var jira = require('./jira/jira.js')
+var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
 
 var controller = Botkit.slackbot({
@@ -34,11 +34,11 @@ controller.hears(['life, the universe and everything', 'life the universe and ev
   'direct_message,direct_mention,mention', egg.hitch);
 controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention',
   egg.konami);
-  controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', egg.hitch);
-  controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', egg.konami);
+controller.hears(['life, the universe and everything', 'life the universe and everything'], 'direct_message,direct_mention,mention', egg.hitch);
+controller.hears(['master code', 'konami code'], 'direct_message,direct_mention,mention', egg.konami);
 
   //Get highest priority issues
 
-  controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);
+controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);
 controller.hears(['clist'], 'direct_message,direct_mention,mention', calendar.clist);
 controller.hears(['ctoday'], 'direct_message,direct_mention,mention', calendar.ctoday);

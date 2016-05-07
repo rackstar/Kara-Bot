@@ -15,17 +15,24 @@ var constructSlackUrl = function (string, url) {
   return '<' + url + '|' + string + '>';
 }
 
+var format
+
 var formatJiraMessage = function (payload) {
-  var issueFields = payload.issue.fields;
-  var issueDescription = issueFields.description || 'No description';
-  var issueAssignee = issueFields.assignee.name || 'No assignee';
+  var issueFields;
+  var title;
+  var issueDescription;
+  var issueAssignee;
+  payload.issue ? issueFields = payload.issue.fields : issueFields = payload.fields;
+  payload.issue ? title = payload.issue.key : title = payload.key;
+  issueFields.description ? issueDescription = issueFields.Description : 'No description';
+  issueFields.assignee ? issueAssignee = issueFields.assignee.name : 'No assignee';
 
   var issueInfo = {
-    title: payload.issue.key,
+    title: title,
     summary: issueFields.summary,
     description: issueDescription,
     assignee: issueAssignee,
-    issueLink: 'https://karabot.atlassian.net/browse/' + payload.issue.key
+    issueLink: 'https://karabot.atlassian.net/browse/' + title
   }
   return issueInfo; 
 }
@@ -84,6 +91,7 @@ module.exports = {
       var highestPriorityIssues = [];
       for (var i = 0; i < project.issues.length; i++){
         if (project.issues[i].fields.priority.id === '1') {
+          console.log(project.issues[i]);
           var formattedIssue = formatJiraMessage(project.issues[i]);
           // console.log('****FORMATTED ISSUE*****',formattedIssue);
           highestPriorityIssues.push(formattedIssue);
