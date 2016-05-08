@@ -1,8 +1,9 @@
 var github = require('./github');
+var helper = require('../config/helper');
 
-github.authenticate();
+github.auth();
 
-exports.slashRepo = function slashRepo(req, res) {
+exports.repo = function slashRepo(req, res) {
   var list;
   // regex validation empty string, integer or help
   // TO DO - case insensitive help
@@ -20,7 +21,7 @@ exports.slashRepo = function slashRepo(req, res) {
     text: 'BeepBop.. Fetching repos.'
   });
 
-  github.repos.getAll(
+  github.api.repos.getAll(
     {
       type: 'all',
       sort: 'updated'
@@ -36,7 +37,7 @@ exports.slashRepo = function slashRepo(req, res) {
       }
 
       if (reg.test(argument)) {
-        list = repoList(repoInfo(repos), argument);
+        list = github.repoList(github.repoInfo(repos), argument);
         helper.sendHook(slashUrl, list);
       } else {
         res.json('invalid command, please check /repo help');
@@ -45,7 +46,7 @@ exports.slashRepo = function slashRepo(req, res) {
   );
 };
 
-exports.slashWatch = function slashWatch(req, res) {
+exports.watch = function slashWatch(req, res) {
   var argument = req.body.text;
   var slashUrl = req.body.response_url;
   var userRepo = argument.split('/');
@@ -113,7 +114,7 @@ exports.slashWatch = function slashWatch(req, res) {
   };
 
 
-  github.repos.createHook(hookData, function resHook(err, data) {
+  github.api.repos.createHook(hookData, function resHook(err, data) {
     if (err) {
       err = JSON.parse(err);
       var errorMsg = {
@@ -140,7 +141,7 @@ exports.slashWatch = function slashWatch(req, res) {
 };
 
 // TO DO - validation
-exports.slashUnwatch = function slashUnwatch(req, res) {
+exports.unwatch = function slashUnwatch(req, res) {
   var argument = req.body.text;
   var slashUrl = req.body.response_url;
   var userRepo = argument.split('/');
@@ -166,16 +167,16 @@ exports.slashUnwatch = function slashUnwatch(req, res) {
   }
 
   // get list of hooks
-  github.repos.getHooks(
+  github.api.repos.getHooks(
     {
       user: user,
       repo: repo
     },
     // find the id of hook associated to the app
     function getHookCb(err, hooks) {
-      findHookId(err, hooks, function deleteHook(id) {
+      github.findHookId(err, hooks, function deleteHook(id) {
         // delete hook
-        github.repos.deleteHook(
+        github.api.repos.deleteHook(
           {
             user: user,
             repo: repo,

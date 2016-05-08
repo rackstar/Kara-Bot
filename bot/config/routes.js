@@ -1,5 +1,6 @@
 var kara = require('../karabot');
 var github = require('../github/github');
+var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 
 function errorLogger(error, req, res, next) {
@@ -18,9 +19,9 @@ function errorHandler(error, req, res, next) {
 module.exports = function (app) {
   // Github
   app.post('/github', github.webHookReceiver);
-  app.post('/repo', github.slashRepo);
-  app.post('/watch', github.slashWatch);
-  app.post('/unwatch', github.slashUnwatch);
+  app.post('/repo', slashCommands.repo);
+  app.post('/watch', slashCommands.watch);
+  app.post('/unwatch', slashCommands.unwatch);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);

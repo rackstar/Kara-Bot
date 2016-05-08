@@ -1,7 +1,7 @@
 var GitHubApi = require('github');
 var helper = require('../config/helper');
 
-var github = new GitHubApi({
+var github = exports.api = new GitHubApi({
   version: '3.0.0',
   debug: true,
   protocol: 'https',
@@ -24,7 +24,7 @@ exports.auth = function githubAuth() {
 };
 
 // formats each repo info, utilised by getRepo
-function repoInfo(repos) {
+var repoInfo = exports.repoInfo = function repoInfo(repos) {
   var info = [];
 
   repos.forEach(function repoMsg(repo) {
@@ -32,10 +32,10 @@ function repoInfo(repos) {
     info.push(repoLinked + '\n');
   });
   return info.join('');
-}
+};
 
 // formats repo message, utilised by getRepo
-function repoList(repoInfo, argument) {
+var repoList = exports.repoList = function repoList(repoInfo, argument) {
   var slackMessage = {
     text: 'Here are your ' + argument + ' most recent repositories:',
     attachments: [{
@@ -89,12 +89,9 @@ exports.getRepo = function getRepo(bot, message) {
       bot.reply(message, list);
     }
   );
-}
+};
 
-
-
-// WebHook
-
+// watch
 exports.watchRepo = function watchRepo(bot, message) {
   var userRepo = message.match[1].split('/');
   var user = userRepo[0];
@@ -176,9 +173,8 @@ exports.watchRepo = function watchRepo(bot, message) {
 
 // TO DO - user can select events to subscribe to
 
-
 // call back function that finds id of hook and deletes it, utilised by unwatchRepo
-function findHookId(err, hooks, callback) {
+var findHookId = exports.findHookId = function findHookId(err, hooks, callback) {
   hooks.forEach(function hookId(hook) {
     // find the relevant hook
     if (hook.config.url === process.env.serverUrl) {
@@ -186,7 +182,7 @@ function findHookId(err, hooks, callback) {
       callback(hook.id);
     }
   });
-}
+};
 
 // TO DO - finish refactor of unwatch
 exports.unwatch = function unwatch(req, res) {
@@ -243,8 +239,6 @@ exports.unwatch = function unwatch(req, res) {
     }
   );
 };
-
-
 
 // function to format new PR message to Slack, utilised by webHookReceiver
 function prMessage(data) {
