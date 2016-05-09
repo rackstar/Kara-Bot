@@ -42,6 +42,8 @@ controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority
 controller.hears(['clist'], directMessage, calendar.clist);
 controller.hears(['ctoday'], directMessage, calendar.ctoday);
 controller.hears(['ctomo*', 'ctomm*'], directMessage, calendar.ctomo);
+controller.hears(['ctest'], 'direct_message,direct_mention,mention', calendar.ctest);
+
 // Github
 controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)',
   'show repos', 'repos', 'show repo'], directMessage, github.getRepo);

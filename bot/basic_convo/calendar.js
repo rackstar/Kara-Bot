@@ -24,8 +24,13 @@ function ctomo(bot, message) {
   }, 'days events', tomorrow);
 }
 
+function ctest(bot, message) {
+  bot.reply(message, data);
+}
+
 module.exports = {
   clist: clist,
   ctoday: ctoday,
-  ctomo: ctomo
+  ctomo: ctomo,
+  ctest: ctest
 };
