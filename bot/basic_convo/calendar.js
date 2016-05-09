@@ -38,7 +38,17 @@ function cfree(bot, message) {
   bot.reply(message, '_I\'m searching..._');
   googCal.authCallFunction(function (data) {
     bot.reply(message, data);
-  }, 'free slots', new Date());
+  }, 'free slots', new Date);
+}
+
+function cfreetom(bot, message) {
+  bot.reply(message, '_I\'m searching..._ hello');
+  var tomorrow = new Date;
+  // This is 12:00:00am next day in THIS time zone
+  tomorrow.setHours(24,0,0,0);
+  googCal.authCallFunction(function (data) {
+    bot.reply(message, data);
+  }, 'free slots', tomorrow);
 }
 
 function ctest(bot, message) {
@@ -51,5 +61,6 @@ module.exports = {
   ctomo: ctomo,
   ctest: ctest,
   cdayaft: cdayaft,
-  cfree: cfree
+  cfree: cfree,
+  cfreetom: cfreetom
 };

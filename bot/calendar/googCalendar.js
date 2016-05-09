@@ -174,7 +174,7 @@ function listEvents(auth, cb, param1, param2) {
         var end = event.end.dateTime || event.end.date;
         if (start.slice(0, 10) === ISODate || end.slice(0, 10) === ISODate) {
           if (start.length > 10 || end.length > 10) {
-            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
+            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(end.slice(11, 16), true);
             if (start.slice(0, 10) !== ISODate) {
               cData += ' (starts day before)';
             }
@@ -244,7 +244,8 @@ function listFreeSlots(auth, cb, param1, param2) {
               cData += '`' + dmzTime(curTime, true) + ' to ' + dmzTime(start.slice(11, 16), true) + ' free slot`\n';
             }
             curTime = end.slice(11, 16)
-            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
+            cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(end.slice(11, 16), true);
+            // cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
             if (start.slice(0, 10) !== ISODate) {
               cData += ' (starts day before)';
             }
@@ -261,7 +262,7 @@ function listFreeSlots(auth, cb, param1, param2) {
           }
         }
       }
-      if (curTime < '24:00') {
+      if (curTime < '24:00' && !allDayEvent && end.length > 10) {
         cData += '`' + dmzTime(curTime, true) + ' to ' + dmzTime('00:00', true) + ' free slot`\n';
       }
       cb(cData);
