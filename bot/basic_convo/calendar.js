@@ -24,6 +24,16 @@ function ctomo(bot, message) {
   }, 'days events', tomorrow);
 }
 
+function cdayaft(bot, message) {
+  bot.reply(message, '_I\'m searching..._');
+  var tomorrow = new Date;
+  // This is 12:00:00am next day in THIS time zone
+  tomorrow.setHours(48,0,0,0);
+  googCal.authCallFunction(function (data) {
+    bot.reply(message, data);
+  }, 'days events', tomorrow);
+}
+
 function ctest(bot, message) {
   bot.reply(message, data);
 }
@@ -32,5 +42,6 @@ module.exports = {
   clist: clist,
   ctoday: ctoday,
   ctomo: ctomo,
-  ctest: ctest
+  ctest: ctest,
+  cdayaft: cdayaft
 };
