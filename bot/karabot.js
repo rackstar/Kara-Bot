@@ -43,4 +43,5 @@ controller.hears(['ctoday'], directMessage, calendar.ctoday);
 controller.hears(['ctomo*', 'ctomm*'], 'direct_message,direct_mention,mention', calendar.ctomo);
 // Github
 controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)', 'show repos', 'repos', 'show repo'], directMessage, github.getRepo);
+controller.hears(['unwatch (.*\/.*)'], directMessage, github.unwatchRepo);
 controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);

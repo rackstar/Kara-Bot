@@ -96,7 +96,6 @@ exports.watchRepo = function watchRepo(bot, message) {
   var userRepo = message.match[1].split('/');
   var user = userRepo[0];
   var repo = userRepo[1];
-  console.log(userRepo, user, repo, 'USER REPO');
   bot.reply(message, 'BeepBop.. Targeting repo.');
 
   // /watch help
@@ -185,20 +184,18 @@ var findHookId = exports.findHookId = function findHookId(err, hooks, callback) 
 };
 
 // TO DO - finish refactor of unwatch
-exports.unwatch = function unwatch(req, res) {
-  var argument = req.body.text;
-  var slashUrl = req.body.response_url;
-  var userRepo = argument.split('/');
+exports.unwatchRepo = function unwatchRepo(bot, message) {
+  var userRepo = message.match[1].split('/');
   var user = userRepo[0];
   var repo = userRepo[1];
   var initialResponse = 'Hmmm..';
 
   // send an initial response to avoid timeout error
-  res.json(initialResponse);
+  bot.reply(message, initialResponse);
 
   // unwatch help
-  if (argument.toLowerCase() === 'help') {
-    var slackMessage = {
+  if (repo.toLowerCase() === 'help') {
+    var helpMessage = {
       text: 'How to use /unwatch',
       attachments: [{
         text: '`/unwatch <user>/<repo>` will unsubscribe from the repository\'s events',
@@ -206,7 +203,7 @@ exports.unwatch = function unwatch(req, res) {
         mrkdwn_in: ['text']
       }]
     };
-    helper.sendHook(slashUrl, slackMessage);
+    bot.reply(message, helpMessagse);
     return;
   }
 
@@ -228,10 +225,11 @@ exports.unwatch = function unwatch(req, res) {
           },
           function deleteHookCb(err, response) {
             if (response.meta.status === '204 No Content') {
+              // TO DO - if deleted already inform user
               var deleteConfirmation = {
-                text: 'Ok! I\'ll stop notifying you of ' + argument + '\'s events'
+                text: 'Ok! I\'ll stop notifying you of ' + userRepo + '\'s events'
               };
-              helper.sendHook(slashUrl, deleteConfirmation);
+              bot.reply(message, deleteConfirmation);
             }
           }
         );
