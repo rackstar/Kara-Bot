@@ -11,13 +11,12 @@ var controller = Botkit.slackbot({
   debug: true
 });
 
-
 exports.controller = controller;
 
 require('dotenv').config();
 
 controller.spawn({
-    token: process.env.token
+  token: process.env.token
 }).startRTM();
 
 if (!process.env.token) {
@@ -30,8 +29,10 @@ controller.hears(['hello'], directMessage, chat.greet);
 controller.hears(['call me (.*)', 'my name is (.*)'], directMessage, chat.myname);
 controller.hears(['what is my name', 'who am i'], directMessage, chat.sayname);
 controller.hears(['shutdown'], directMessage, chat.shutdown);
-controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], directMessage, chat.uptime);
-controller.hears(['life, the universe and everything', 'life the universe and everything'], directMessage, egg.hitch);
+controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your name'], directMessage,
+  chat.uptime);
+controller.hears(['life, the universe and everything', 'life the universe and everything'],
+  directMessage, egg.hitch);
 controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
 // Get highest priority issues
@@ -40,8 +41,9 @@ controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority
 // Google Calendar
 controller.hears(['clist'], directMessage, calendar.clist);
 controller.hears(['ctoday'], directMessage, calendar.ctoday);
-controller.hears(['ctomo*', 'ctomm*'], 'direct_message,direct_mention,mention', calendar.ctomo);
+controller.hears(['ctomo*', 'ctomm*'], directMessage, calendar.ctomo);
 // Github
-controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)', 'show repos', 'repos', 'show repo'], directMessage, github.getRepo);
+controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)',
+  'show repos', 'repos', 'show repo'], directMessage, github.getRepo);
 controller.hears(['unwatch (.*\/.*)'], directMessage, github.unwatchRepo);
 controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);

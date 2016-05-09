@@ -1,6 +1,7 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var GitHubApi = require('github');
+var github = require('../bot/github/github');
 var expect = chai.expect;
 var messages;
 var botDirect;
@@ -11,7 +12,7 @@ var repo;
 require('dotenv')
   .config();
 
-repo = process.env.testrepo;
+repo = process.env.testRepo;
 botDirect = process.env.botDirect;
 botId = process.env.botId;
 
@@ -19,37 +20,43 @@ chai.use(chaiHttp);
 
 function sendCommand(input) {
   chai.request('https://slack.com/api/chat.postMessage')
-    .post('?token=' + process.env.me + '&channel=' + botDirect + '&text=' + input + '&as_user=true&pretty=1')
+    .post('?token=' + process.env.me +
+      '&channel=' + botDirect +
+      '&text=' + input +
+      '&as_user=true&pretty=1')
     .end(function sendCommandCb(err, res) {
       if (err) console.log(err);
     });
 }
 
-function channelHistory(count, cb) {
-  var messages;
-  // setTimeout(function CHtimeout() {
+function findResponse(messages, expectation, done) {
+  var botMsg = messages.find(function(message) {
+    return message.text === expectation;
+  });
+  // botMsg = botMsg || undefined;
+  console.log(botMsg.text + ' is equal to ' + expectation, 'CHECK ****');
+  expect(botMsg.text)
+    .to.equal(expectation);
+  done();
+}
+
+function botResponse(count, expectation, done) {
   chai.request('https://slack.com/api/im.history')
-    .get('?token=' + process.env.me + '&channel=' + botDirect + '&count=' + count + '&pretty=1')
+    .get('?token=' + process.env.me +
+      '&channel=' + botDirect +
+      '&count=' + count +
+      '&pretty=1')
     .end(function assignText(err, res) {
       if (err) {
         console.log(err);
       } else {
-        messages = res.body.messages;
         // filter response messages of the bot
-        messages = messages.filter(function(message) {
+        messages = res.body.messages.filter(function botFilter(message) {
           return message.user === botId;
         });
+        setTimeout(findResponse(messages, expectation, done), 2000);
       }
     });
-  return messages;
-}
-
-function findResponse(messages, expectation) {
-  var botResponse = messages.find(function(message) {
-    return message.text === expectation;
-  });
-  expect(botResponse.text)
-    .to.equal(expectation);
 }
 
 // If a test below fails, increase timeout thresholds to see if it is due to delay.
@@ -61,6 +68,7 @@ function findResponse(messages, expectation) {
 // username=githubusername
 // password=githubpassword
 // testRepo=<githubusername>/<repotobetested>
+// serverUrl=<urlwheregithubpayloadwillbesent>
 
 beforeEach(function githubSetup() {
   var github = new GitHubApi({
@@ -83,102 +91,47 @@ beforeEach(function githubSetup() {
 //Repositories
 // lists repo
 describe('Lists Repos', function() {
-  xdescribe('"show <number> repo"', function() {
-    var botMsg;
-    var count = 9;
-    // sendCommand('show repos');
-    // sendCommand('show 2 repos');
-    // sendCommand('show 1 repos');
+  // no setTimeout as its the first test
+  sendCommand('show repos');
+  sendCommand('show 2 repos');
+  sendCommand('show 1 repos');
 
-    setTimeout(function timeout1() {
-      chai.request('https://slack.com/api/im.history')
-        .get('?token=' + process.env.me + '&channel=' + botDirect + '&count=' + count + '&pretty=1')
-        .end(function assignText(err, res) {
-          if (err) {
-            console.log(err);
-          } else {
-            messages = res.body.messages;
-            // filter response messages of the bot
-            botMsg = messages.filter(function(message) {
-              return message.user === botId;
-            });
-          }
-        });
-    }, 3000);
-
-    xit('should list all repositories for "show repos"', function(done) {
-      this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here are all your current repositories:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+  describe('"show <number> repo"', function() {
+    it('should list all repositories for "show repos"', function(done) {
+      this.timeout(2000);
+      output = 'Here are all your current repositories:';
+      botResponse(9, output, done);
     });
-    xit('should list 2 of the most recent repos on "show 2 repos"', function(done) {
-      this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here are your 2 most recent repositories:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+    it('should list 2 of the most recent repos on "show 2 repos"', function(done) {
+      this.timeout(2000);
+      output = 'Here are your 2 most recent repositories:';
+      botResponse(9, output, done);
     });
-    xit('should list the most recent repository on "show 1 repos"', function(done) {
-      this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here is your most recent repository:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+    it('should list the most recent repository on "show 1 repos"', function(done) {
+      this.timeout(2000);
+      output = 'Here is your most recent repository:';
+      botResponse(9, output, done);
     });
   });
 
   describe('"other passable repo instructions"', function() {
-    var botMsg;
-    var count = 9;
-
-    sendCommand('repos');
-    sendCommand('show 1.793 repos');
-    sendCommand('show 1.337 repos');
-
-    setTimeout(function timeout1() {
-      chai.request('https://slack.com/api/im.history')
-        .get('?token=' + process.env.me + '&channel=' + botDirect + '&count=' + count + '&pretty=1')
-        .end(function assignText(err, res) {
-          if (err) {
-            console.log(err);
-          } else {
-            messages = res.body.messages;
-            // filter response messages of the bot
-            botMsg = messages.filter(function(message) {
-              return message.user === botId;
-            });
-          }
-        });
-    }, 3000);
-
     it('should list all repositories for "repos"', function(done) {
       this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here are all your current repositories:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+        sendCommand('repos');
+        sendCommand('show 1.793 repos');
+        sendCommand('show 1.337 repos');
+      output = 'Here are all your current repositories:';
+      setTimeout(botResponse(9, output, done), 5000);
     });
     it('should round up numbers that has a decimal place greater than or equal to .5', function(done) {
-      this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here are your 2 most recent repositories:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+      this.timeout(7000);
+      output = 'Here are your 2 most recent repositories:';
+      setTimeout(botResponse(9, output, done), 8000);
     });
     it('should round down numbers that has a decimal place less than .5', function(done) {
-      this.timeout(4000);
-      setTimeout(function timeout2() {
-        output = 'Here is your most recent repository:';
-        findResponse(botMsg, output);
-      }, 4000);
-      setTimeout(done, 2000);
+      this.timeout(7000);
+      output = 'Here is your most recent repository:';
+      setTimeout(botResponse(9, output, done), 8000);
     });
   });
 
@@ -188,28 +141,6 @@ describe('Lists Repos', function() {
       command = 'help repos';
       output = 'How to use show repo';
       responseTest(command, output, done);
-    });
-    describe.skip('case insensitive', function() {
-      it('should show /repo help instructions on "HELP repos"', function(done) {
-        command = 'show repos';
-        output = '';
-        responseTest(command, output, done);
-      });
-      it('should show /repo help instructions on "Help repos"', function(done) {
-        command = 'show repos';
-        output = '';
-        responseTest(command, output, done);
-      });
-      it('should show /repo help instructions on "hElp repos"', function(done) {
-        command = 'show repos';
-        output = '';
-        responseTest(command, output, done);
-      });
-      it('should show /repo help instructions on "HelP repos"', function(done) {
-        command = 'show repos';
-        output = '';
-        responseTest(command, output, done);
-      });
     });
   });
 
@@ -228,19 +159,49 @@ describe('Lists Repos', function() {
 });
 
 // watch repo
-describe.skip('watch repo', function() {
-  beforeEach(function() {
-    // delete any webhook that is already there
-  });
+describe('watch repo', function() {
+  // delete webhook first
+  setTimeout(function watchRepoCommand() {
+    beforeEach(function() {
+      var userRepo = repo.split('/');
+      var user = userRepo[0];
+      var repo = userRepo[1];
+
+      github.repos.getHooks(
+        {
+          user: user,
+          repo: repo
+        },
+        // find the id of hook associated to the app
+        function getHookCb(err, hooks) {
+          findHookId(err, hooks, function deleteHook(id) {
+            // delete hook
+            github.repos.deleteHook(
+              {
+                user: user,
+                repo: repo,
+                id: id
+              },
+              function deleteHookCb(err, response) {
+                if (response.meta.status === '204 No Content') {
+                  console.log('no webhook present, proceed with test');
+                }
+              }
+            );
+          });
+        }
+      );
+    });
+    sendCommand('watch repo ' + repo);
+  }, 6000);
+
   describe('response', function() {
     it('should reply with appropriate responses if successful', function(done) {
-      command = 'watch repo ' + repo;
-      output = 'BeepBop.. Targeting repo.'
-      var output2 = 'I am now watching ' + req.body.text + '\'s every move';
-      responseTest(command, output, done);
+      output = 'I am now watching ' + repo + '\'s every move';
+      setTimeout(botResponse(1, output, done), 5500);
     });
   });
-  describe('Repo Events', function() {
+  xdescribe('Repo Events', function() {
     it('should notify of new pull requests submission', function(done) {
       // github create 1 request
       output = '';
@@ -270,16 +231,16 @@ describe.skip('watch repo', function() {
       channelHistory(output, done);
     });
   });
-  describe('watch commands', function() {
+  xdescribe('watch commands', function() {
     it('should show watch instructions when on "help watch" or "watch"', function(done) {
       command = 'help watch';
       output = '';
-      responseTest(command, output, done);
+      setTimeout(botResponse(5, output, done), 5500);
       command = 'watch';
-      responseTest(command, output, done);
+      setTimeout(botResponse(5, output, done), 5500);
     });
     it('should respond with "please provide <username>/<repo> on invalid commands', function(done) {
-      command = 'watch invalidrepo';
+      command = 'watch invalidcommand';
       output = '';
       responseTest(command, output, done);
     });
@@ -290,7 +251,7 @@ describe.skip('watch repo', function() {
     xit('should respond with "please provide <username>/<repo>" on invalid command, i can list your repositories of you', function(done) {
       command = 'watch';
       output = '';
-      responseTest(command, output, done);
+      setTimeout(botResponse(5, output, done), 5500);
     });
   });
 });
@@ -310,20 +271,20 @@ xdescribe('unwatch', function() {
     // verify that it there is no notification
     command = 'unwatch ' + repo;
     output = ''; // no notification
-    responseTest(command, output, done);
+    setTimeout(botResponse(5, output, done), 5500);
   });
   it('should show unwatch instructions on "help unwatch" or "unwatch"', function(done) {
     command = 'help unwatch';
     output = ''; // unwatch instructions
-    responseTest(command, output, done);
+    setTimeout(botResponse(5, output, done), 5500);
   });
   it('should respond with "please provide <username>/<repo> on invalid commands', function(done) {
     command = 'unwatch';
     output = '';
-    responseTest(command, output, done);
+    setTimeout(botResponse(5, output, done), 5500);
     command = 'unwatch invalidrepo';
     output = '';
-    responseTest(command, output, done);
+    setTimeout(botResponse(5, output, done), 5500);
   });
   //conversation
   // please provide <username>/<repo>
@@ -332,8 +293,6 @@ xdescribe('unwatch', function() {
   xit('should respond with "please provide <username>/<repo>" on invalid command, i can list your repositories of you', function(done) {
     command = 'watch';
     output = '';
-    responseTest(command, output, done);
+    setTimeout(botResponse(5, output, done), 5500);
   });
 });
-
-// DO everything again but in direct message

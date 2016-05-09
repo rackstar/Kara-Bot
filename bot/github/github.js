@@ -183,7 +183,6 @@ var findHookId = exports.findHookId = function findHookId(err, hooks, callback) 
   });
 };
 
-// TO DO - finish refactor of unwatch
 exports.unwatchRepo = function unwatchRepo(bot, message) {
   var userRepo = message.match[1].split('/');
   var user = userRepo[0];
