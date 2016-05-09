@@ -42,7 +42,7 @@ function cfree(bot, message) {
 }
 
 function cfreetom(bot, message) {
-  bot.reply(message, '_I\'m searching..._ hello');
+  bot.reply(message, '_I\'m searching..._');
   var tomorrow = new Date;
   // This is 12:00:00am next day in THIS time zone
   tomorrow.setHours(24,0,0,0);
@@ -51,15 +51,10 @@ function cfreetom(bot, message) {
   }, 'free slots', tomorrow);
 }
 
-function ctest(bot, message) {
-  bot.reply(message, data);
-}
-
 module.exports = {
   clist: clist,
   ctoday: ctoday,
   ctomo: ctomo,
-  ctest: ctest,
   cdayaft: cdayaft,
   cfree: cfree,
   cfreetom: cfreetom

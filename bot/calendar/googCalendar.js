@@ -262,7 +262,7 @@ function listFreeSlots(auth, cb, param1, param2) {
           }
         }
       }
-      if (curTime < '24:00' && !allDayEvent && end.length > 10) {
+      if (curTime < '24:00' && !allDayEvent && end.length > 10 && end.slice(11, 16) !== '00:00') {
         cData += '`' + dmzTime(curTime, true) + ' to ' + dmzTime('00:00', true) + ' free slot`\n';
       }
       cb(cData);
