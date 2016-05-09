@@ -34,6 +34,13 @@ function cdayaft(bot, message) {
   }, 'days events', tomorrow);
 }
 
+function cfree(bot, message) {
+  bot.reply(message, '_I\'m searching..._');
+  googCal.authCallFunction(function (data) {
+    bot.reply(message, data);
+  }, 'free slots', new Date());
+}
+
 function ctest(bot, message) {
   bot.reply(message, data);
 }
@@ -43,5 +50,6 @@ module.exports = {
   ctoday: ctoday,
   ctomo: ctomo,
   ctest: ctest,
-  cdayaft: cdayaft
+  cdayaft: cdayaft,
+  cfree: cfree
 };
