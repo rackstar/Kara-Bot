@@ -9,3 +9,6 @@ config/client_secret.json
 
 # Misc
 .DS_Store
+
+#bundled index files
+index_bundle.*
