@@ -51,52 +51,50 @@ function cfreetom(bot, message) {
   }, 'free slots', tomorrow);
 }
 
-function ctest(bot, message) {
+function cnew(bot, message) {
+  var errorText = '_Sorry, I don\'t understand_ ';
   var args = message.text.split(' ');
   if (args.length < 4) {
-    bot.reply(message, '_Sorry, I don\'t understand_ ' + args);
+    bot.reply(message, errorText + args);
     return;
   }
   var start = args[1].split(':');
   var startHour = Number(start[0]);
   if (Number.isNaN(startHour) || startHour < 0 || startHour > 23) {
-    bot.reply(message, '_Sorry, I don\'t understand_ ' + start[0]);
+    bot.reply(message, errorText + start[0]);
     return;
   }
+  var startMinute = 0;
   if (start.length > 1) {
-    var startMinute = Number(start[1]);
+    startMinute = Number(start[1]);
     if (Number.isNaN(startMinute) || startMinute < 0 || startMinute > 59) {
-         bot.reply(message, '_Sorry, I don\'t understand_ ' + start[1]); 
+         bot.reply(message, errorText + start[1]); 
          return;
     }
-    // build start time with minutes
-  } else {
-    // build start time without minutes
   }
   
   var end = args[2].split(':');
   var endHour = Number(end[0]);
   if (Number.isNaN(endHour) || endHour < 0 || endHour > 23) {
-    bot.reply(message, '_Sorry, I don\'t understand_ ' + end[0]);
+    bot.reply(message, errorText + end[0]);
     return;
   }
+  var endMinute = 0;
   if (end.length > 1) {
-    var endMinute = Number(end[1]);
+    endMinute = Number(end[1]);
     if (Number.isNaN(endMinute) || endMinute < 0 || endMinute > 59) {
-         bot.reply(message, '_Sorry, I don\'t understand_ ' + end[1]); 
+         bot.reply(message, errorText + end[1]); 
          return;
     }
-    // build end time with minutes
-  } else {
-    // build end time without minutes
   }
-  
-  // if (startTime > endTime) {
-  //   bot.reply(message, '_Sorry, I don\'t understand_' ); 
-  // }
+
+  if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
+    bot.reply(message, errorText + 'that time range'); 
+    return;
+  }
     
-  console.log('Hello from ctest!', '>' + message.text + '<');
-  // bot.reply(message, 'Hello from ctest!!');
+  console.log('Hello from cnew!', '>' + message.text + '<');
+  bot.reply(message, 'Hello from set event');
 }
 
 module.exports = {
@@ -106,5 +104,5 @@ module.exports = {
   cdayaft: cdayaft,
   cfree: cfree,
   cfreetom: cfreetom,
-  ctest: ctest
+  cnew: cnew
 };
