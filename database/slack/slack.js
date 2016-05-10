@@ -1,16 +1,8 @@
 var request = require('request');
-// require the connected postgres client
-// var client = require('');
-var _ = require('lodash');
-
 var pg = require('pg');
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
-var client = new pg.Client(connectionString);
 
-client.connect();
 
-require('dotenv')
-  .config();
+require('dotenv').config();
 
 var token = process.env.token;
 
@@ -29,8 +21,9 @@ var channelListForm = {
 };
 
 function dbInsert(table, columns, values, valuesHolder) {
-  // values = [va1, va2, va3];
+  // values = [val1, val2, val3];
   // columns = '(col1, col2, col3)'
+  // valuesHolder = 'values($1, $2, $3)'
   // get connection string from database import
   pg.connect(connectionString, function pgInsert(err, client, done) {
     // Handle connection errors
@@ -40,11 +33,10 @@ function dbInsert(table, columns, values, valuesHolder) {
     }
 
     // SQL Query > Insert Data
-    // "INSERT INTO items(text, complete) values($1, $2)"
+    // "INSERT INTO items(text, complete) values($1, $2), [val1, val2]"
     var query = client.query('INSERT INTO ' + table + columns + ' ' + valuesHolder, values);
     query.on('end', function() {
       done();
-      console.log(values + ' data inserted');
     });
 
   });
@@ -57,22 +49,6 @@ function slackRequest(form, cb) {
     cb(body);
   });
 }
-
-// get all Channel from Slack
-// get all Channel from Database
-// check if length is the same
-// if not the same
-// find the new Channel
-// add new Channel to database
-// add channel members relationship to database
-
-// get all channel
-slackRequest(channelListForm, function(body) {
-  // check for any new channels
-  var newChannels = body.channels;
-  // get current database channels
-  getCurrentData(checkNewChannel, newChannels, 'channels', 'slack_user_id');
-});
 
 function getCurrentData(cb, newData, table, property) {
   var currentData = [];
@@ -136,48 +112,6 @@ function channelMembers(channel) {
   });
 }
 
-
-/*function channelHistory(channelId, ts) {
-  var channelMsgForm = {
-    url: 'https://slack.com/api/channels.history',
-    form: {
-      channel: channelId,
-      oldest: ts || 0, //"ts": "1462822242.000002" // unique timestamp for each message in channel
-      // newer messages have higher ts value than older ones
-      count: 1000
-    }
-  };
-  slackRequest(channelMsgForm, function(body) {
-    var messages = body.messages;
-
-    messages.forEach(function(message) {
-      // change relationship of message to be with slack_id because its easier
-      var columns = '(message_body, ts, slack_user_id)'
-      var values = [message.text, message.ts, message.user];
-      // insert message text, ts, and slack_user_id to Message table
-      dbInsert('Messages', columns, values);
-    })
-  })
-}
-
-// Query database for all channels id.
-// for each channel, find oldest ts message (lowest ts)
-// use it as the starting query for channelHistory
-// channelHistory(id, ts)
-
-// call get channel ********
-// getChannel();
-
-function lowestTS(channels, cb) {
-  // get minimum ts of each channel
-  // convert ts string to number
-  var lowestTS = _.minBy(channels, function(channel) {
-    //channel.ts
-  });
-  // call channelHistory on each of channelId and lowestTS
-  channelHistory(channelId, lowestTS)
-}*/
-
 function checkNewUsers(currentUsers, newUsers) {
   if (newUsers.length > currentUsers.length) {
     newUsers.forEach(function(user) {
@@ -202,10 +136,85 @@ function addUser(user) {
   dbInsert('users', columns, values, valuesHolder);
 }
 
-slackRequest(userListForm, function(body) {
-  // check for any new channels
-  var newUsers = body.members;
-  // get current database channels
-  getCurrentData(checkNewUsers, newUsers, 'users', 'slack_user_id');
-});
+function channelHistory(channelId, ts) {
+  var channelMsgForm = {
+    url: 'https://slack.com/api/channels.history',
+    form: {
+      token: token,
+      channel: channelId,
+      oldest: ts || 0, //"ts": "1462822242.000002" // unique timestamp for each message in channel
+      // newer messages have higher ts value than older ones
+      count: 1000
+    }
+  };
+  slackRequest(channelMsgForm, function(body) {
+    var messages = body.messages;
 
+    messages.forEach(function(message) {
+      var columns = '(message_text, slack_ts, slack_user_id, channel_id)';
+      var values = [message.text, message.ts, message.user, channelId];
+      var valuesHolder = 'values($1, $2, $3, $4)';
+      // insert message text, ts, and slack_user_id to Message table
+      dbInsert('messages', columns, values, valuesHolder);
+    });
+  });
+}
+
+function channelMsgs(currentChannels) {
+  // forEach channel, find oldest ts message
+  currentChannels.forEach(function(channelId) {
+    var currentTS = [];
+    pg.connect(connectionString, function pgSelect(err, client, done) {
+      // Handle connection errors
+      if (err) {
+        done();
+        console.log(err);
+      }
+
+      // SQL Query > Select Data
+      var query = client.query("SELECT * FROM messages WHERE channel_id = " + "'" + channelId.toUpperCase() + "'" + " ORDER BY slack_ts DESC");
+      //"ORDER BY DESC" - then get first element of each rom
+
+      // Stream results back one row at a time
+      query.on('row', function(row) {
+        currentTS.push(row['slack_ts']);
+      });
+
+      query.on('end', function() {
+        done();
+        // grab the latest timestamp and query slack starting from that message to any new ones
+        var latestTS = currentTS[0];
+        if (latestTS) {
+          channelHistory(channelId, latestTS);
+        } else {
+          // if no previous messages - get all
+          channelHistory(channelId);
+        }
+      });
+    });
+  });
+}
+
+exports.populateDB = function populateDB() {
+    // Channel Query
+    slackRequest(channelListForm, function(body) {
+      // check for any new channels
+      var newChannels = body.channels;
+      // get current database channels
+      getCurrentData(checkNewChannel, newChannels, 'channels', 'slack_user_id');
+    });
+
+    // User Query
+    slackRequest(userListForm, function(body) {
+      // check for any new users
+      var newUsers = body.members;
+      // get current users in database
+      getCurrentData(checkNewUsers, newUsers, 'users', 'slack_user_id');
+    });
+
+    // Message Query
+    // make sure other query finishes before initiliasing
+    setTimeout(function() {
+      getCurrentData(channelMsgs, null, 'channels', 'slack_channel_id');
+    }, 1500);
+};
