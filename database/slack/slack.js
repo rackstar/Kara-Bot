@@ -7,17 +7,20 @@ var pg = require('pg');
 var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
 var client = new pg.Client(connectionString);
 
+client.connect();
+
 require('dotenv')
   .config();
 
 var token = process.env.token;
 
-// var userListForm = {
-//   url: 'https://slack.com/api/users.list',
-//   form: {
-//     token: token
-//   }
-// };
+var userListForm = {
+  url: 'https://slack.com/api/users.list',
+  form: {
+    token: token
+  }
+};
+
 var channelListForm = {
   url: 'https://slack.com/api/channels.list',
   form: {
@@ -25,23 +28,19 @@ var channelListForm = {
   }
 };
 
-function dbInsert(table, columns, values) {
-  var valuesHolder = 'values($1, $2)';
+function dbInsert(table, columns, values, valuesHolder) {
   // values = [va1, va2, va3];
   // columns = '(col1, col2, col3)'
   // get connection string from database import
-  pg.connect(connectionString, function pgConnect(err, client, done) {
+  pg.connect(connectionString, function pgInsert(err, client, done) {
     // Handle connection errors
     if (err) {
       done();
       console.log(err);
     }
-    // can only handle 2 or 3 values
+
     // SQL Query > Insert Data
     // "INSERT INTO items(text, complete) values($1, $2)"
-    if (values.length === 3) {
-      valuesHolder = 'values ($1, $2, $3)';
-    }
     var query = client.query('INSERT INTO ' + table + columns + ' ' + valuesHolder, values);
     query.on('end', function() {
       done();
@@ -67,46 +66,40 @@ function slackRequest(form, cb) {
 // add new Channel to database
 // add channel members relationship to database
 
-
 // get all channel
 slackRequest(channelListForm, function(body) {
   // check for any new channels
   var newChannels = body.channels;
   // get current database channels
-  getChannels(checkNewChannel, newChannels);
+  getCurrentData(checkNewChannel, newChannels, 'channels', 'slack_user_id');
 });
 
-function getChannels(cb, newChannels) {
-  var channels = [];
+function getCurrentData(cb, newData, table, property) {
+  var currentData = [];
   // Get a Postgres client from the connection pool
   // get connectionString from imported connection pg.connectionString
-  pg.connect(connectionString, function(err, client, done) {
+  pg.connect(connectionString, function pgSelect(err, client, done) {
     // Handle connection errors
     if (err) {
       done();
       console.log(err);
-      return res.status(500)
-        .json({
-          success: false,
-          data: err
-        });
     }
 
     // SQL Query > Select Data
-    var query = client.query("SELECT * FROM channels");
+    var query = client.query("SELECT * FROM " + table);
 
     // Stream results back one row at a time
     query.on('row', function(row) {
       //push data to channels
-      channels.push(row.slack_channel_id);
+      row = row || row[property];
+      currentData.push(row[property]);
     });
 
     // After all data is returned, close connection and return results
     query.on('end', function() {
       done();
       // callback on channels
-      // checkNewChannel(channels, newChannels, cb2, cb3);
-      cb(channels, newChannels);
+      cb(currentData, newData);
     });
   });
 }
@@ -127,8 +120,9 @@ function checkNewChannel(currentChannels, newChannels) {
 function addChannel(channel) {
   var columns = '(channel_name, slack_channel_id)';
   var values = [channel.name, channel.id];
+  var valuesHolder = 'values($1, $2)';
   // add Channel
-  dbInsert('channels', columns, values);
+  dbInsert('channels', columns, values, valuesHolder);
 }
 
 function channelMembers(channel) {
@@ -136,12 +130,14 @@ function channelMembers(channel) {
   membersId.forEach(function(memberId) {
     var columns = '(slack_user_id, channel_id)';
     var values = [memberId, channel.id];
+    var valuesHolder = 'values($1, $2)';
     // create relationship
-    dbInsert('channel_user', columns, values);
+    dbInsert('channel_user', columns, values, valuesHolder);
   });
 }
-/*
-function channelHistory(channelId, ts) {
+
+
+/*function channelHistory(channelId, ts) {
   var channelMsgForm = {
     url: 'https://slack.com/api/channels.history',
     form: {
@@ -179,35 +175,37 @@ function lowestTS(channels, cb) {
     //channel.ts
   });
   // call channelHistory on each of channelId and lowestTS
-  channelHistory(channelId, lowestTS) l
+  channelHistory(channelId, lowestTS)
+}*/
+
+function checkNewUsers(currentUsers, newUsers) {
+  if (newUsers.length > currentUsers.length) {
+    newUsers.forEach(function(user) {
+      if (currentUsers.indexOf(user.id) < 0) {
+        addUser(user);
+      }
+    });
+  }
 }
 
-// function checkNewUsers(body, oldCount, cb) {
-//   var members = body.members;
-//   console.log(members.length);
-//   if (members.length > oldCount) {
-//     members.forEach(function(member) {
-//       var slackId = member.id;
-//       // check using slackId if user is already in database
-//       var username = member.name;
-//       var firstname = member.profile.first_name;
-//       var lastname = member.profile.last_name;
-//       var is_bot = member.is_bot;
-//       if (!is_bot) {
-//         var email = member.profile.email;
-//       }
-//       // addUser
-//       cb();
-//     });
-//   }
+function addUser(user) {
+  var columns = '(username, slack_user_id, firstname, lastname, is_bot)';
+  var values = [user.name, user.id, user.profile.first_name, user.profile.last_name, user.is_bot];
+  var valuesHolder = 'values($1, $2, $3, $4, $5)';
+  // add email if not bot
+  if (user.is_bot === false && user.profile.email) {
+    values.push(user.profile.email);
+    valuesHolder = 'values($1, $2, $3, $4, $5, $6)';
+    columns = '(username, slack_user_id, firstname, lastname, is_bot, email)';
+  }
+  // add to users table
+  dbInsert('users', columns, values, valuesHolder);
+}
 
-// }
+slackRequest(userListForm, function(body) {
+  // check for any new channels
+  var newUsers = body.members;
+  // get current database channels
+  getCurrentData(checkNewUsers, newUsers, 'users', 'slack_user_id');
+});
 
-// function addUser (details) {
-//   // create new entry
-// }
-
-
-// slackRequest(userListForm, checkNewUsers);
-
-*/
