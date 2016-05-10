@@ -7,13 +7,6 @@ var pg = require('pg');
 var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
 var client = new pg.Client(connectionString);
 
-client.connect();
-
-var query = client.query('CREATE TABLE users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40) not null, email VARCHAR(40) not null, is_bot BOOLEAN)');
-query.on('end', function() {
-  client.end();
-});
-
 require('dotenv')
   .config();
 
@@ -25,28 +18,36 @@ var token = process.env.token;
 //     token: token
 //   }
 // };
+var channelListForm = {
+  url: 'https://slack.com/api/channels.list',
+  form: {
+    token: token
+  }
+};
 
 function dbInsert(table, columns, values) {
-  // values = '(val1, val2, val3)'
+  var valuesHolder = 'values($1, $2)';
+  // values = [va1, va2, va3];
   // columns = '(col1, col2, col3)'
   // get connection string from database import
-  pg.connect(connectionString, function(err, client, done) {
+  pg.connect(connectionString, function pgConnect(err, client, done) {
     // Handle connection errors
     if (err) {
       done();
       console.log(err);
-      return res.status(500)
-        .json({
-          success: false,
-          data: err
-        });
     }
-
+    // can only handle 2 or 3 values
     // SQL Query > Insert Data
     // "INSERT INTO items(text, complete) values($1, $2)"
-    client.query("INSERT INTO "
-      table columns ' values'
-      values, [ /* what is this for? data.text, data.complete*/ ]);
+    if (values.length === 3) {
+      valuesHolder = 'values ($1, $2, $3)';
+    }
+    var query = client.query('INSERT INTO ' + table + columns + ' ' + valuesHolder, values);
+    query.on('end', function() {
+      done();
+      console.log(values + ' data inserted');
+    });
+
   });
 }
 
@@ -72,13 +73,10 @@ slackRequest(channelListForm, function(body) {
   // check for any new channels
   var newChannels = body.channels;
   // get current database channels
-  getChannels(checkNewChannel, addChannel, channelMembers, newChannels);
+  getChannels(checkNewChannel, newChannels);
 });
 
-
-
-
-function getChannels(cb1, cb2, cb3, newChannels) {
+function getChannels(cb, newChannels) {
   var channels = [];
   // Get a Postgres client from the connection pool
   // get connectionString from imported connection pg.connectionString
@@ -95,12 +93,12 @@ function getChannels(cb1, cb2, cb3, newChannels) {
     }
 
     // SQL Query > Select Data
-    var query = client.query("SELECT * FROM Channels");
+    var query = client.query("SELECT * FROM channels");
 
     // Stream results back one row at a time
     query.on('row', function(row) {
       //push data to channels
-      channels.push(row);
+      channels.push(row.slack_channel_id);
     });
 
     // After all data is returned, close connection and return results
@@ -108,47 +106,41 @@ function getChannels(cb1, cb2, cb3, newChannels) {
       done();
       // callback on channels
       // checkNewChannel(channels, newChannels, cb2, cb3);
-      cb1(channels, newChannels, cb2, cb3);
+      cb(channels, newChannels);
     });
   });
 }
 
-function checkNewChannel(oldChannels, newChannels, cb1, cb2) {
+function checkNewChannel(currentChannels, newChannels) {
   //check if old and new channel length is the same
-  if (newChannels.length > oldChannel.length) {
+  if (newChannels.length > currentChannels.length) {
     newChannels.forEach(function(channel) {
       // find the new channel
       if (currentChannels.indexOf(channel.id) < 0) {
-        console.log(channel.name, channel.id, 'NEW CHANNEL');
-        // addChannel(channel)
-        cb1(channel);
-        // channelMembers(channel) - create relationship
-        cb2(channel);
+        addChannel(channel);
+        channelMembers(channel);
       }
     });
   }
 }
 
 function addChannel(channel) {
-  var columns = '(channel_id, channe_name)'
-  var values = '('
-  channel.name ', '
-  channel.id ')';
+  var columns = '(channel_name, slack_channel_id)';
+  var values = [channel.name, channel.id];
   // add Channel
-  dbInsert('Channel', columns, values);
+  dbInsert('channels', columns, values);
 }
 
 function channelMembers(channel) {
   var membersId = channel.members;
   membersId.forEach(function(memberId) {
-    var columns = '(user, channel)';
-    var values = '('
-    memberId channel.id ')';
+    var columns = '(slack_user_id, channel_id)';
+    var values = [memberId, channel.id];
     // create relationship
-    dbInsert('Channel Users', columns, values);
+    dbInsert('channel_user', columns, values);
   });
 }
-
+/*
 function channelHistory(channelId, ts) {
   var channelMsgForm = {
     url: 'https://slack.com/api/channels.history',
@@ -165,10 +157,7 @@ function channelHistory(channelId, ts) {
     messages.forEach(function(message) {
       // change relationship of message to be with slack_id because its easier
       var columns = '(message_body, ts, slack_user_id)'
-      var values = '('
-      message.text ', '
-      message.ts ', '
-      message.user ')';
+      var values = [message.text, message.ts, message.user];
       // insert message text, ts, and slack_user_id to Message table
       dbInsert('Messages', columns, values);
     })
@@ -220,3 +209,5 @@ function lowestTS(channels, cb) {
 
 
 // slackRequest(userListForm, checkNewUsers);
+
+*/
