@@ -1,4 +1,5 @@
 import axios from 'axios';
+axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userToken');
 
 export const FETCH_CHAT = 'FETCH_CHAT';
 export const BOT_ACTIVITY = 'BOT_ACTIVITY';
