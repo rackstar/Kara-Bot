@@ -245,7 +245,6 @@ function listFreeSlots(auth, cb, param1, param2) {
             }
             curTime = end.slice(11, 16)
             cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(end.slice(11, 16), true);
-            // cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(event.end.dateTime.slice(11, 16), true);
             if (start.slice(0, 10) !== ISODate) {
               cData += ' (starts day before)';
             }
