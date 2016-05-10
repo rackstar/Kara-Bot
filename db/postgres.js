@@ -1,6 +1,8 @@
 var request = require('request');
 var pg = require('pg');
 
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
+
 
 require('dotenv').config();
 
