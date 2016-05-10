@@ -98,6 +98,7 @@ exports.watchRepo = function watchRepo(bot, message) {
   var repo = userRepo[1];
   bot.reply(message, 'BeepBop.. Targeting repo.');
 
+  // TO DO - help fail validation (*\/*)
   // /watch help
   if (repo.toLowerCase() === 'help') {
     var helpMessage = {
@@ -226,7 +227,7 @@ exports.unwatchRepo = function unwatchRepo(bot, message) {
             if (response.meta.status === '204 No Content') {
               // TO DO - if deleted already inform user
               var deleteConfirmation = {
-                text: 'Ok! I\'ll stop notifying you of ' + userRepo + '\'s events'
+                text: 'Ok! I\'ll stop notifying you of ' + userRepo.join('/') + '\'s events'
               };
               bot.reply(message, deleteConfirmation);
             }
