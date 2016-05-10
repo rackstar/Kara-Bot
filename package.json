@@ -7,7 +7,8 @@
     "start": "nodemon server.js",
     "test": "mocha ./spec/karabot.js",
     "webpack": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
-    "production": "webpack -p"
+    "production": "webpack -p; node server.js",
+    "heroku-postbuild": "webpack -p"
   },
   "repository": {
     "type": "git",
