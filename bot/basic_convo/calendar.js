@@ -93,8 +93,19 @@ function cnew(bot, message) {
     return;
   }
     
-  console.log('Hello from cnew!', '>' + message.text + '<');
-  bot.reply(message, 'Hello from set event');
+  // time inputs have passed validation
+  var startDate = new Date;
+  var endDate = new Date;
+  startDate.setHours(startHour, startMinute, 0, 0);
+  endDate.setHours(endHour, endMinute, 0, 0);
+  var insertData = {
+    summary: args.slice(3).join(' '),
+    start: startDate.toISOString(),
+    end: endDate.toISOString()
+  };
+  googCal.authCallFunction(function (data) {
+    bot.reply(message, data);
+    }, 'insert event', insertData);
 }
 
 module.exports = {

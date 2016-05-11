@@ -41,6 +41,9 @@ function authCallFunction(cb, reqType, param1, param2) {
   if (reqType === 'free slots') {
     authorize(JSON.parse(content), listFreeSlots, cb, param1, param2);
   }
+  if (reqType === 'insert event') {
+    authorize(JSON.parse(content), insertEvent, cb, param1, param2);
+  }
   // });
 }
 /**
@@ -233,7 +236,7 @@ function listFreeSlots(auth, cb, param1, param2) {
       var curTime = new Date(param1).toTimeString().slice(0, 5);
       var allDayEvent = false;
       console.log('Upcoming 20 events:');  
-      cData = '*' + events[0].organizer.displayName + '* \n```' + param1.toString().slice(0,10) + '```\n';
+      cData = '*' + events[0].organizer.displayName + '* \n```' + param1.toString().slice(0, 10) + '```\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
@@ -296,6 +299,37 @@ function listCalendars(auth, cb) {
       cData += '```';
       cb(cData);
     }
+  });
+}
+
+function insertEvent(auth, cb, param1, param2) {
+  var calendar = google.calendar('v3');
+  var cData = ''; // Our return data, declare here for use in later branches
+  calendar.events.insert(
+    {
+      auth: auth,
+      calendarId: '62ao9jj5es0se62blotv8p5up0@group.calendar.google.com',
+      resource: 
+        {
+          start: 
+            {
+              dateTime: param1.start
+            },
+          end:
+            {
+              dateTime: param1.end
+            },
+          summary: param1.summary
+        }
+    },
+    function (err, response) {
+      if (err) {
+        console.log('The API returned an error: ' + err);
+        cData = ':anguished: Darn! The API returned an error with that option';
+        cb(cData);
+        return;
+      }
+      cb('_event has been added_');
   });
 }
 
