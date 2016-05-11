@@ -55,7 +55,11 @@ function cnew(bot, message) {
   var errorText = '_Sorry, I don\'t understand_ ';
   var args = message.text.split(' ');
   if (args.length < 4) {
-    bot.reply(message, errorText + args);
+    if (args.length === 1) {
+      bot.reply(message, '_format is:_  startHour[:startMinute]  endHour[:endMinute]  Event_Title  [*|* Event_Location]');
+      return;
+    }
+    bot.reply(message, errorText + args.slice(1) + '  _(just type_  cnew  _for format of input)_');
     return;
   }
   var start = args[1].split(':');
@@ -98,8 +102,15 @@ function cnew(bot, message) {
   var endDate = new Date;
   startDate.setHours(startHour, startMinute, 0, 0);
   endDate.setHours(endHour, endMinute, 0, 0);
+  var eventText = args.slice(3).join(' ');
+  var eventLocation = '';
+  if (eventText.includes('|')) {
+    eventLocation = eventText.slice(eventText.indexOf('|') + 1);
+    eventText = eventText.slice(0, eventText.indexOf('|'));
+  }
   var insertData = {
-    summary: args.slice(3).join(' '),
+    summary: eventText,
+    location: eventLocation,
     start: startDate.toISOString(),
     end: endDate.toISOString()
   };

@@ -319,7 +319,8 @@ function insertEvent(auth, cb, param1, param2) {
             {
               dateTime: param1.end
             },
-          summary: param1.summary
+          summary: param1.summary,
+          location: param1.location
         }
     },
     function (err, response) {
