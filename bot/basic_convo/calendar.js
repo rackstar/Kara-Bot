@@ -18,7 +18,7 @@ function ctomo(bot, message) {
   bot.reply(message, '_I\'m searching..._');
   var tomorrow = new Date;
   // This is 12:00:00am next day in THIS time zone
-  tomorrow.setHours(24,0,0,0);
+  tomorrow.setHours(24, 0, 0, 0);
   googCal.authCallFunction(function (data) {
     bot.reply(message, data);
   }, 'days events', tomorrow);
@@ -28,7 +28,7 @@ function cdayaft(bot, message) {
   bot.reply(message, '_I\'m searching..._');
   var tomorrow = new Date;
   // This is 12:00:00am day after next in THIS time zone
-  tomorrow.setHours(48,0,0,0);
+  tomorrow.setHours(48, 0, 0, 0);
   googCal.authCallFunction(function (data) {
     bot.reply(message, data);
   }, 'days events', tomorrow);
@@ -45,7 +45,7 @@ function cfreetom(bot, message) {
   bot.reply(message, '_I\'m searching..._');
   var tomorrow = new Date;
   // This is 12:00:00am next day in THIS time zone
-  tomorrow.setHours(24,0,0,0);
+  tomorrow.setHours(24, 0, 0, 0);
   googCal.authCallFunction(function (data) {
     bot.reply(message, data);
   }, 'free slots', tomorrow);
@@ -72,11 +72,11 @@ function cnew(bot, message) {
   if (start.length > 1) {
     startMinute = Number(start[1]);
     if (Number.isNaN(startMinute) || startMinute < 0 || startMinute > 59) {
-         bot.reply(message, errorText + start[1]); 
-         return;
+      bot.reply(message, errorText + start[1]);
+      return;
     }
   }
-  
+
   var end = args[2].split(':');
   var endHour = Number(end[0]);
   if (Number.isNaN(endHour) || endHour < 0 || endHour > 23) {
@@ -87,16 +87,16 @@ function cnew(bot, message) {
   if (end.length > 1) {
     endMinute = Number(end[1]);
     if (Number.isNaN(endMinute) || endMinute < 0 || endMinute > 59) {
-         bot.reply(message, errorText + end[1]); 
-         return;
+      bot.reply(message, errorText + end[1]);
+      return;
     }
   }
 
   if (startHour > endHour || (startHour === endHour && startMinute >= endMinute)) {
-    bot.reply(message, errorText + 'that time range'); 
+    bot.reply(message, errorText + 'that time range');
     return;
   }
-    
+
   // time inputs have passed validation
   var startDate = new Date;
   var endDate = new Date;
@@ -116,20 +116,20 @@ function cnew(bot, message) {
   };
   googCal.authCallFunction(function (data) {
     bot.reply(message, data);
-    }, 'insert event', insertData);
+  }, 'insert event', insertData);
 }
 
 function chelp(bot, message) {
   var commands = '```';
-  commands += 'clist    - list calendars\n'
-  commands += 'ctoday   - events today\n'
-  commands += 'ctomo    - events tomorrow\n'
-  commands += 'cdayaft  - events day after tomorrow\n'
-  commands += 'cfree    - free blocks today\n'
-  commands += 'cfreetom - free blocks tomorrow\n'
-  commands += 'cnew     - add an event today'
-  commands += '```'
-  bot.reply(message, commands);  
+  commands += 'clist    - list calendars\n';
+  commands += 'ctoday   - events today\n';
+  commands += 'ctomo    - events tomorrow\n';
+  commands += 'cdayaft  - events day after tomorrow\n';
+  commands += 'cfree    - free blocks today\n';
+  commands += 'cfreetom - free blocks tomorrow\n';
+  commands += 'cnew     - add an event today';
+  commands += '```';
+  bot.reply(message, commands);
 }
 
 module.exports = {

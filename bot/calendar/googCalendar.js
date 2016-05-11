@@ -28,7 +28,7 @@ function authCallFunction(cb, reqType, param1, param2) {
     cb(':anguished: Darn! The API key is `undefined`');
     return;
   }
-  
+
   var content = process.env.googleCalAPIKey;
   // Authorize a client with the loaded credentials, then call the
   // Google Calendar API, pass callback to execute on data provided
@@ -139,7 +139,7 @@ function listEvents(auth, cb, param1, param2) {
   var calendar = google.calendar('v3');
   var cData = ''; // Our return data, declare here for use in later branches
   var maxDate = new Date(param1);
-  maxDate.setHours(24,0,0,0); // setHours returns numeric value, must do 2 step process
+  maxDate.setHours(24, 0, 0, 0); // setHours returns numeric value, must do 2 step process
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
@@ -160,17 +160,17 @@ function listEvents(auth, cb, param1, param2) {
     console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
-      cData = '*' + 'KaraBot Sub Calendar' + '*```' + param1.toString().slice(0,10) + '\n';
+      cData = '*' + 'KaraBot Sub Calendar' + '*```' + param1.toString().slice(0, 10) + '\n';
       cData += ' no events found```';
       cb(cData);
     } else {
       // Fun with JavaScript dates, ISO will roll date forward by time zone offset, so roll hours back
       // by number of hours of time zone offset first, then create ISO string
       var ISODate = new Date(param1);
-      ISODate.setHours(ISODate.getHours() - (ISODate.getTimezoneOffset() / 60)) // setHours returns numeric value!
-      ISODate = ISODate.toISOString().slice(0, 10)
-      console.log('Upcoming 20 events:');  
-      cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0,10) + '\n';
+      ISODate.setHours(ISODate.getHours() - (ISODate.getTimezoneOffset() / 60)); // setHours returns numeric value!
+      ISODate = ISODate.toISOString().slice(0, 10);
+      console.log('Upcoming 20 events:');
+      cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0, 10) + '\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
@@ -203,7 +203,7 @@ function listFreeSlots(auth, cb, param1, param2) {
   var calendar = google.calendar('v3');
   var cData = ''; // Our return data, declare here for use in later branches
   var maxDate = new Date(param1);
-  maxDate.setHours(24,0,0,0); // setHours returns numeric value, must do 2 step process
+  maxDate.setHours(24, 0, 0, 0); // setHours returns numeric value, must do 2 step process
   calendar.events.list({
     auth: auth,
     // calendarId: 'primary',
@@ -224,7 +224,7 @@ function listFreeSlots(auth, cb, param1, param2) {
     console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
-      cData = '*' + 'KaraBot Sub Calendar' + '*``' + param1.toString().slice(0,10) + '\n';
+      cData = '*' + 'KaraBot Sub Calendar' + '*``' + param1.toString().slice(0, 10) + '\n';
       cData += ' no events found```';
       cb(cData);
     } else {
@@ -235,7 +235,7 @@ function listFreeSlots(auth, cb, param1, param2) {
       ISODate = ISODate.toISOString().slice(0, 10);
       var curTime = new Date(param1).toTimeString().slice(0, 5);
       var allDayEvent = false;
-      console.log('Upcoming 20 events:');  
+      console.log('Upcoming 20 events:');
       cData = '*' + events[0].organizer.displayName + '* \n```' + param1.toString().slice(0, 10) + '```\n';
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
@@ -246,7 +246,7 @@ function listFreeSlots(auth, cb, param1, param2) {
             if (!allDayEvent && curTime < start.slice(11, 16)) {
               cData += '`' + dmzTime(curTime, true) + ' to ' + dmzTime(start.slice(11, 16), true) + ' free slot`\n';
             }
-            curTime = end.slice(11, 16)
+            curTime = end.slice(11, 16);
             cData += dmzTime(start.slice(11, 16)) + ' to ' + dmzTime(end.slice(11, 16), true);
             if (start.slice(0, 10) !== ISODate) {
               cData += ' (starts day before)';
@@ -309,9 +309,9 @@ function insertEvent(auth, cb, param1, param2) {
     {
       auth: auth,
       calendarId: '62ao9jj5es0se62blotv8p5up0@group.calendar.google.com',
-      resource: 
+      resource:
         {
-          start: 
+          start:
             {
               dateTime: param1.start
             },
@@ -331,7 +331,7 @@ function insertEvent(auth, cb, param1, param2) {
         return;
       }
       cb('_event has been added_');
-  });
+    });
 }
 
 function dmzTime(dmzString, noLeadSpace) {
