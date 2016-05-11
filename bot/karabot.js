@@ -37,17 +37,17 @@ controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
 //Get highest priority issues
 
-controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], 'direct_message,direct_mention,mention', jira.getHighestPriorityIssues);
+controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
 
 // Google Calendar
-controller.hears(['clist'], 'direct_message,direct_mention,mention', calendar.clist);
-controller.hears(['ctoday'], 'direct_message,direct_mention,mention', calendar.ctoday);
-controller.hears(['ctomo*', 'ctomm*'], 'direct_message,direct_mention,mention', calendar.ctomo);
-controller.hears(['cdayaft'], 'direct_message,direct_mention,mention', calendar.cdayaft);
-controller.hears(['cfreetom'], 'direct_message,direct_mention,mention', calendar.cfreetom); // ensure botkit traps this before 'cfree'
-controller.hears(['cfree'], 'direct_message,direct_mention,mention', calendar.cfree);
-controller.hears(['cnew'], 'direct_message,direct_mention,mention', calendar.cnew);
-controller.hears(['chelp'], 'direct_message,direct_mention,mention', calendar.chelp);
+controller.hears(['clist'], directMessage, calendar.clist);
+controller.hears(['ctoday'], directMessage, calendar.ctoday);
+controller.hears(['ctomo*', 'ctomm*'], directMessage, calendar.ctomo);
+controller.hears(['cdayaft'], directMessage, calendar.cdayaft);
+controller.hears(['cfreetom'], directMessage, calendar.cfreetom); // ensure botkit traps this before 'cfree'
+controller.hears(['cfree'], directMessage, calendar.cfree);
+controller.hears(['cnew'], directMessage, calendar.cnew);
+controller.hears(['chelp'], directMessage, calendar.chelp);
 
 // Github
 controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)',
