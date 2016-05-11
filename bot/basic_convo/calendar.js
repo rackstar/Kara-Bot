@@ -119,6 +119,19 @@ function cnew(bot, message) {
     }, 'insert event', insertData);
 }
 
+function chelp(bot, message) {
+  var commands = '```';
+  commands += 'clist    - list calendars\n'
+  commands += 'ctoday   - events today\n'
+  commands += 'ctomo    - events tomorrow\n'
+  commands += 'cdayaft  - events day after tomorrow\n'
+  commands += 'cfree    - free blocks today\n'
+  commands += 'cfreetom - free blocks tomorrow\n'
+  commands += 'cnew     - add an event today'
+  commands += '```'
+  bot.reply(message, commands);  
+}
+
 module.exports = {
   clist: clist,
   ctoday: ctoday,
@@ -126,5 +139,6 @@ module.exports = {
   cdayaft: cdayaft,
   cfree: cfree,
   cfreetom: cfreetom,
-  cnew: cnew
+  cnew: cnew,
+  chelp: chelp
 };

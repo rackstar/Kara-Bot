@@ -47,6 +47,7 @@ controller.hears(['cdayaft'], 'direct_message,direct_mention,mention', calendar.
 controller.hears(['cfree'], 'direct_message,direct_mention,mention', calendar.cfree);
 controller.hears(['cfreetom'], 'direct_message,direct_mention,mention', calendar.cfreetom);
 controller.hears(['cnew'], 'direct_message,direct_mention,mention', calendar.cnew);
+controller.hears(['chelp'], 'direct_message,direct_mention,mention', calendar.chelp);
 
 // Github
 controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)',
