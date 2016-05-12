@@ -4,6 +4,7 @@ var egg = require('./basic_convo/egg.js');
 var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
 var github = require('./github/github.js');
+var watson = require('../db/watson/translation.js');
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -54,3 +55,6 @@ controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)'
   'show repos', 'repos', 'show repo'], directMessage, github.getRepo);
 controller.hears(['unwatch (.*\/.*)'], directMessage, github.unwatchRepo);
 controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);
+
+// Watson
+controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);
