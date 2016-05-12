@@ -68,9 +68,11 @@ function getCurrentData(cb, newData, table, property) {
 
     // Stream results back one row at a time
     query.on('row', function(row) {
+      if (property) {
+        row = row[property];
+      }
       //push data to channels
-      row = row || row[property];
-      currentData.push(row[property]);
+      currentData.push(row);
     });
 
     // After all data is returned, close connection and return results
