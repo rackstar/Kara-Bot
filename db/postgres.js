@@ -197,7 +197,7 @@ function channelMsgs(currentChannels) {
   });
 }
 
-exports.getTableData = function getTableData(table) {
+exports.getTableData = function getTableData(cb, table) {
   var currentData = [];
   // Get a Postgres client from the connection pool
   // get connectionString from imported connection pg.connectionString
@@ -215,14 +215,13 @@ exports.getTableData = function getTableData(table) {
     query.on('row', function(row) {
       //push data to channels
       currentData.push(row);
-      console.log('HERE IS A ROW', row)
     });
 
     // After all data is returned, close connection and return results
     query.on('end', function() {
-      return currentData;
       done();
       // return table data
+      cb(currentData);
     });
   });
   // return currentData
