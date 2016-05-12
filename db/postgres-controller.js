@@ -3,9 +3,9 @@ var request = require('request');
 
 module.exports = {
   getAllChannels: function (req, res) {
-    console.log('hello');
+    // console.log('hello');
+    console.log(db.getTableData('channels'));
     res.end()
-    // console.log(db.getTableData('channels'));
   },
 
   getAllUsers: function () {

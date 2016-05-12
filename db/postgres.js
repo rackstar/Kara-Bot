@@ -214,17 +214,18 @@ exports.getTableData = function getTableData(table) {
     // Stream results back one row at a time
     query.on('row', function(row) {
       //push data to channels
-      row = row || row[property];
-      currentData.push(row[property]);
+      currentData.push(row);
+      console.log('HERE IS A ROW', row)
     });
 
     // After all data is returned, close connection and return results
     query.on('end', function() {
+      return currentData;
       done();
       // return table data
-      return currentData;
     });
   });
+  // return currentData
 }
 
 exports.populateDB = function populateDB() {
