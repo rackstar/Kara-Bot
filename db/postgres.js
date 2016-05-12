@@ -227,6 +227,36 @@ exports.getTableData = function getTableData(cb, table) {
   // return currentData
 }
 
+exports.select = function select(cb, table, column, value, property) {
+   var data = [];
+ 
+   pg.connect(connectionString, function pgSelect(err, client, done) {
+     // Handle connection errors
+     if (err) {
+       done();
+       console.log(err);
+     }
+ 
+     // "SELECT * FROM table WHERE column = 'value'"
+     var query = client.query("SELECT * FROM " + table +
+                              " WHERE " + column + "='" +
+                              value + "'");
+ 
+     query.on('row', function(row) {
+       if (property) {
+         row = row[property];
+       }
+       data.push(row);
+     });
+ 
+     query.on('end', function() {
+       done();
+       // callback on data
+       cb(data);
+     });
+   });
+ };
+
 exports.populateDB = function populateDB() {
     // Channel Query
     slackRequest(channelListForm, function(body) {

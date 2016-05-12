@@ -41,5 +41,5 @@ module.exports = function (app) {
   //List users - get
   app.get('/api/user', dbController.getAllUsers);
   //Get user data - get
-  app.post('/api/channel/:user_id', dbController.getUserData);
+  app.get('/api/user/:user_id', dbController.getUserData);
 };
