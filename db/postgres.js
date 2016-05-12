@@ -197,7 +197,7 @@ function channelMsgs(currentChannels) {
   });
 }
 
-exports.getTableData = function getTableData(table) {
+exports.getTableData = function getTableData(cb, table) {
   var currentData = [];
   // Get a Postgres client from the connection pool
   // get connectionString from imported connection pg.connectionString
@@ -214,18 +214,48 @@ exports.getTableData = function getTableData(table) {
     // Stream results back one row at a time
     query.on('row', function(row) {
       //push data to channels
-      row = row || row[property];
-      currentData.push(row[property]);
+      currentData.push(row);
     });
 
     // After all data is returned, close connection and return results
     query.on('end', function() {
       done();
       // return table data
-      return currentData;
+      cb(currentData);
     });
   });
+  // return currentData
 }
+
+exports.select = function select(cb, table, column, value, property) {
+   var data = [];
+ 
+   pg.connect(connectionString, function pgSelect(err, client, done) {
+     // Handle connection errors
+     if (err) {
+       done();
+       console.log(err);
+     }
+ 
+     // "SELECT * FROM table WHERE column = 'value'"
+     var query = client.query("SELECT * FROM " + table +
+                              " WHERE " + column + "='" +
+                              value + "'");
+ 
+     query.on('row', function(row) {
+       if (property) {
+         row = row[property];
+       }
+       data.push(row);
+     });
+ 
+     query.on('end', function() {
+       done();
+       // callback on data
+       cb(data);
+     });
+   });
+ };
 
 exports.populateDB = function populateDB() {
     // Channel Query

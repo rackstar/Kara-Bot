@@ -39,7 +39,7 @@ module.exports = function (app) {
   //Get channel messages - date range, last 30 days, 
   app.post('/api/channel/:channel_id', dbController.getChannelMessages);
   //List users - get
-  app.post('/api/user', dbController.getAllUsers);
+  app.get('/api/user', dbController.getAllUsers);
   //Get user data - get
-  app.post('/api/channel/:user_id', dbController.getUserData);
+  app.get('/api/user/:user_id', dbController.getUserData);
 };
