@@ -45,9 +45,31 @@ require('./bot/karabot');
 
 var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
 
+var dbClient = new pg.Client(connectionString);
+dbClient.connect();
+
+var databases = {};
+var dbCheck = dbClient.query('SELECT * FROM pg_database;')
+dbCheck.on('row', function(row, result){
+  databases[row.datname] = true;
+});
+dbCheck.on('end', function() {
+  console.log('DATABASESSSSS', databases);
+  if(!databases.karabot){
+    var createDbQuery = dbClient.query('CREATE DATABASE karabot');
+    createDbQuery.on('end', function(){
+      dbClient.end();
+    })
+  } else{
+    dbClient.end();
+  }
+});
+
 var client = new pg.Client(connectionString);
 client.connect();
-
+// console.log('DB CHECK',client.query('SELECT * FROM pg_database;'))
+// client.query('CREATE DATABASE IF NOT EXISTS karabot')
+// client.query('IF EXISTS (SELECT 1 FROM pg_database WHERE datname = "karabot") THEN RAISE NOTICE "Database already exists"; ELSE PERFORM dblink_exec("dbname=" || current_database() , "CREATE DATABASE KARABOT") END IF;');
 client.query('CREATE TABLE IF NOT EXISTS channels(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
 client.query('CREATE TABLE IF NOT EXISTS users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40), firstname VARCHAR(40), lastname VARCHAR(40), email VARCHAR(40), is_bot BOOLEAN)');
 client.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
