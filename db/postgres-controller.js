@@ -42,7 +42,7 @@ module.exports = {
     var channelMessages = [];
     //variables for how far back we should look for messages (default is 7 days)
     var days;
-    req.body.days ? days = req.body.days : days = 7;
+    req.body.days ? days = parseInt(req.body.days) : days = 7;
     var range = Date.now() - (days * 24 * 60 * 60 * 1000);
     var time = new Date();
     //query the database for messages
