@@ -30,7 +30,7 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing url encoded
 
 // Block users who aren't logged in from doing requests on api data
-app.use('/api/', jwtCheck);
+// app.use('/api/', jwtCheck);
 
 // routes
 require('./bot/config/routes')(app);
@@ -42,28 +42,56 @@ app.set('port', (process.env.PORT));
 require('./bot/karabot');
 
 // DATABASE ===================================================
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432';
 
-var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
+var checkClient = new pg.Client(connectionString);
+checkClient.connect();
 
-var client = new pg.Client(connectionString);
-client.connect();
-
-client.query('CREATE TABLE IF NOT EXISTS channels(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
-client.query('CREATE TABLE IF NOT EXISTS users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40), firstname VARCHAR(40), lastname VARCHAR(40), email VARCHAR(40), is_bot BOOLEAN)');
-client.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
-var query = client.query('CREATE TABLE IF NOT EXISTS channel_user(join_id SERIAL PRIMARY KEY, slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
-
-// populate DB after tables are created
-query.on('end', function() {
-  client.end();
-  db.populateDB();
-  // populate db every 2 hours
-  setInterval(function() {
+var addAndUpdateTables = function(){
+  //end check client
+  checkClient.end();
+  //rest connection string to karabot db url
+  connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/karabot';
+  //connect to db
+  var queryClient = new pg.Client(connectionString);
+  queryClient.connect();
+  //add tables
+  queryClient.query('CREATE TABLE IF NOT EXISTS channels(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
+  queryClient.query('CREATE TABLE IF NOT EXISTS users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40), firstname VARCHAR(40), lastname VARCHAR(40), email VARCHAR(40), is_bot BOOLEAN)');
+  queryClient.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
+  var addTables = queryClient.query('CREATE TABLE IF NOT EXISTS channel_user(join_id SERIAL PRIMARY KEY, slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
+  addTables.on('end', function() {
+    queryClient.end();
     db.populateDB();
-    console.log('db populated');
-  }, 1000 * 60 * 60 * 2);
+    console.log('db populated initial');
+      // populate db every 2 hours
+      setInterval(function() {
+        console.log('db populated sec');
+        db.populateDB();
+      }, 1000 * 60 * 60 * 2);
+  });
+};
+
+//storage for available database names
+var databases = {};
+//check available databses
+var dbCheck = checkClient.query('SELECT * FROM pg_database');
+//when a row(db) is recievd, add its name to databases object
+dbCheck.on('row', function(row) {
+  databases[row.datname] = true
 });
-  
+//when check is finished, create and/or add tables to db, set interval to update
+dbCheck.on('end', function() {
+  if(databases.karabot){
+    addAndUpdateTables();
+  } else {
+    //create db
+    var createDbQuery = checkClient.query('CREATE DATABASE karabot;');
+    createDbQuery.on('end', function() {
+      addAndUpdateTables();
+    });
+  }
+}); 
 
 // START ===================================================
 http.listen(app.get('port'), function () {
