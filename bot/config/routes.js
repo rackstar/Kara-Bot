@@ -27,19 +27,19 @@ module.exports = function (app) {
   app.use(errorLogger);
   app.use(errorHandler);
 
-  //recieve incoming POST requests from JIRA webhooks
+  // receive incoming POST requests from JIRA webhooks
   app.post('/', jiraController.handleJiraWebhooksIssues);
 
-  //get highest priority JIRA issues on request
+  // get highest priority JIRA issues on request
   app.get('/getHighestPriorityIssues', jiraController.getHighestPriorityIssues);
 
-  //database queries
-  //list channels
+  // database queries
+  // list channels
   app.get('/api/channel', dbController.getAllChannels);
-  //Get channel messages - date range, last 30 days, 
+  // Get channel messages - date range, last 30 days,
   app.post('/api/channel/:channel_id', dbController.getChannelMessages);
-  //List users - get
+  // List users - get
   app.get('/api/user', dbController.getAllUsers);
-  //Get user data - get
+  // Get user data - get
   app.get('/api/user/:user_id', dbController.getUserData);
 };
