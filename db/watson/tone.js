@@ -10,23 +10,41 @@ var tone_analyzer = watson.tone_analyzer({
   version_date: '2016-02-11'
 });
 
-// get Channel Id or user Id from front-end
+// TO DO - add select range dates functionality
 
-var cb = function(data) {
-  data = data.join(' ');
-
+function tone(data, res) {
   tone_analyzer.tone(
     {
-      text: data
+      text: data.join(' ')
     },
-    function(err, tone) {
+    function toneCB(err, tone) {
       if (err) {
         console.log(err);
       } else {
-        console.log(JSON.stringify(tone, null, 2));
+        res.send(tone.document_tone);
       }
     }
   );
+}
+
+function selectMsgs(columnId, value, res) {
+  helper.select(
+    function toneRes(data) {
+      tone(data, res);
+    },
+    'messages',
+    columnId,
+    value,
+    'message_text'
+  );
+}
+
+exports.user = function user(req, res) {
+  var userId = req.body.user;
+  selectMsgs('slack_user_id', userId, res);
 };
 
-helper.select(cb, 'messages', 'channel_id', 'C155RNX46', 'message_text');
+exports.channel = function channel(req, res) {
+  var channelId = req.body.channel;
+  selectMsgs('channel_id', channelId, res);
+};
