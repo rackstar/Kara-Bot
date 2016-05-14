@@ -58,7 +58,7 @@ var addAndUpdateTables = function(){
   //add tables
   queryClient.query('CREATE TABLE IF NOT EXISTS channels(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
   queryClient.query('CREATE TABLE IF NOT EXISTS users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40), firstname VARCHAR(40), lastname VARCHAR(40), email VARCHAR(40), is_bot BOOLEAN)');
-  queryClient.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
+  queryClient.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), username VARCHAR(40), channel_id VARCHAR(40) not null)');
   var addTables = queryClient.query('CREATE TABLE IF NOT EXISTS channel_user(join_id SERIAL PRIMARY KEY, slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
   addTables.on('end', function() {
     queryClient.end();

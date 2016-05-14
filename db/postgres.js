@@ -153,13 +153,26 @@ function channelHistory(channelId, ts) {
   };
   slackRequest(channelMsgForm, function(body) {
     var messages = body.messages;
-
-    messages.forEach(function(message) {
-      var columns = '(message_text, slack_ts, slack_user_id, channel_id)';
-      var values = [message.text, message.ts, message.user, channelId];
-      var valuesHolder = 'values($1, $2, $3, $4)';
-      // insert message text, ts, and slack_user_id to Message table
-      dbInsert('messages', columns, values, valuesHolder);
+    //connect to db
+    var userClient = new pg.Client(connectionString);
+    userClient.connect();
+    //query user db to build refference between slack_user_id and username 
+    var usernames = {};
+    var userQuery = userClient.query('SELECT * FROM users');
+    userQuery.on('row', function(user) {
+      usernames[user.slack_user_id] = user.username;
+    });
+    userQuery.on('end', function() {
+      userClient.end()
+      messages.forEach(function(message) {
+        message.username = usernames[message.user] || 'no_name_webhook';
+        message.user = message.user || 'no_id_webhook';
+        var columns = '(message_text, slack_ts, slack_user_id, channel_id, username)';
+        var values = [message.text, message.ts, message.user, channelId, message.username];
+        var valuesHolder = 'values($1, $2, $3, $4, $5)';
+        // insert message text, ts, and slack_user_id to Message table
+        dbInsert('messages', columns, values, valuesHolder);
+      });
     });
   });
 }
