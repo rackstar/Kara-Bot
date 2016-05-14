@@ -294,3 +294,37 @@ exports.populateDB = function populateDB() {
     getCurrentData(channelMsgs, null, 'channels', 'slack_channel_id');
   }, 1500);
 };
+
+exports.msgsAfterTs = function msgsAfterTs(cb, column, columnValue, startTs, endTs) {
+  var data = [];
+  var command;
+  pg.connect(connectionString, function pgSelect(err, client, done) {
+    // Handle connection errors
+    if (err) {
+      done();
+      console.log(err);
+    }
+
+    command = "SELECT * from messages " +
+              "WHERE " + column + " = " + "'" + columnValue + "'" +
+              "AND slack_ts >= " + "'" + startTs + "' " +
+              "AND slack_ts <= " + "'" + endTs + "' " +
+              "ORDER BY slack_ts ASC";
+
+    var query = client.query(command);
+
+    query.on('row', function(row) {
+      var msgDate = {
+        message: row.message_text,
+        date: new Date(row.slack_ts * 1000)
+      };
+      data.push(msgDate);
+    });
+
+    query.on('end', function() {
+      done();
+      // callback on data
+      cb(data);
+    });
+  });
+}
