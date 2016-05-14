@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
-// import PostsReducer from './reducer_posts';
+import ChannelsReducer from './reducer_channels';
+// import ChatReducer from './reducer_chat';
 // import { reducer as formReducer } from 'redux-form';
 
 const rootReducer = combineReducers({
-  // posts: PostsReducer,
-  // form: formReducer
+  channels: ChannelsReducer
 });
 
 export default rootReducer;
