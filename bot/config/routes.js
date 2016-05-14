@@ -25,7 +25,7 @@ module.exports = function routes(app) {
   app.post('/watch', slashCommands.watch);
   app.post('/unwatch', slashCommands.unwatch);
 
-  // recieve incoming POST requests from JIRA webhooks
+  // receive incoming POST requests from JIRA webhooks
   app.post('/', jiraController.handleJiraWebhooksIssues);
 
   // get highest priority JIRA issues on request

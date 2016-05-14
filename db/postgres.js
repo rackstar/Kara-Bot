@@ -189,8 +189,8 @@ function channelMsgs(currentChannels) {
 
       // Get all messages for each channel ordered by descending timestamp
       var query = client.query("SELECT * FROM messages " +
-                               "WHERE channel_id = " + "'" + channelId.toUpperCase() + "'" +
-                               " ORDER BY slack_ts DESC");
+                               "WHERE channel_id = " + "'" + channelId.toUpperCase() + "' " +
+                               "ORDER BY slack_ts DESC");
 
       query.on('row', function(row) {
         currentTS.push(row['slack_ts']);

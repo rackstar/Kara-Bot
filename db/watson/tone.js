@@ -85,6 +85,7 @@ function toneDays(numOfDays, column, value, res) {
     // initiate a calls counter to help determine when to send data back
     var callsLeft = numOfDays;
 
+    // msgsAfterTs(cb, column, columnValue, startTs, endTs)
     db.msgsAfterTs(
       function toneRes(messages) {
         if (messages.length) {
