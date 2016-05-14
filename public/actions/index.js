@@ -3,6 +3,8 @@ axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getIte
 
 export const FETCH_CHANNELS = 'FETCH_CHANNELS';
 export const FETCH_CHAT = 'FETCH_CHAT';
+export const FETCH_USERS = 'FETCH_USERS';
+export const FETCH_USER = 'FETCH_USER';
 export const BOT_ACTIVITY = 'BOT_ACTIVITY';
 
 const ROOT_URL = '/api';
@@ -17,10 +19,28 @@ export function fetchChannels() {
 }
 
 export function fetchChat(id) {
-  const request = axios.post(`${ROOT_URL}/channel/${id}`)
+  const request = axios.post(`${ROOT_URL}/channel/${id}`);
 
   return {
     type: FETCH_CHAT,
+    payload: request
+  };
+}
+
+export function fetchUsers() {
+  const request = axios.get(`${ROOT_URL}/user`);
+
+  return {
+    type: FETCH_USERS,
+    payload: request
+  };
+}
+
+export function fetchUser(id) {
+  const request = axios.get(`${ROOT_URL}/user/${id}`);
+
+  return {
+    type: FETCH_USER,
     payload: request
   };
 }
