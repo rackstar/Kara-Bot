@@ -8,71 +8,52 @@ var language_translation = watson.language_translation({
   version: 'v2'
 });
 
-exports.translate = function(bot, message) {
-  var text = message.match[2];
-  var lang = message.match[1];
-  var language;
-
-  if (lang === 'es') {
-    language = 'Spanish: *';
-  }
-  if (lang === 'ar') {
-    language = 'Arabic: *';
-  }
-  if (lang === 'fr') {
-    language = 'French: *';
-  }
-  if (lang === 'pr') {
-    language = 'Portugese: *';
-  }
-
-  translate(text, lang, function(data) {
-
-    var translated = data.translations[0].translation;
-
-    var slackMessage = {
-      text: '_Translated from English to ' + language + translated + '*_'
-    }
-
-    bot.reply(message, slackMessage);
-
-  });
-};
-
-function translate (text, target, cb) {
+function watsonTranslate(text, target, cb) {
   language_translation.translate(
     {
       text: text,
       source: 'en',
       target: target
     },
-    function(err, translation) {
-      if (err)
+    function translated(err, data) {
+      if (err) {
         console.log('error:', err);
-      else
-        cb(translation);
+      } else {
+        cb(data.translations[0].translation);
+      }
     });
 }
 
-// language_translation.translate(
-//   {
-//     text: 'A sentence must have a verb',
-//     source: 'en',
-//     target: 'es'
-//   },
-//   function(err, translation) {
-//     if (err)
-//       console.log('error:', err);
-//     else
-//       console.log(JSON.stringify(translation, null, 2));
-//   });
+exports.translate = function translate(bot, message) {
+  var text = message.match[2];
+  var lang = message.match[1];
+  var language;
+  var reply;
 
+  if (lang === 'es') {
+    language = 'Spanish:';
+  } else if (lang === 'ar') {
+    language = 'Arabic:';
+  } else if (lang === 'fr') {
+    language = 'French:';
+  } else if (lang === 'pt') {
+    language = 'Portugese:';
+  } else if (lang === 'it') {
+    language = 'Italian:';
+  } else {
+    reply = {
+      text: 'I\'m sorry, I don\'t know that language yet. Here are the languages i know:\n' +
+            '_Spanish (-es), French (-fr), Italian (-it), Portugese (-pt) and Arabic (-ar)_'
+    };
+    bot.reply(message, reply);
+    return;
+  }
 
-// language_translation.identify({
-//   text: 'The language translation service takes text input and identifies the language used.' },
-//   function (err, language) {
-//     if (err)
-//       console.log('error:', err);
-//     else
-//       console.log(JSON.stringify(language, null, 2));
-// });
+  watsonTranslate(text, lang, function botReply(translated) {
+    var slackMessage = {
+      text: '_Translated from English to ' + language + '_\n' +
+            '_*' + translated + '*_'
+    };
+    bot.reply(message, slackMessage);
+  });
+};
