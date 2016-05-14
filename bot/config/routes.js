@@ -27,7 +27,7 @@ module.exports = function (app) {
   app.use(errorLogger);
   app.use(errorHandler);
 
-  // recieve incoming POST requests from JIRA webhooks
+  // receive incoming POST requests from JIRA webhooks
   app.post('/', jiraController.handleJiraWebhooksIssues);
 
   // get highest priority JIRA issues on request
