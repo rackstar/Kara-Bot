@@ -5,6 +5,10 @@ import { Link } from 'react-router';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class UsersList extends Component {
+  static contextTypes = {
+    router: PropTypes.object
+  };
+
   componentWillMount() {
     if(this.props.userid) {
       this.props.fetchUser(this.props.userid);
@@ -15,11 +19,6 @@ class UsersList extends Component {
     this.setState({user:null});
   }
 
-  getUser(user) {
-    this.props.fetchChat(user.slack_user_id);
-    this.setState({user:user});
-  }
-
   isBot(cell, row) {
     if(cell===true) {
       return 'True';
@@ -27,17 +26,23 @@ class UsersList extends Component {
       return 'False';
     }
   }
+  selectRowProp = {
+    mode: 'radio',
+    onSelect: (row, isSelected) => {
+      this.context.router.push(`users/${row.slack_user_id}`);
+    }
+  };
 
   render() {
     return (
       <div>
         <h1>Users</h1>
-        <BootstrapTable data={this.props.all} striped={true} hover={true} condensed={true} pagination={true} search={true}>
+        <BootstrapTable data={this.props.all} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp}>
           <TableHeaderColumn dataField="username" isKey={true} dataSort={true}>Username</TableHeaderColumn>
           <TableHeaderColumn dataField="firstname" dataSort={true}>First Name</TableHeaderColumn>
           <TableHeaderColumn dataField="lastname" dataSort={true}>Last Name</TableHeaderColumn>
           <TableHeaderColumn dataField="email" dataSort={true}>Email</TableHeaderColumn>
-          <TableHeaderColumn dataField="slack_user_id" dataSort={true}>Slack User ID</TableHeaderColumn>
+          <TableHeaderColumn dataField="slack_user_id" dataSort={true} dataFormat={this.getUser}>Slack User ID</TableHeaderColumn>
           <TableHeaderColumn dataField="is_bot" dataSort={true} dataFormat={this.isBot}>Bot User?</TableHeaderColumn>
         </BootstrapTable>
       </div>
