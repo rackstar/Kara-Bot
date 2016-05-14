@@ -1,15 +1,23 @@
 import axios from 'axios';
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userToken');
 
+export const FETCH_CHANNELS = 'FETCH_CHANNELS';
 export const FETCH_CHAT = 'FETCH_CHAT';
 export const BOT_ACTIVITY = 'BOT_ACTIVITY';
-// export const DELETE_POST = 'DELETE_POST';
 
-// const ROOT_URL = 'http://reduxblog.herokuapp.com/api';
 const ROOT_URL = '/api';
 
-export function fetchChat() {
-  const request = axios.get(`${ROOT_URL}/getchat`)
+export function fetchChannels() {
+  const request = axios.get(`${ROOT_URL}/channel`);
+
+  return {
+    type: FETCH_CHANNELS,
+    payload: request
+  };
+}
+
+export function fetchChat(id) {
+  const request = axios.post(`${ROOT_URL}/channel/${id}`)
 
   return {
     type: FETCH_CHAT,
@@ -25,12 +33,3 @@ export function botActivity() {
     payload: request
   };
 }
-
-// export function deletePost(id) {
-//   const request = axios.delete(`${ROOT_URL}/posts/${id}${API_KEY}`);
-
-//   return {
-//     type: DELETE_POST,
-//     payload: request
-//   };
-// }
