@@ -146,8 +146,7 @@ function channelHistory(channelId, ts) {
     form: {
       token: token,
       channel: channelId,
-      oldest: ts || 0, //"ts": "1462822242.000002" // unique timestamp for each message in channel
-      // newer messages have higher ts value than older ones
+      oldest: ts || 0,
       count: 1000
     }
   };
@@ -188,11 +187,11 @@ function channelMsgs(currentChannels) {
         console.log(err);
       }
 
-      // SQL Query > Select Data
-      var query = client.query("SELECT * FROM messages WHERE channel_id = " + "'" + channelId.toUpperCase() + "'" + " ORDER BY slack_ts DESC");
-      //"ORDER BY DESC" - then get first element of each rom
+      // Get all messages for each channel ordered by descending timestamp
+      var query = client.query("SELECT * FROM messages " +
+                               "WHERE channel_id = " + "'" + channelId.toUpperCase() + "'" +
+                               " ORDER BY slack_ts DESC");
 
-      // Stream results back one row at a time
       query.on('row', function(row) {
         currentTS.push(row['slack_ts']);
       });
@@ -243,55 +242,55 @@ exports.getTableData = function getTableData(cb, table) {
 }
 
 exports.select = function select(cb, table, column, value, property) {
-   var data = [];
- 
-   pg.connect(connectionString, function pgSelect(err, client, done) {
-     // Handle connection errors
-     if (err) {
-       done();
-       console.log(err);
-     }
- 
-     // "SELECT * FROM table WHERE column = 'value'"
-     var query = client.query("SELECT * FROM " + table +
-                              " WHERE " + column + "='" +
-                              value + "'");
- 
-     query.on('row', function(row) {
-       if (property) {
-         row = row[property];
-       }
-       data.push(row);
-     });
- 
-     query.on('end', function() {
-       done();
-       // callback on data
-       cb(data);
-     });
-   });
- };
+  var data = [];
+
+  pg.connect(connectionString, function pgSelect(err, client, done) {
+    // Handle connection errors
+    if (err) {
+      done();
+      console.log(err);
+    }
+
+    // "SELECT * FROM table WHERE column = 'value'"
+    var query = client.query("SELECT * FROM " + table +
+      " WHERE " + column + "='" +
+      value + "'");
+
+    query.on('row', function(row) {
+      if (property) {
+        row = row[property];
+      }
+      data.push(row);
+    });
+
+    query.on('end', function() {
+      done();
+      // callback on data
+      cb(data);
+    });
+  });
+};
 
 exports.populateDB = function populateDB() {
-    // Channel Query
-    slackRequest(channelListForm, function(body) {
-      // check for any new channels
-      var newChannels = body.channels;
-      // get current database channels
-      getCurrentData(checkNewChannel, newChannels, 'channels', 'slack_user_id');
-    });
+  // Channel Query
+  slackRequest(channelListForm, function(body) {
+    // check for any new channels
+    var newChannels = body.channels;
+    // compare for any diff on channels in the database
+    getCurrentData(checkNewChannel, newChannels, 'channels', 'slack_user_id');
+  });
 
-    // User Query
-    slackRequest(userListForm, function(body) {
-      // check for any new users
-      var newUsers = body.members;
-      // get current users in database
-      getCurrentData(checkNewUsers, newUsers, 'users', 'slack_user_id');
-    });
+  // User Query
+  slackRequest(userListForm, function(body) {
+    // check for any new users
+    var newUsers = body.members;
+    // compare for any diff on channels in the database
+    getCurrentData(checkNewUsers, newUsers, 'users', 'slack_user_id');
+  });
 
-    // Message Query
-    // make sure other query finishes before initiliasing
-    setTimeout(function() {
-      getCurrentData(channelMsgs, null, 'channels', 'slack_channel_id');
-    }, 1500);
+  // Message Query
+  // make sure other query finishes before initiliasing
+  setTimeout(function() {
+    getCurrentData(channelMsgs, null, 'channels', 'slack_channel_id');
+  }, 1500);
 };
