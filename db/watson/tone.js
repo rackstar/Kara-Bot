@@ -154,13 +154,22 @@ exports.channel = function channel(req, res) {
   toneDays(days, 'channel_id', channelId, res);
 };
 
-exports.channelList = function(bot, message) {
+exports.help = function help(bot, message) {
+  var slackMessage = {
+    text: '*Tone Commands*\n' +
+          '`tone list / tone channels`' + '- lists all channels available\n' +
+          '`tone <number> / tone <name>` ' + '- shows the emotional and social tone of a channel'
+  };
+  bot.reply(message, slackMessage);
+};
+
+exports.channelList = function channelList(bot, message) {
   var channels = '';
   var slackMessage;
 
-  db.slackRequest(db.channelListForm, function(res) {
-    
-    res.channels.forEach(function(channel, i) {
+  db.slackRequest(db.channelListForm, function channelListCb(res) {
+
+    res.channels.forEach(function channelName(channel, i) {
       channels += (i + 1).toString() + ' ' + channel.name + '\n';
     });
 
@@ -173,7 +182,7 @@ exports.channelList = function(bot, message) {
 
     bot.reply(message, slackMessage);
   });
-}
+};
 
 exports.toneChannel = function toneChannel(bot, message) {
   var channelArg = message.match[1];
@@ -189,6 +198,7 @@ exports.toneChannel = function toneChannel(bot, message) {
     // validation
     if (!channelId) {
       bot.reply(message, 'I\'m sorry I did\'nt recognise that channel, please try again.');
+      return;
     }
 
     var channelMsgForm = {
@@ -203,6 +213,7 @@ exports.toneChannel = function toneChannel(bot, message) {
     db.slackRequest(channelMsgForm, function channelMsgCb(res) {
       if (res.error) {
         bot.reply(message, 'I couldn\'t seem to find the channel');
+        return;
       }
       var messages = res.messages;
       var text = '';
@@ -213,7 +224,7 @@ exports.toneChannel = function toneChannel(bot, message) {
       // send data to watson
       tone(text, function(toneArray) {
         delete toneArray.date;
-        toneArray.tone.forEach(function(tone, i) {
+        toneArray.tone.forEach(function chartMsg(tone, i) {
           // skip writing tone analysis - index 1
           var title = ['Emotion Tone', null, 'Social Tone'];
           if (i !== 1) {
