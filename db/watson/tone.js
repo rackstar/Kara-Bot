@@ -1,6 +1,7 @@
 var watson = require('watson-developer-cloud');
 var helper = require('../helper');
 var db = require('../postgres');
+var Chart = require('quiche');
 
 require('dotenv').load();
 
@@ -21,10 +22,10 @@ function tone(data, cb) {
         console.log(err);
       } else {
         var toneObj = {
-          tone: tone.document_tone.tone_categories
-        }
-        // because the date has been passed to the API, the tone sentences would contain the date
-        // grab the date
+            tone: tone.document_tone.tone_categories
+          }
+          // because the date has been passed to the API, the tone sentences would contain the date
+          // grab the date
         if (tone.sentences_tone !== undefined) {
           toneObj.date = tone.sentences_tone[0].text;
         }
@@ -57,10 +58,10 @@ function filterEmptyString(toneResults) {
 
   // empty string would always have the values below
   if (anger === 0.113779 &&
-     disgust === 0.179621 &&
-     fear === 0.187314 &&
-     joy === 0.446845 &&
-     sadness === 0.214693)
+    disgust === 0.179621 &&
+    fear === 0.187314 &&
+    joy === 0.446845 &&
+    sadness === 0.214693)
   {
     // if it matches replace results with 'no messages found'
     delete toneResults.tone;
@@ -123,6 +124,22 @@ function toneDays(numOfDays, column, value, res) {
   }
 }
 
+function chart(toneData) {
+  var bar = new Chart('bar');
+  var colors = ['C52500', '408000', '400080', 'FFE72C', '004080']
+  bar.setWidth(400);
+  bar.setHeight(265);
+  bar.setBarHorizontal();
+  bar.setBarSpacing(6);
+
+  toneData.tones.forEach(function barAddData(tone, i) {
+    bar.addData(tone.score * 100, tone.tone_name, colors[i]);
+  })
+  var imageUrl = bar.getUrl(true);
+
+  return imageUrl;
+}
+
 exports.user = function user(req, res) {
   var userId = req.body.user;
   var days = req.body.days;
@@ -135,4 +152,51 @@ exports.channel = function channel(req, res) {
   var days = req.body.days;
 
   toneDays(days, 'channel_id', channelId, res);
+};
+
+exports.toneChannel = function toneChannel(bot, message) {
+  var channelName = message.match[1];
+  // channel name
+  // get channel id
+  var channelId;
+  db.slackRequest(db.channelListForm, function channelListCb(res) {
+    res.channels.forEach(function findId(channel) {
+      if (channel.name === channelName) {
+        channelId = channel.id;
+      }
+    });
+    var channelMsgForm = {
+      url: 'https://slack.com/api/channels.history',
+      form: {
+        token: process.env.token,
+        channel: channelId,
+        count: 250
+      }
+    };
+    db.slackRequest(channelMsgForm, function channelMsgCb(res) {
+      var messages = res.messages;
+      var text = '';
+      messages.forEach(function concatText(message) {
+        text += message.text + '. ';
+      });
+      // send data to watson
+      tone(text, function(toneArray) {
+        delete toneArray.date;
+        toneArray.tone.forEach(function(tone, i) {
+          // skip writing tone analysis - index 1
+          var title = ['Emotion Tone', null, 'Social Tone'];
+          if (i !== 1) {
+            // chart attachment
+            var slackMessage = {
+              attachments: [{
+                title: title[i],
+                image_url: chart(tone)
+              }]
+            }
+            bot.reply(message, slackMessage);
+          }
+        });
+      })
+    })
+  });
 };
