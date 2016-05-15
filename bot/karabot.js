@@ -63,9 +63,13 @@ controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);
 
 // Watson
 controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);
-controller.hears(['tone list', 'tone channels', 'tone channel'], directMessage, tone.channelList);
-controller.hears(['tone (.*)'], directMessage, tone.toneChannel);
+controller.hears(['tone list', 'tone (channels?)'], directMessage, tone.channelList);
+controller.hears(['tone ((?!help).*)'], directMessage, tone.toneChannel);
+controller.hears(['tone', 'tone help'], directMessage, tone.help);
 
 //Weather
 controller.hears(['weather today in', 'weather today for', 'weather today'], directMessage, weather.getTodayWeather);
 controller.hears(['weather tomorrow in', 'weather tomorrow for', 'weather tomorrow'], directMessage, weather.getTomorrowWeather);
+
+
+
