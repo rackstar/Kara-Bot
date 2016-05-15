@@ -154,17 +154,43 @@ exports.channel = function channel(req, res) {
   toneDays(days, 'channel_id', channelId, res);
 };
 
+exports.channelList = function(bot, message) {
+  var channels = '';
+  var slackMessage;
+
+  db.slackRequest(db.channelListForm, function(res) {
+    
+    res.channels.forEach(function(channel, i) {
+      channels += (i + 1).toString() + ' ' + channel.name + '\n';
+    });
+
+    slackMessage = {
+      text: 'Channels',
+      attachments: [{
+        text: channels
+      }]
+    };
+
+    bot.reply(message, slackMessage);
+  });
+}
+
 exports.toneChannel = function toneChannel(bot, message) {
-  var channelName = message.match[1];
-  // channel name
-  // get channel id
+  var channelArg = message.match[1];
+  var slackMessage;
   var channelId;
+
   db.slackRequest(db.channelListForm, function channelListCb(res) {
-    res.channels.forEach(function findId(channel) {
-      if (channel.name === channelName) {
+    res.channels.forEach(function findId(channel, i) {
+      if (channel.name === channelArg || (i + 1) === Number(channelArg)) {
         channelId = channel.id;
       }
     });
+    // validation
+    if (!channelId) {
+      bot.reply(message, 'I\'m sorry I did\'nt recognise that channel, please try again.');
+    }
+
     var channelMsgForm = {
       url: 'https://slack.com/api/channels.history',
       form: {
@@ -173,9 +199,14 @@ exports.toneChannel = function toneChannel(bot, message) {
         count: 250
       }
     };
+
     db.slackRequest(channelMsgForm, function channelMsgCb(res) {
+      if (res.error) {
+        bot.reply(message, 'I couldn\'t seem to find the channel');
+      }
       var messages = res.messages;
       var text = '';
+
       messages.forEach(function concatText(message) {
         text += message.text + '. ';
       });
@@ -187,12 +218,13 @@ exports.toneChannel = function toneChannel(bot, message) {
           var title = ['Emotion Tone', null, 'Social Tone'];
           if (i !== 1) {
             // chart attachment
-            var slackMessage = {
+            slackMessage = {
               attachments: [{
                 title: title[i],
                 image_url: chart(tone)
               }]
-            }
+            };
+
             bot.reply(message, slackMessage);
           }
         });

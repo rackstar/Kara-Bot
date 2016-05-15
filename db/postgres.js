@@ -45,8 +45,10 @@ function dbInsert(table, columns, values, valuesHolder) {
 }
 
 exports.slackRequest = function slackRequest(form, cb) {
-  request.post(form, function(err, response, body) {
-    if (err) console.log(err);
+  request.post(form, function requestCb(err, response, body) {
+    if (err) {
+      console.log(err);
+    }
     body = JSON.parse(body);
     cb(body);
   });
