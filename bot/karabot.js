@@ -5,6 +5,7 @@ var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
 var github = require('./github/github.js');
 var watson = require('../db/watson/translation.js');
+var weather = require('./weather/weather.js')
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -58,3 +59,7 @@ controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);
 
 // Watson
 controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);
+
+//Weather
+controller.hears(['weather today in', 'weather today for', 'weather today'], directMessage, weather.getTodayWeather);
+controller.hears(['weather tomorrow in', 'weather tomorrow for', 'weather tomorrow'], directMessage, weather.getTomorrowWeather);
