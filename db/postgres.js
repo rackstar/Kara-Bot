@@ -15,7 +15,7 @@ var userListForm = {
   }
 };
 
-var channelListForm = {
+exports.channelListForm = {
   url: 'https://slack.com/api/channels.list',
   form: {
     token: token
@@ -44,13 +44,13 @@ function dbInsert(table, columns, values, valuesHolder) {
   });
 }
 
-function slackRequest(form, cb) {
+exports.slackRequest = function slackRequest(form, cb) {
   request.post(form, function(err, response, body) {
     if (err) console.log(err);
     body = JSON.parse(body);
     cb(body);
   });
-}
+};
 
 function getCurrentData(cb, newData, table, property) {
   var currentData = [];
@@ -150,7 +150,7 @@ function channelHistory(channelId, ts) {
       count: 1000
     }
   };
-  slackRequest(channelMsgForm, function(body) {
+  exports.slackRequest(channelMsgForm, function(body) {
     var messages = body.messages;
     //connect to db
     var userClient = new pg.Client(connectionString);
@@ -174,7 +174,7 @@ function channelHistory(channelId, ts) {
       });
     });
   });
-}
+};
 
 function channelMsgs(currentChannels) {
   // forEach channel, find oldest ts message
@@ -273,7 +273,7 @@ exports.select = function select(cb, table, column, value, property) {
 
 exports.populateDB = function populateDB() {
   // Channel Query
-  slackRequest(channelListForm, function(body) {
+  exports.slackRequest(exports.channelListForm, function(body) {
     // check for any new channels
     var newChannels = body.channels;
     // compare for any diff on channels in the database
@@ -281,7 +281,7 @@ exports.populateDB = function populateDB() {
   });
 
   // User Query
-  slackRequest(userListForm, function(body) {
+  exports.slackRequest(userListForm, function(body) {
     // check for any new users
     var newUsers = body.members;
     // compare for any diff on channels in the database
