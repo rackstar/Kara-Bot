@@ -157,8 +157,9 @@ exports.channel = function channel(req, res) {
 exports.help = function help(bot, message) {
   var slackMessage = {
     text: '*Tone Commands*\n' +
-          '`tone list / tone channels`' + '- lists all channels available\n' +
-          '`tone <number> / tone <name>` ' + '- shows the emotional and social tone of a channel'
+          '`tone list / tone channels` - lists all channels available\n' +
+          '`tone <number> / tone <name>` - shows the emotional and social tone of a channel\n' +
+          '`tone help` - shows tone commands'
   };
   bot.reply(message, slackMessage);
 };
@@ -190,11 +191,17 @@ exports.toneChannel = function toneChannel(bot, message) {
   var channelId;
 
   db.slackRequest(db.channelListForm, function channelListCb(res) {
+
+    // find channel id
     res.channels.forEach(function findId(channel, i) {
       if (channel.name === channelArg || (i + 1) === Number(channelArg)) {
         channelId = channel.id;
+
+        // send initial response
+        bot.reply(message, 'Beep. Bop. Analysing ' + channel.name + ' channel\'s sentiment..');
       }
     });
+
     // validation
     if (!channelId) {
       bot.reply(message, 'I\'m sorry I did\'nt recognise that channel, please try again.');
@@ -215,22 +222,22 @@ exports.toneChannel = function toneChannel(bot, message) {
         bot.reply(message, 'I couldn\'t seem to find the channel');
         return;
       }
-      // send initial response
-      bot.reply(message, 'Beep. Bop.. Analysing channel\'s sentiment..');
       
       var messages = res.messages;
       var text = '';
-
+      // concatenate all message to one long string
       messages.forEach(function concatText(message) {
         text += message.text + '. ';
       });
-      // send data to watson
+
+      // send string to watson
       tone(text, function(toneArray) {
         delete toneArray.date;
         toneArray.tone.forEach(function chartMsg(tone, i) {
           // skip writing tone analysis - index 1
           var title = ['Emotion Tone', null, 'Social Tone'];
           if (i !== 1) {
+
             // chart attachment
             slackMessage = {
               attachments: [{
