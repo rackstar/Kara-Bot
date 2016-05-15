@@ -22,10 +22,10 @@ function tone(data, cb) {
         console.log(err);
       } else {
         var toneObj = {
-            tone: tone.document_tone.tone_categories
-          }
-          // because the date has been passed to the API, the tone sentences would contain the date
-          // grab the date
+          tone: tone.document_tone.tone_categories
+        };
+        // because the date has been passed to the API, the tone sentences would contain the date
+        // grab the date
         if (tone.sentences_tone !== undefined) {
           toneObj.date = tone.sentences_tone[0].text;
         }
@@ -93,7 +93,7 @@ function toneDays(numOfDays, column, value, res) {
           // add date to text string for date reference
           text = messages[0].date + '. ';
           // concatenate all the message into one long string
-          messages.forEach(function(message) {
+          messages.forEach(function concatMessage(message) {
             text += message.message + '. ';
           });
         } else {
@@ -126,15 +126,15 @@ function toneDays(numOfDays, column, value, res) {
 
 function chart(toneData) {
   var bar = new Chart('bar');
-  var colors = ['C52500', '408000', '400080', 'FFE72C', '004080']
+  var colors = ['C52500', '408000', '400080', 'FFE72C', '004080'];
   bar.setWidth(400);
   bar.setHeight(265);
   bar.setBarHorizontal();
   bar.setBarSpacing(6);
-  bar.addAxisLabels('x', ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'])
+  bar.addAxisLabels('x', ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100']);
   toneData.tones.forEach(function barAddData(tone, i) {
     bar.addData(tone.score * 100, tone.tone_name, colors[i]);
-  })
+  });
   var imageUrl = bar.getUrl(true);
 
   return imageUrl;
@@ -157,9 +157,9 @@ exports.channel = function channel(req, res) {
 exports.help = function help(bot, message) {
   var slackMessage = {
     text: '*Tone Commands*\n' +
-          '`tone list / tone channels` - lists all channels available\n' +
-          '`tone <number> / tone <name>` - shows the emotional and social tone of a channel\n' +
-          '`tone help` - shows tone commands'
+      '`tone list / tone channels` - lists all channels available\n' +
+      '`tone <number> / tone <name>` - shows the emotional and social tone of a channel\n' +
+      '`tone help` - shows tone commands'
   };
   bot.reply(message, slackMessage);
 };
@@ -169,7 +169,6 @@ exports.channelList = function channelList(bot, message) {
   var slackMessage;
 
   db.slackRequest(db.channelListForm, function channelListCb(res) {
-
     res.channels.forEach(function channelName(channel, i) {
       channels += (i + 1).toString() + ' ' + channel.name + '\n';
     });
@@ -191,7 +190,6 @@ exports.toneChannel = function toneChannel(bot, message) {
   var channelId;
 
   db.slackRequest(db.channelListForm, function channelListCb(res) {
-
     // find channel id
     res.channels.forEach(function findId(channel, i) {
       if (channel.name === channelArg || (i + 1) === Number(channelArg)) {
@@ -222,22 +220,21 @@ exports.toneChannel = function toneChannel(bot, message) {
         bot.reply(message, 'I couldn\'t seem to find the channel');
         return;
       }
-      
       var messages = res.messages;
       var text = '';
+
       // concatenate all message to one long string
       messages.forEach(function concatText(message) {
         text += message.text + '. ';
       });
 
       // send string to watson
-      tone(text, function(toneArray) {
+      tone(text, function toneCb(toneArray) {
         delete toneArray.date;
         toneArray.tone.forEach(function chartMsg(tone, i) {
           // skip writing tone analysis - index 1
           var title = ['Emotion Tone', null, 'Social Tone'];
           if (i !== 1) {
-
             // chart attachment
             slackMessage = {
               attachments: [{
@@ -249,7 +246,7 @@ exports.toneChannel = function toneChannel(bot, message) {
             bot.reply(message, slackMessage);
           }
         });
-      })
-    })
+      });
+    });
   });
 };
