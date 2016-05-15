@@ -5,7 +5,11 @@ var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
 var github = require('./github/github.js');
 var watson = require('../db/watson/translation.js');
+<<<<<<< 401eac01000d465674aee996515f82f0e8ec62eb
 var weather = require('./weather/weather.js')
+=======
+var tone = require('../db/watson/tone.js');
+>>>>>>> (feat) Add listeners for tone channel command
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -59,6 +63,8 @@ controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);
 
 // Watson
 controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);
+// controller.hears(['channel list'], directMessage, )
+controller.hears(['tone (.*)'], directMessage, tone.toneChannel);
 
 //Weather
 controller.hears(['weather today in', 'weather today for', 'weather today'], directMessage, weather.getTodayWeather);
