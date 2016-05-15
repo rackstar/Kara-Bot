@@ -131,7 +131,7 @@ function chart(toneData) {
   bar.setHeight(265);
   bar.setBarHorizontal();
   bar.setBarSpacing(6);
-
+  bar.addAxisLabels('x', ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'])
   toneData.tones.forEach(function barAddData(tone, i) {
     bar.addData(tone.score * 100, tone.tone_name, colors[i]);
   })
@@ -215,6 +215,9 @@ exports.toneChannel = function toneChannel(bot, message) {
         bot.reply(message, 'I couldn\'t seem to find the channel');
         return;
       }
+      // send initial response
+      bot.reply(message, 'Beep. Bop.. Analysing channel\'s sentiment..');
+      
       var messages = res.messages;
       var text = '';
 
