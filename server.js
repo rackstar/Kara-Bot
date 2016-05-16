@@ -72,26 +72,30 @@ var addAndUpdateTables = function(){
   });
 };
 
-//storage for available database names
-var databases = {};
-//check available databses
-var dbCheck = checkClient.query('SELECT * FROM pg_database');
-//when a row(db) is recievd, add its name to databases object
-dbCheck.on('row', function(row) {
-  databases[row.datname] = true
-});
-//when check is finished, create and/or add tables to db, set interval to update
-dbCheck.on('end', function() {
-  if(databases.karabot){
-    addAndUpdateTables();
-  } else {
-    //create db
-    var createDbQuery = checkClient.query('CREATE DATABASE karabot;');
-    createDbQuery.on('end', function() {
+if(connectionString === 'postgres://localhost:5432'){
+  //storage for available database names
+  var databases = {};
+  //check available databses
+  var dbCheck = checkClient.query('SELECT * FROM pg_database');
+  //when a row(db) is recievd, add its name to databases object
+  dbCheck.on('row', function(row) {
+    databases[row.datname] = true
+  });
+  //when check is finished, create and/or add tables to db, set interval to update
+  dbCheck.on('end', function() {
+    if(databases.karabot){
       addAndUpdateTables();
-    });
-  }
-}); 
+    } else {
+      //create db
+      var createDbQuery = checkClient.query('CREATE DATABASE karabot;');
+      createDbQuery.on('end', function() {
+        addAndUpdateTables();
+      });
+    }
+  });
+} else {
+  addAndUpdateTables();
+} 
 
 // START ===================================================
 http.listen(app.get('port'), function listenPort() {
