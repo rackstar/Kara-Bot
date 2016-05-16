@@ -1,3 +1,4 @@
+var path = require('path');
 var kara = require('../karabot');
 var github = require('../github/github');
 var slashCommands = require('../github/githubSlashCommands');
@@ -44,6 +45,10 @@ module.exports = function routes(app) {
   // Watson
   app.post('/api/watson/user', tone.user);
   app.post('/api/watson/channel', tone.channel);
+
+  app.get('*', function (req, res) {
+    res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
+  });
 
   // Error Logger/Handler
   app.use(errorLogger);
