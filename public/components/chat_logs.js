@@ -47,7 +47,7 @@ class ChatLogs extends Component {
             {this.props.channels.map(this.renderChannelDropdown)}
           </DropdownButton>
         </div>
-        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp}>
+        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp} exportCSV={true}>
           <TableHeaderColumn dataField="message_id" width="80" isKey={true} dataSort={true}>Message ID</TableHeaderColumn>
           <TableHeaderColumn dataField="username" width="80" dataSort={true}>Username</TableHeaderColumn>
           <TableHeaderColumn dataField="created_at" hidden={true}>Created At</TableHeaderColumn>
