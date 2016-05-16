@@ -95,7 +95,7 @@ if(connectionString === 'postgres://localhost:5432'){
   });
 } else {
   addAndUpdateTables();
-} 
+}
 
 // START ===================================================
 http.listen(app.get('port'), function listenPort() {
