@@ -1,15 +1,23 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { fetchChannels, fetchChat } from '../actions/index';
+import { fetchChannels, fetchChat, fetchUser } from '../actions/index';
 import { Link } from 'react-router';
 import { DropdownButton, MenuItem } from 'react-bootstrap'
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class ChatLogs extends Component {
+  static contextTypes = {
+    router: PropTypes.object
+  };
   componentWillMount() {
     this.props.fetchChannels();
     this.props.fetchChat();
-    this.setState({channel:null});
+    if(this.props.userid) {
+      this.props.fetchUser(this.props.userid);
+    } else {
+      this.props.fetchUser();
+    }
+    this.setState({channel:null, user:null});
   }
 
   renderChannelDropdown(channel) {
@@ -23,6 +31,13 @@ class ChatLogs extends Component {
     this.setState({channel:channel});
   }
 
+  selectRowProp = {
+    mode: 'radio',
+    onSelect: (row, isSelected) => {
+      this.context.router.push(`users/${row.slack_user_id}`);
+    }
+  };
+
   render() {
     return (
       <div>
@@ -32,7 +47,7 @@ class ChatLogs extends Component {
             {this.props.channels.map(this.renderChannelDropdown)}
           </DropdownButton>
         </div>
-        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true}>
+        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp}>
           <TableHeaderColumn dataField="message_id" isKey={true} dataSort={true}>Message ID</TableHeaderColumn>
           <TableHeaderColumn dataField="username" dataSort={true}>Username</TableHeaderColumn>
           <TableHeaderColumn dataField="created_at" hidden={true}>Created At</TableHeaderColumn>
@@ -46,7 +61,7 @@ class ChatLogs extends Component {
 }
 
 function mapStateToProps(state) {
-  return { channels: state.channels.channels, messages: state.channels.messages };
+  return { channels: state.channels.channels, messages: state.channels.messages, user: state.users.user };
 }
 
-export default connect(mapStateToProps, { fetchChannels, fetchChat })(ChatLogs);
+export default connect(mapStateToProps, { fetchChannels, fetchChat, fetchUser })(ChatLogs);
