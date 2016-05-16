@@ -4,8 +4,9 @@ var egg = require('./basic_convo/egg.js');
 var jira = require('./jira/jira.js');
 var calendar = require('./basic_convo/calendar.js');
 var github = require('./github/github.js');
-var watson = require('../db/watson/translation.js');
 var weather = require('./weather/weather.js')
+var translate = require('../db/watson/translation.js');
+var tone = require('../db/watson/tone.js');
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -26,7 +27,10 @@ if (!process.env.token) {
   process.exit(1);
 }
 
-// Listening routes
+// Translation
+controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, translate.translate);
+
+// Commands
 controller.hears(['hello'], directMessage, chat.greet);
 controller.hears(['call me (.*)', 'my name is (.*)'], directMessage, chat.myname);
 controller.hears(['what is my name', 'who am i'], directMessage, chat.sayname);
@@ -37,8 +41,7 @@ controller.hears(['life, the universe and everything', 'life the universe and ev
   directMessage, egg.hitch);
 controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
-//Get highest priority issues
-
+// Jira
 controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
 
 // Google Calendar
@@ -57,9 +60,11 @@ controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)'
 controller.hears(['unwatch (.*\/.*)'], directMessage, github.unwatchRepo);
 controller.hears(['watch (.*\/.*)'], directMessage, github.watchRepo);
 
-// Watson
-controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);
+// Tone
+controller.hears(['tone list', 'tone (channels?)'], directMessage, tone.channelList);
+controller.hears(['tone ((?!help).*)'], directMessage, tone.toneChannel);
+controller.hears(['tone', 'tone help'], directMessage, tone.help);
 
-//Weather
+// Weather
 controller.hears(['weather today in', 'weather today for', 'weather today'], directMessage, weather.getTodayWeather);
 controller.hears(['weather tomorrow in', 'weather tomorrow for', 'weather tomorrow'], directMessage, weather.getTomorrowWeather);

@@ -37,16 +37,17 @@ function dbInsert(table, columns, values, valuesHolder) {
     // SQL Query > Insert Data
     // "INSERT INTO items(text, complete) values($1, $2), [val1, val2]"
     var query = client.query('INSERT INTO ' + table + columns + ' ' + valuesHolder, values);
-    query.on('end', function() {
+    query.on('end', function dbInsertEnd() {
       done();
     });
-
   });
 }
 
 function slackRequest(form, cb) {
-  request.post(form, function(err, response, body) {
-    if (err) console.log(err);
+  request.post(form, function requestCb(err, response, body) {
+    if (err) {
+      console.log(err);
+    }
     body = JSON.parse(body);
     cb(body);
   });
@@ -67,34 +68,21 @@ function getCurrentData(cb, newData, table, property) {
     var query = client.query("SELECT * FROM " + table);
 
     // Stream results back one row at a time
-    query.on('row', function(row) {
+    query.on('row', function currentDataRow(row) {
       if (property) {
         row = row[property];
       }
-      //push data to channels
+      // push data to channels
       currentData.push(row);
     });
 
     // After all data is returned, close connection and return results
-    query.on('end', function() {
+    query.on('end', function currentDataEnd() {
       done();
       // callback on channels
       cb(currentData, newData);
     });
   });
-}
-
-function checkNewChannel(currentChannels, newChannels) {
-  //check if old and new channel length is the same
-  if (newChannels.length > currentChannels.length) {
-    newChannels.forEach(function(channel) {
-      // find the new channel
-      if (currentChannels.indexOf(channel.id) < 0) {
-        addChannel(channel);
-        channelMembers(channel);
-      }
-    });
-  }
 }
 
 function addChannel(channel) {
@@ -107,7 +95,7 @@ function addChannel(channel) {
 
 function channelMembers(channel) {
   var membersId = channel.members;
-  membersId.forEach(function(memberId) {
+  membersId.forEach(function insertMember(memberId) {
     var columns = '(slack_user_id, channel_id)';
     var values = [memberId, channel.id];
     var valuesHolder = 'values($1, $2)';
@@ -116,11 +104,14 @@ function channelMembers(channel) {
   });
 }
 
-function checkNewUsers(currentUsers, newUsers) {
-  if (newUsers.length > currentUsers.length) {
-    newUsers.forEach(function(user) {
-      if (currentUsers.indexOf(user.id) < 0) {
-        addUser(user);
+function checkNewChannel(currentChannels, newChannels) {
+  // check if old and new channel length is the same
+  if (newChannels.length > currentChannels.length) {
+    newChannels.forEach(function checkChannelExists(channel) {
+      // find the new channel
+      if (currentChannels.indexOf(channel.id) < 0) {
+        addChannel(channel);
+        channelMembers(channel);
       }
     });
   }
@@ -140,6 +131,16 @@ function addUser(user) {
   dbInsert('users', columns, values, valuesHolder);
 }
 
+function checkNewUsers(currentUsers, newUsers) {
+  if (newUsers.length > currentUsers.length) {
+    newUsers.forEach(function checkUserExists(user) {
+      if (currentUsers.indexOf(user.id) < 0) {
+        addUser(user);
+      }
+    });
+  }
+}
+
 function channelHistory(channelId, ts) {
   var channelMsgForm = {
     url: 'https://slack.com/api/channels.history',
@@ -150,20 +151,22 @@ function channelHistory(channelId, ts) {
       count: 1000
     }
   };
-  slackRequest(channelMsgForm, function(body) {
+  slackRequest(channelMsgForm, function channelMsgCb(body) {
     var messages = body.messages;
-    //connect to db
+    // connect to db
     var userClient = new pg.Client(connectionString);
     userClient.connect();
-    //query user db to build refference between slack_user_id and username 
+    // query user db to build reference between slack_user_id and username
     var usernames = {};
     var userQuery = userClient.query('SELECT * FROM users');
-    userQuery.on('row', function(user) {
+    userQuery.on('row', function userQueryRow(user) {
       usernames[user.slack_user_id] = user.username;
     });
-    userQuery.on('end', function() {
-      userClient.end()
-      messages.forEach(function(message) {
+
+    userQuery.on('end', function userQueryEnd() {
+      userClient.end();
+
+      messages.forEach(function insertMsgs(message) {
         message.username = usernames[message.user] || 'no_name_webhook';
         message.user = message.user || 'no_id_webhook';
         var columns = '(message_text, slack_ts, slack_user_id, channel_id, username)';
@@ -178,7 +181,7 @@ function channelHistory(channelId, ts) {
 
 function channelMsgs(currentChannels) {
   // forEach channel, find oldest ts message
-  currentChannels.forEach(function(channelId) {
+  currentChannels.forEach(function findOldestTs(channelId) {
     var currentTS = [];
     pg.connect(connectionString, function pgSelect(err, client, done) {
       // Handle connection errors
@@ -192,11 +195,11 @@ function channelMsgs(currentChannels) {
                                "WHERE channel_id = " + "'" + channelId.toUpperCase() + "' " +
                                "ORDER BY slack_ts DESC");
 
-      query.on('row', function(row) {
-        currentTS.push(row['slack_ts']);
+      query.on('row', function channelMsgRow(row) {
+        currentTS.push(row.slack_ts);
       });
 
-      query.on('end', function() {
+      query.on('end', function channelMsgEnd() {
         done();
         // grab the latest timestamp and query slack starting from that message to any new ones
         var latestTS = currentTS[0];
@@ -211,7 +214,7 @@ function channelMsgs(currentChannels) {
   });
 }
 
-exports.getTableData = function getTableData(cb, table) {
+function getTableData(cb, table) {
   var currentData = [];
   // Get a Postgres client from the connection pool
   // get connectionString from imported connection pg.connectionString
@@ -226,13 +229,13 @@ exports.getTableData = function getTableData(cb, table) {
     var query = client.query("SELECT * FROM " + table);
 
     // Stream results back one row at a time
-    query.on('row', function(row) {
+    query.on('row', function tableDataRow(row) {
       //push data to channels
       currentData.push(row);
     });
 
     // After all data is returned, close connection and return results
-    query.on('end', function() {
+    query.on('end', function tableDataEnd() {
       done();
       // return table data
       cb(currentData);
@@ -241,7 +244,7 @@ exports.getTableData = function getTableData(cb, table) {
   // return currentData
 }
 
-exports.select = function select(cb, table, column, value, property) {
+function select(cb, table, column, value, property) {
   var data = [];
 
   pg.connect(connectionString, function pgSelect(err, client, done) {
@@ -253,27 +256,26 @@ exports.select = function select(cb, table, column, value, property) {
 
     // "SELECT * FROM table WHERE column = 'value'"
     var query = client.query("SELECT * FROM " + table +
-      " WHERE " + column + "='" +
-      value + "'");
+      " WHERE " + column + "='" + value + "'");
 
-    query.on('row', function(row) {
+    query.on('row', function selectRow(row) {
       if (property) {
         row = row[property];
       }
       data.push(row);
     });
 
-    query.on('end', function() {
+    query.on('end', function selectEnd() {
       done();
       // callback on data
       cb(data);
     });
   });
-};
+}
 
-exports.populateDB = function populateDB() {
+function populateDB() {
   // Channel Query
-  slackRequest(channelListForm, function(body) {
+  slackRequest(channelListForm, function channelListCb(body) {
     // check for any new channels
     var newChannels = body.channels;
     // compare for any diff on channels in the database
@@ -281,7 +283,7 @@ exports.populateDB = function populateDB() {
   });
 
   // User Query
-  slackRequest(userListForm, function(body) {
+  slackRequest(userListForm, function userListCb(body) {
     // check for any new users
     var newUsers = body.members;
     // compare for any diff on channels in the database
@@ -290,12 +292,12 @@ exports.populateDB = function populateDB() {
 
   // Message Query
   // make sure other query finishes before initiliasing
-  setTimeout(function() {
+  setTimeout(function msgQueryTimeout() {
     getCurrentData(channelMsgs, null, 'channels', 'slack_channel_id');
   }, 1500);
-};
+}
 
-exports.msgsAfterTs = function msgsAfterTs(cb, column, columnValue, startTs, endTs) {
+function msgsAfterTs(cb, column, columnValue, startTs, endTs) {
   var data = [];
   var command;
   pg.connect(connectionString, function pgSelect(err, client, done) {
@@ -313,7 +315,7 @@ exports.msgsAfterTs = function msgsAfterTs(cb, column, columnValue, startTs, end
 
     var query = client.query(command);
 
-    query.on('row', function(row) {
+    query.on('row', function msgsAfterTsRow(row) {
       var msgDate = {
         message: row.message_text,
         date: new Date(row.slack_ts * 1000)
@@ -321,10 +323,19 @@ exports.msgsAfterTs = function msgsAfterTs(cb, column, columnValue, startTs, end
       data.push(msgDate);
     });
 
-    query.on('end', function() {
+    query.on('end', function msgAfterTsEnd() {
       done();
       // callback on data
       cb(data);
     });
   });
 }
+
+module.exports = {
+  channelListForm: channelListForm,
+  slackRequest: slackRequest,
+  getTableData: getTableData,
+  select: select,
+  populateDB: populateDB,
+  msgsAfterTs: msgsAfterTs
+};
