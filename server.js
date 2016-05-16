@@ -62,12 +62,11 @@ var addAndUpdateTables = function(){
   var addTables = queryClient.query('CREATE TABLE IF NOT EXISTS channel_user(join_id SERIAL PRIMARY KEY, slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');
   addTables.on('end', function() {
     queryClient.end();
-    
+
     db.populateDB();
-    
+
     // populate db every 2 hours
-    setInterval(function() {
-      console.log('db populated sec');
+    setInterval(function populateDBInterval() {
       db.populateDB();
     }, 1000 * 60 * 60 * 2);
   });
@@ -95,7 +94,7 @@ dbCheck.on('end', function() {
 }); 
 
 // START ===================================================
-http.listen(app.get('port'), function () {
+http.listen(app.get('port'), function listenPort() {
   console.log('listening on port ' + app.get('port'));
 });
 

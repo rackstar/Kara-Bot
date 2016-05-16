@@ -1,5 +1,4 @@
 var watson = require('watson-developer-cloud');
-var helper = require('../helper');
 var db = require('../postgres');
 var Chart = require('quiche');
 
@@ -32,18 +31,6 @@ function tone(data, cb) {
         cb(toneObj);
       }
     }
-  );
-}
-
-function selectMsgs(column, value, res) {
-  helper.select(
-    function toneRes(data) {
-      tone(data, res);
-    },
-    'messages',
-    column,
-    value,
-    'message_text'
   );
 }
 
@@ -140,21 +127,21 @@ function chart(toneData) {
   return imageUrl;
 }
 
-exports.user = function user(req, res) {
+function user(req, res) {
   var userId = req.body.user;
   var days = req.body.days;
 
   toneDays(days, 'slack_user_id', userId, res);
-};
+}
 
-exports.channel = function channel(req, res) {
+function channel(req, res) {
   var channelId = req.body.channel;
   var days = req.body.days;
 
   toneDays(days, 'channel_id', channelId, res);
-};
+}
 
-exports.help = function help(bot, message) {
+function help(bot, message) {
   var slackMessage = {
     text: '*Tone Commands*\n' +
       '`tone list / tone channels` - lists all channels available\n' +
@@ -162,9 +149,9 @@ exports.help = function help(bot, message) {
       '`tone help` - shows tone commands'
   };
   bot.reply(message, slackMessage);
-};
+}
 
-exports.channelList = function channelList(bot, message) {
+function channelList(bot, message) {
   var channels = '';
   var slackMessage;
 
@@ -174,7 +161,7 @@ exports.channelList = function channelList(bot, message) {
     });
 
     slackMessage = {
-      text: 'Channels',
+      text: '*Channels*',
       attachments: [{
         text: channels
       }]
@@ -182,9 +169,9 @@ exports.channelList = function channelList(bot, message) {
 
     bot.reply(message, slackMessage);
   });
-};
+}
 
-exports.toneChannel = function toneChannel(bot, message) {
+function toneChannel(bot, message) {
   var channelArg = message.match[1];
   var slackMessage;
   var channelId;
@@ -249,4 +236,12 @@ exports.toneChannel = function toneChannel(bot, message) {
       });
     });
   });
+}
+
+module.exports = {
+  channelList: channelList,
+  toneChannel: toneChannel,
+  channel: channel,
+  user: user,
+  help: help
 };
