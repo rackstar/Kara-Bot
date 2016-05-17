@@ -30,7 +30,10 @@ module.exports = {
       userData = data;
       db.select(function (messages) {
         userData.push(messages);
-        res.send(userData);
+        db.getTableData(function (channels) {
+          userData.push(channels);
+          res.send(userData);
+        }, 'channels');
       }, 'users', 'slack_user_id', user);
     }, 'messages', 'slack_user_id', user);
   },
