@@ -2,9 +2,9 @@ var kara = require('../karabot.js');
 var unirest = require('unirest');
 
 function getWeather(bot, message, cb) {
-  //get zip code
-  var splitMessage = message.text.split(' ');
-  location = splitMessage[splitMessage.length - 1];
+  //get location
+  var location = message.match[1];
+  console.log('LOCATION', location);
   var key = process.env.weatherKey;
   var weatherUrl = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&units=imperial&APPID=' + process.env.weatherKey;
   unirest.get(weatherUrl, function(data){
@@ -41,7 +41,7 @@ function getDaysWeatherData(data, day) {
       }
       weatherData.rainTotal += data.list[i].rain['3h'];
     }
-    if(data.list[i].snow['3h']){
+    if(data.list[i].snow){
       if(!weatherData.snowStart){
         weatherData.snow = true;
         weatherData.snowStart = d.toLocaleTimeString();
