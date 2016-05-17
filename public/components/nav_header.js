@@ -31,8 +31,6 @@ export default class NavHeader extends Component {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/chat">Chat</Link></li>
             <li><Link to="/users">Users</Link></li>
-            <li><Link to="/activity">Activity</Link></li>
-            <li><Link to="/config">Config</Link></li>
           </ul>
           <a type="button" onClick={this.props.signOut} className="btn btn-danger navbar-btn navbar-right signin">Sign Out</a>
         </div>
@@ -54,8 +52,6 @@ export default class NavHeader extends Component {
               <li><Link to="/">Home</Link></li>
               <li><Link to="/chat">Chat</Link></li>
               <li><Link to="/users">Users</Link></li>
-              <li><Link to="/activity">Activity</Link></li>
-              <li><Link to="/config">Config</Link></li>
             </ul>
             <a type="button" onClick={this.props.signIn} className="btn btn-info navbar-btn navbar-right signin">Sign In</a>
             <p className="navbar-text navbar-right">Please sign in...</p>
