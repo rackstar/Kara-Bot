@@ -1,8 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { fetchUsers, fetchUser } from '../actions/index';
 import { Link } from 'react-router';
-import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 import Faux from 'react-faux-dom';
 import D3 from 'D3';
 
@@ -10,24 +8,24 @@ import D3 from 'D3';
 export default class Chart extends Component {
   
   render() {
-var fauxElement = Faux.createElement("div");
-
-var diameter = 1000, //max size of the bubbles
-    color    = d3.scale.category20b(); //color category
-
-var bubble = d3.layout.pack()
-    .sort(null)
-    .size([diameter, diameter])
-    .padding(10);
-
-var svg = d3.select(fauxElement)
-    .append("svg")
-    .attr("width", diameter)
-    .attr("height", diameter)
-    .attr("class", "bubble");
-
+    var fauxElement = Faux.createElement("div");
+    
+    var diameter = 800, //max size of the bubbles
+        color    = d3.scale.category20b(); //color category
+    
+    var bubble = d3.layout.pack()
+        .sort(null)
+        .size([diameter, diameter])
+        .padding(10);
+    
+    var svg = d3.select(fauxElement)
+        .append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+    
     var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
- 
+    
     //bubbles needs very specific format, convert data to this.
     var data = processData(json);
 
@@ -59,7 +57,6 @@ var svg = d3.select(fauxElement)
             "font-size": "12px"
         });
 
-
     return (
       <div>
         {fauxElement.toReact()}
@@ -78,10 +75,3 @@ function processData(data) {
   }
   return newDataSet;
 }
-
-// function mapStateToProps(state) {
-//   return { all: state.users.all, user: state.users.user };
-// }
-
-// export default connect(mapStateToProps, { fetchUsers, fetchUser })(UsersList);
-// export default connect();
