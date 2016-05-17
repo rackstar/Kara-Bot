@@ -47,12 +47,12 @@ class ChatLogs extends Component {
             {this.props.channels.map(this.renderChannelDropdown)}
           </DropdownButton>
         </div>
-        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp}>
-          <TableHeaderColumn dataField="message_id" isKey={true} dataSort={true}>Message ID</TableHeaderColumn>
-          <TableHeaderColumn dataField="username" dataSort={true}>Username</TableHeaderColumn>
+        <BootstrapTable data={this.props.messages} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp} exportCSV={true}>
+          <TableHeaderColumn dataField="message_id" width="50" isKey={true} dataSort={true}>ID</TableHeaderColumn>
+          <TableHeaderColumn dataField="username" width="100" dataSort={true}>Username</TableHeaderColumn>
           <TableHeaderColumn dataField="created_at" hidden={true}>Created At</TableHeaderColumn>
           <TableHeaderColumn dataField="slack_user_id" hidden={true}>Slack User ID</TableHeaderColumn>
-          <TableHeaderColumn dataField="slack_ts" dataSort={true}>Timestamp</TableHeaderColumn>
+          <TableHeaderColumn dataField="slack_ts" width="100" dataSort={true}>Timestamp</TableHeaderColumn>
           <TableHeaderColumn dataField="message_text" dataSort={true}>Message</TableHeaderColumn>
         </BootstrapTable>
       </div>

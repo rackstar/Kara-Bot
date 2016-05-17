@@ -13,7 +13,5 @@ export default (
     <Route path='chat' component={ChatLogs} />
     <Route path='users' component={UsersList} />
     <Route path='users/:id' component={User} />
-    <Route path='activity' component={BotActivity} />
-    <Route path='config' component={BotConfig} />
   </Route>
 );
