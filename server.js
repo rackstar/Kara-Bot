@@ -30,7 +30,7 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing url encoded
 
 // Block users who aren't logged in from doing requests on api data
-app.use('/api/', jwtCheck);
+// app.use('/api/', jwtCheck);
 
 // routes
 require('./bot/config/routes')(app);

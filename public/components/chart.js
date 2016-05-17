@@ -4,11 +4,10 @@ import { Link } from 'react-router';
 import Faux from 'react-faux-dom';
 import D3 from 'D3';
 
-
 export default class Chart extends Component {
   
   render() {
-    
+        
     var fauxElement = Faux.createElement("div");
     
     var diameter = 800, //max size of the bubbles
@@ -25,10 +24,11 @@ export default class Chart extends Component {
       .attr("height", diameter)
       .attr("class", "bubble");
     
-    var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
+    // var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
     
     //bubbles needs very specific format, convert data to this.
-    var data = processData(json);
+    // var data = processData(json);
+    var data = getWatsonData();
 
     var nodes = bubble.nodes({children:data}).filter(function(d) { return !d.children; });
 
@@ -78,13 +78,30 @@ function processData(data) {
 }
 
 function getWatsonData() {
-  app.post('/api/watson/channel', {channel:'C14CAT2HE'})  
-    
+
+   var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "http://localhost:5000/api/watson/channel",
+    "method": "POST",
+    "headers": {
+      "cache-control": "no-cache",
+      "postman-token": "c5a32e6d-7f64-5eaa-d435-50d5af557090",
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    "data": {
+      "channel": "C155RNX46"
+    }
+  }
+  
+  return $.ajax(settings).done(function (response) {
+    // console.log(response);
+      var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
+        var data = processData(json);
+      return data;
+  
+  });
 }
-
-
-
-
 
 
 
