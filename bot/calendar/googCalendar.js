@@ -170,9 +170,31 @@ function listEvents(auth, cb, param1, param2) {
       ISODate = ISODate.toISOString().slice(0, 10);
       console.log('Upcoming 20 events:');
       cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0, 10) + '\n';
+<<<<<<< dfed4d961adb3c1d79f48e196eb2065596e92e25
+<<<<<<< 956e122d3e2969fac37cb5ddbf4a1f43eaab6cc0
       var todayDate = addParam1.slice(0, 10)
       console.log('Upcoming 10 events:');
       cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
+=======
+=======
+      var todayDate = ((new Date()).toISOString()).slice(0, 10)
+      console.log('Upcoming 10 events:');
+      cData = '*' + events[0].organizer.displayName + '*```';
+>>>>>>> (feat) Return basic error message to user on error
+<<<<<<< 2029e7f5be1ce3d8cedff9c1bf96d8d1040ad64f
+>>>>>>> (feat) Return basic error message to user on error
+=======
+=======
+      var todayDate = addParam1.slice(0, 10)
+      console.log('Upcoming 10 events:');
+      cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
+>>>>>>> (feat) Add event listing for tomorrow
+>>>>>>> (feat) Add event listing for tomorrow
+=======
+      var todayDate = addParam1.slice(0, 10)
+      console.log('Upcoming 10 events:');
+      cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
+>>>>>>> (fix) Refactor to account for ISO date format shifting the date
       for (var i = 0; i < events.length; i++) {
         var event = events[i];
         var start = event.start.dateTime || event.start.date;
