@@ -41,7 +41,7 @@ function getDaysWeatherData(data, day) {
       }
       weatherData.rainTotal += data.list[i].rain['3h'];
     }
-    if(data.list[i].snow){
+    if(data.list[i].snow['3h']){
       if(!weatherData.snowStart){
         weatherData.snow = true;
         weatherData.snowStart = d.toLocaleTimeString();
