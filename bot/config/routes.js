@@ -5,6 +5,7 @@ var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller.js');
 var tone = require('../../db/watson/tone.js');
+var app = require('../slackApp/app.js');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -54,6 +55,8 @@ module.exports = function routes(app) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
   });
 
+  // Slack App
+  app.get('/config', app);
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);
