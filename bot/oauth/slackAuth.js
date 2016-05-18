@@ -5,7 +5,7 @@ var heroku = require('../../heroku/heroku');
 require('dotenv').config();
 
 module.exports = function auth(req, res) {
-  var tempCode = req.body.code;
+  var code = req.body.code;
   // var state = req.body.state;
 
   // security check
@@ -16,9 +16,9 @@ module.exports = function auth(req, res) {
   var authForm = {
     url: 'https://slack.com/api/oauth.access',
     form: {
-      client_id: process.env.slackClientId,
-      client_secret: process.env.slackClientSecret,
-      code: tempCode
+      client_id: process.env.SLACK_CLIENT_ID,
+      client_secret: process.env.SLACK_CLIENT_SECRET,
+      code: code
     }
   };
 

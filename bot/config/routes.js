@@ -5,7 +5,7 @@ var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller.js');
 var tone = require('../../db/watson/tone.js');
-var app = require('../slackApp/app.js');
+var auth = require('../slackApp/app.js');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -28,6 +28,7 @@ module.exports = function routes(app) {
   app.post('/unwatch', slashCommands.unwatch);
 
   // receive incoming POST requests from JIRA webhooks
+  // TO DO - change to '/jira'?
   app.post('/', jiraController.handleJiraWebhooksIssues);
 
   // get highest priority JIRA issues on request
@@ -55,8 +56,9 @@ module.exports = function routes(app) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
   });
 
-  // Slack App
-  app.get('/config', app);
+  // Oauth Integration
+  app.get('/auth', auth);
+
   // Error Logger/Handler
   app.use(errorLogger);
   app.use(errorHandler);
