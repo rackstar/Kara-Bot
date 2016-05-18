@@ -22,7 +22,7 @@ export default class App extends Component {
       if (authHash.id_token) {
         idToken = authHash.id_token
         localStorage.setItem('userToken', authHash.id_token);
-        this.context.router.push('/');
+        window.location = '';
       }
       if (authHash.error) {
         console.log("Error signing in", authHash);
