@@ -23,44 +23,44 @@ export default class Home extends Component {
           </a>
         </Jumbotron>
         <Collapse in={this.state.open}>
-          <div style={{width: 'auto', height: 600, margin: '0 auto'}}>
-          <Carousel interval={18000}>
-            <Carousel.Item>
-              <Image style={{width: 800, height: 600}} src="../style/images/github.gif"/>
-              <Carousel.Caption style={{color:'black'}}>
-                <h3>GitHub</h3>
-                <p>Keep track of incoming and merged Pull Requests.</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item>
-              <Image style={{width: 800, height: 600}} src="../style/images/jira.gif"/>
-              <Carousel.Caption style={{color:'black'}}>
-                <h3>JIRA</h3>
-                <p>Get notified when critical issues are submitted.</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item>
-              <Image style={{width: 800, height: 600}} src="../style/images/calendar.gif"/>
-              <Carousel.Caption style={{color:'black'}}>
-                <h3>Google Calendar</h3>
-                <p>Stay on top of your team's calendar.</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item>
-              <Image style={{width: 800, height: 600}} src="../style/images/tone.gif"/>
-              <Carousel.Caption style={{color:'black'}}>
-                <h3>Tone Analyzer</h3>
-                <p>Get a quick analysis of the general tone of a channel.</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item>
-              <Image style={{width: 800, height: 600}} src="../style/images/weather.gif"/>
-              <Carousel.Caption style={{color:'black'}}>
-                <h3>Weather Forecasting</h3>
-                <p>Keep up to date with weather in your area or where you are traveling.</p>
-              </Carousel.Caption>
-            </Carousel.Item>
-          </Carousel>
+          <div style={{width:'auto', height:600, margin:'0 auto'}}>
+            <Carousel interval={18000}>
+              <Carousel.Item>
+                <Image style={{width:'auto', height:600, margin:'0 auto'}} src="../style/images/github.gif"/>
+                <Carousel.Caption style={{color:'black'}}>
+                  <h3>GitHub</h3>
+                  <p>Keep track of incoming and merged Pull Requests.</p>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <Image style={{width:'auto', height:600, margin:'0 auto'}} src="../style/images/jira.gif"/>
+                <Carousel.Caption style={{color:'black'}}>
+                  <h3>JIRA</h3>
+                  <p>Get notified when critical issues are submitted.</p>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <Image style={{width:'auto', height:600, margin:'0 auto'}} src="../style/images/calendar.gif"/>
+                <Carousel.Caption style={{color:'black'}}>
+                  <h3>Google Calendar</h3>
+                  <p>Stay on top of your team's calendar.</p>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <Image style={{width:'auto', height:600, margin:'0 auto'}} src="../style/images/tone.gif"/>
+                <Carousel.Caption style={{color:'black'}}>
+                  <h3>Tone Analyzer</h3>
+                  <p>Get a quick analysis of the general tone of a channel.</p>
+                </Carousel.Caption>
+              </Carousel.Item>
+              <Carousel.Item>
+                <Image style={{width:'auto', height:600, margin:'0 auto'}} src="../style/images/weather.gif"/>
+                <Carousel.Caption style={{color:'black'}}>
+                  <h3>Weather Forecasting</h3>
+                  <p>Keep up to date with weather in your area or where you are traveling.</p>
+                </Carousel.Caption>
+              </Carousel.Item>
+            </Carousel>
           </div>
         </Collapse>
       </div>
