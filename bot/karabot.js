@@ -40,6 +40,7 @@ controller.hears(['uptime', 'identify yourself', 'who are you', 'what is your na
 controller.hears(['life, the universe and everything', 'life the universe and everything'],
   directMessage, egg.hitch);
 controller.hears(['master code', 'konami code'], directMessage, egg.konami);
+  'direct_message,direct_mention,mention', egg.hitch);
 
 //Get highest priority issues
 controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
@@ -69,3 +70,6 @@ controller.hears(['tone', 'tone help'], directMessage, tone.help);
 controller.hears(['weather today in (.*)', 'weather today for (.*)', 'weather today (.*)'], directMessage, weather.getTodayWeather);
 controller.hears(['weather tomorrow in (.*)', 'weather tomorrow for (.*)', 'weather tomorrow (.*)'], directMessage, weather.getTomorrowWeather);
 controller.hears(['4 day in (.*)', '4 day for (.*)'], directMessage, weather.getFourDayForecast);
+
+// Watson
+controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, watson.translate);

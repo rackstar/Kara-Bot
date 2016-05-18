@@ -170,6 +170,8 @@ function listEvents(auth, cb, param1, param2) {
       ISODate = ISODate.toISOString().slice(0, 10);
       console.log('Upcoming 20 events:');
       cData = '*' + events[0].organizer.displayName + '*```' + param1.toString().slice(0, 10) + '\n';
+<<<<<<< 6a85761b0e1e8871ad146d76d399ea39231076b8
+<<<<<<< cec0196796f4cec1e6af27cab78aaf01b4087198
 <<<<<<< dfed4d961adb3c1d79f48e196eb2065596e92e25
 <<<<<<< 956e122d3e2969fac37cb5ddbf4a1f43eaab6cc0
       var todayDate = addParam1.slice(0, 10)
@@ -177,18 +179,34 @@ function listEvents(auth, cb, param1, param2) {
       cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
 =======
 =======
+>>>>>>> (feat) Return basic error message to user on error
+=======
       var todayDate = ((new Date()).toISOString()).slice(0, 10)
       console.log('Upcoming 10 events:');
       cData = '*' + events[0].organizer.displayName + '*```';
 >>>>>>> (feat) Return basic error message to user on error
+<<<<<<< 6f2e146dad3ab3e6e01dbcb9dbd92c9c8c02a085
+<<<<<<< cec0196796f4cec1e6af27cab78aaf01b4087198
 <<<<<<< 2029e7f5be1ce3d8cedff9c1bf96d8d1040ad64f
 >>>>>>> (feat) Return basic error message to user on error
 =======
+=======
+>>>>>>> (feat) Add event listing for tomorrow
 =======
       var todayDate = addParam1.slice(0, 10)
       console.log('Upcoming 10 events:');
       cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
 >>>>>>> (feat) Add event listing for tomorrow
+<<<<<<< 6f2e146dad3ab3e6e01dbcb9dbd92c9c8c02a085
+>>>>>>> (feat) Add event listing for tomorrow
+=======
+      var todayDate = addParam1.slice(0, 10)
+      console.log('Upcoming 10 events:');
+      cData = '*' + events[0].organizer.displayName + '*```' + new Date(addParam1).toString().slice(0,10) + '\n';
+>>>>>>> (fix) Refactor to account for ISO date format shifting the date
+=======
+>>>>>>> (feat) Return basic error message to user on error
+=======
 >>>>>>> (feat) Add event listing for tomorrow
 =======
       var todayDate = addParam1.slice(0, 10)

@@ -10,9 +10,11 @@ p.navbar-text.navbar-right {
 .navbar-collapse {
   background-color: #033d62;
 }
+
 #bs-example-navbar-collapse-1 a {
   color: #eee;
 }
+
 #bs-example-navbar-collapse-1 a:hover {
   color: #336699;
 }
@@ -69,6 +71,32 @@ body > div > div > div:nth-child(2) > div > div.react-bs-table > div.react-bs-co
 div.page-header {
   color: #eee;
 }
+
 h5 {
   color: #eee;
+}
+
+.openness_big5 {
+ fill: #4169E1;
+ background: #4169E1;
+}
+
+.conscientiousness_big5 {
+ fill: #DAA520;
+ background: #DAA520;
+}
+
+.extraversion_big5 {
+ fill:  #6495ED;
+ background:  #6495ED;
+}
+
+.agreeableness_big5 {
+ fill: #32CD32;
+ background: #32CD32;
+}
+
+.neuroticism_big5 {
+ fill:  #DC143C;
+ background:  #DC143C;
 }
