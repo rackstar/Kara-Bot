@@ -5,7 +5,7 @@ var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller.js');
 var tone = require('../../db/watson/tone.js');
-var auth = require('../slackApp/app.js');
+var slackAuth = require('../oauth/slackAuth.js');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -48,16 +48,15 @@ module.exports = function routes(app) {
   app.post('/api/watson/user', tone.user);
   app.post('/api/watson/channel', tone.channel);
 
+  // Slack Oauth
   app.get('/auth', function(req, res){
-    auth(req, res);
+    slackAuth(req, res);
     res.sendFile(path.resolve(__dirname, '../../public', 'auth.html'))
   })
+
   app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
   });
-
-  // Oauth Integration
-  app.get('/auth', auth);
 
   // Error Logger/Handler
   app.use(errorLogger);
