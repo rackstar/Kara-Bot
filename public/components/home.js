@@ -18,6 +18,9 @@ export default class Home extends Component {
           <Button bsStyle="primary" onClick={ ()=> this.setState({ open: !this.state.open })}>
             Learn More
           </Button>
+          <a href="https://slack.com/oauth/authorize?scope=bot,channels:read,channels:history,users:read&client_id=38425829201.43206739334&state=random123" style={{'margin-left': 5}}>
+            <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
+          </a>
         </Jumbotron>
         <Collapse in={this.state.open}>
           <div style={{width: 800, height: 600, margin: '0 auto'}}>
