@@ -331,6 +331,25 @@ function msgsAfterTs(cb, column, columnValue, startTs, endTs) {
   });
 }
 
+function updateAuth(teamId, botAppId, botName) {
+  var command;
+  pg.connect(connectionString, function pgUpdate(err, client, done) {
+    if (err) {
+      done();
+      console.log(err);
+    }
+
+    command = "UPDATE auth SET heroku_app_id = $1, heroku_app_name = $2 " +
+              "WHERE auth_id = $3";
+
+    var query = client.query(command, [botAppId, botName, teamId]);
+
+    query.on('end', function updateEnd() {
+      done();
+    });
+  });
+}
+
 module.exports = {
   channelListForm: channelListForm,
   slackRequest: slackRequest,
@@ -338,5 +357,6 @@ module.exports = {
   select: select,
   populateDB: populateDB,
   msgsAfterTs: msgsAfterTs,
-  insert: dbInsert
+  insert: dbInsert,
+  update: update
 };
