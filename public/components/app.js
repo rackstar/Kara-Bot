@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 
 import Header from './nav_header';
+import Home from './home';
 
 export default class App extends Component {
   static contextTypes = {
@@ -57,6 +58,7 @@ export default class App extends Component {
       return (
         <div>
           <Header idToken={this.state.idToken} signIn={this.showLock.bind(this)} />
+          <Home />
         </div>
       );
     }
