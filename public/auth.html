@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Authorize</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="style/style.css">
+</head>
+<body id="auth-body">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Karabot</a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Authorization<span class="sr-only">(current)</span></a></li>
+          <li><a href="/">Home</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div id="auth-description" class="panel-item">
+        <h3>Git Hub</h3>
+        <p> Watch your team's repos, receive notifications when a pull request is submitted or updated
+      </div>
+      <div id="auth-button" class="panel-item">
+        <a class="btn btn-primary" href="https://github.com/login/oauth/authorize?&scope=repo:status%20repo_deployment%20write:repo_hook%20notifications&client_id=24f647d19afd7bd0487a&state=random123" role="button">Authorize</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
