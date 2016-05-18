@@ -5,9 +5,52 @@ import Faux from 'react-faux-dom';
 import D3 from 'D3';
 
 export default class Chart extends Component {
+    
+  componentWillMount() {
+    
+    this.setState({ready:false});
+    
+    console.log('####### Entering ########')
+    var currentThis = this;
+    this.d3Data = this.getWatsonData(currentThis.resultsBack.bind(currentThis));
+    console.log(this.d3Data)
+    console.log('######## exiting ##########')
+    // this.resultsBack();
+  }
   
+  resultsBack() {
+    this.setState({ready:true});
+  }
+  
+  getWatsonData(callback) {
+
+   var settings = {
+    "async": true,
+    "crossDomain": true,
+    "url": "/api/watson/channel",
+    "method": "POST",
+    "headers": {
+      "cache-control": "no-cache",
+      "postman-token": "c5a32e6d-7f64-5eaa-d435-50d5af557090",
+      "content-type": "application/x-www-form-urlencoded"
+    },
+    "data": {
+      "channel": "C155RNX46"
+    }
+  }
+  
+  // var x = $.ajax(settings).done(function (response,callback) {
+  var x = $.ajax(settings).done(function () {
+    callback();
+  });
+      var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
+      var data = processData(json);
+      return data;
+  }
+
   render() {
-        
+    if (this.state.ready) {
+      
     var fauxElement = Faux.createElement("div");
     
     var diameter = 800, //max size of the bubbles
@@ -24,13 +67,12 @@ export default class Chart extends Component {
       .attr("height", diameter)
       .attr("class", "bubble");
     
-    // var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
+    var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
     
     //bubbles needs very specific format, convert data to this.
     // var data = processData(json);
-    var data = getWatsonData();
 
-    var nodes = bubble.nodes({children:data}).filter(function(d) { return !d.children; });
+    var nodes = bubble.nodes({children:this.d3Data}).filter(function(d) { return !d.children; });
 
     //setup the chart
     var bubbles = svg.append("g")
@@ -63,6 +105,14 @@ export default class Chart extends Component {
         {fauxElement.toReact()}
       </div>
     );
+  } else {
+    return (
+      <h3>
+        Loading chart...
+      </h3>
+    );
+  }
+  
   }
 }
   
@@ -77,31 +127,31 @@ function processData(data) {
   return newDataSet;
 }
 
-function getWatsonData() {
+// function getWatsonData(callback) {
 
-   var settings = {
-    "async": true,
-    "crossDomain": true,
-    "url": "http://localhost:5000/api/watson/channel",
-    "method": "POST",
-    "headers": {
-      "cache-control": "no-cache",
-      "postman-token": "c5a32e6d-7f64-5eaa-d435-50d5af557090",
-      "content-type": "application/x-www-form-urlencoded"
-    },
-    "data": {
-      "channel": "C155RNX46"
-    }
-  }
+//    var settings = {
+//     "async": true,
+//     "crossDomain": true,
+//     "url": "/api/watson/channel",
+//     "method": "POST",
+//     "headers": {
+//       "cache-control": "no-cache",
+//       "postman-token": "c5a32e6d-7f64-5eaa-d435-50d5af557090",
+//       "content-type": "application/x-www-form-urlencoded"
+//     },
+//     "data": {
+//       "channel": "C155RNX46"
+//     }
+//   }
   
-  return $.ajax(settings).done(function (response) {
-    // console.log(response);
-      var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
-        var data = processData(json);
-      return data;
-  
-  });
-}
+//   // var x = $.ajax(settings).done(function (response,callback) {
+//   var x = $.ajax(settings).done(function (callback) {
+//     callback();
+//   });
+//       var json = {"Social Tone":{"Openness":.079,"Conscientiousness":.560,"Extraversion":.951,"Agreeableness":.763,"Emotional Range":.375}}
+//       var data = processData(json);
+//       return data;
+// }
 
 
 
