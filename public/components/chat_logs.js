@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { fetchChannels, fetchChat, fetchUser } from '../actions/index';
 import { Link } from 'react-router';
-import { DropdownButton, MenuItem } from 'react-bootstrap'
+import { DropdownButton, MenuItem, PageHeader } from 'react-bootstrap'
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class ChatLogs extends Component {
@@ -41,7 +41,9 @@ class ChatLogs extends Component {
   render() {
     return (
       <div>
-        <h1>Chat</h1>
+        <PageHeader>
+          <h1>Chat</h1>
+        </PageHeader>
         <div className="dropdown">
           <DropdownButton bsStyle="default" title="Channels" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" onSelect={this.getChat.bind(this)}>
             {this.props.channels.map(this.renderChannelDropdown)}

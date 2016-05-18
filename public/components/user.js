@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions/index';
 import { Link } from 'react-router';
+import { PageHeader } from 'react-bootstrap';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class User extends Component {
@@ -30,7 +31,6 @@ class User extends Component {
     callback();
   }
   makeReady() {
-    console.log(this.userInfo);
     this.setState({ready:true});
   }
 
@@ -42,7 +42,9 @@ class User extends Component {
     if(this.state.ready) {
       return (
         <div>
-          <h1>User: {this.userInfo.username}</h1>
+          <PageHeader>
+            <h1>User: {this.userInfo.username}</h1>
+          </PageHeader>
           <h5>First Name: {this.userInfo.firstname}</h5>
           <h5>Last Name: {this.userInfo.lastname}</h5>
           <h5>Email: {this.userInfo.email}</h5>

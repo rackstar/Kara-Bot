@@ -4,10 +4,22 @@
 
 p.navbar-text.navbar-right {
   margin-right: 15px;
+  color: #eee;
+}
+
+.navbar-collapse {
+  background-color: #033d62;
+}
+#bs-example-navbar-collapse-1 a {
+  color: #eee;
+}
+#bs-example-navbar-collapse-1 a:hover {
+  color: #336699;
 }
 
 body {
   padding-top: 70px;
+  background-color: #6699cc;
 }
 
 #auth-body {
@@ -20,4 +32,43 @@ body {
 
 #auth-button {
   float: right;
+  background-color: #9ec7ea;
+}
+
+.jumbotron {
+  background-color: #3674ab;
+  color:#eee;
+}
+
+.table {
+  color: black;
+}
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: #033d62;
+  color: #eee;
+}
+
+.sort-column {
+  background-color: #033d62;
+  color: #eee;
+}
+
+body > div > div > div:nth-child(2) > div > div.react-bs-table > div.react-bs-container-header.table-header-wrapper > table > thead > tr > th:nth-child(1) {
+  background-color: #033d62;
+}
+
+.navbar-header {
+  background-color: #033d62;
+}
+
+.navbar-toggle {
+  background-color: #eee;
+}
+
+div.page-header {
+  color: #eee;
+}
+h5 {
+  color: #eee;
 }
