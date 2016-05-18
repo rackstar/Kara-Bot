@@ -8,7 +8,7 @@ var heroku = new Heroku({
 });
 
 // create app
-function createBot(env, teamId) {
+function createBot(env, authId) {
   heroku.post('/apps',
     {
       // random name
@@ -18,14 +18,15 @@ function createBot(env, teamId) {
       if (err) {
         console.log(err);
       } else {
-        var botAppId = app.id;
-        var botName = app.name;
+        buildBot(app.id);
+        setEnv(app.id, env);
 
-        buildBot(botAppId);
-        setEnv(botAppId, env);
-        // TO DO - bug in saving heroku info?
-        // save heroku app id and app name
-        db.updateAuth(teamId, botAppId, botName);
+        // update database with heroku app id and app name
+        var columns = 'heroku_app_id = $1, heroku_app_name = $2';
+        var match = 'auth_id = $3';
+        var values = [app.id, app.name, authId];
+
+        db.update('auth', columns, match, values);
       }
     }
   );

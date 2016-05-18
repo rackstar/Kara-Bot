@@ -64,18 +64,22 @@ module.exports = function auth(req, res) {
 
       // TO DO - delete tokens if authorisation are revoked / kill bot app
 
-      // select(cb, table, column, value, property)
-      // get auth database id of user registered
-      db.select(function(data) {
-          // create bot, pass in auth database id
-          var authId = data[0];
-          heroku.createBot(env, authId);
-        },
-        'auth',
-        'bot_token',
-        botToken,
-        'auth_id'
-      );
+      // wait for database to be populated
+      setTimeout(function() {
+        // select(cb, table, column, value, property)
+        // get auth database id of user registered
+        db.select(function(data) {
+            // create bot, pass in auth database id
+            var authId = data[0];
+            heroku.createBot(env, authId);
+          },
+          'auth',
+          'slack_app_token',
+          appToken,
+          'auth_id'
+        );
+      }, 2000);
+
     }
   });
 };

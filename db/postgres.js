@@ -331,18 +331,22 @@ function msgsAfterTs(cb, column, columnValue, startTs, endTs) {
   });
 }
 
-function updateAuth(teamId, botAppId, botName) {
+// columns - heroku_app_id = $1, heroku_app_name = $2
+// match - auth_id = $3
+// values - [herokuId, herokuName, authId]
+function update(table, columns, match, values) {
   var command;
   pg.connect(connectionString, function pgUpdate(err, client, done) {
     if (err) {
       done();
       console.log(err);
     }
+    // UPDATE auth SET heroku_app_id = $1, heroku_app_name = $2
+    // WHERE auth_id = $3
+    command = "UPDATE " + table + " SET " + columns +
+              " WHERE " + match;
 
-    command = "UPDATE auth SET heroku_app_id = $1, heroku_app_name = $2 " +
-              "WHERE auth_id = $3";
-
-    var query = client.query(command, [botAppId, botName, teamId]);
+    var query = client.query(command, values);
 
     query.on('end', function updateEnd() {
       done();
@@ -358,5 +362,5 @@ module.exports = {
   populateDB: populateDB,
   msgsAfterTs: msgsAfterTs,
   insert: dbInsert,
-  updateAuth: updateAuth
+  update: update
 };
