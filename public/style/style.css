@@ -9,3 +9,15 @@ p.navbar-text.navbar-right {
 body {
   padding-top: 70px;
 }
+
+#auth-body {
+  padding-top: 0px
+}
+
+#auth-icon {
+  float: left;
+}
+
+#auth-button {
+  float: right;
+}

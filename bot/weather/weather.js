@@ -4,7 +4,6 @@ var unirest = require('unirest');
 function getWeather(bot, message, cb) {
   //get location
   var location = message.match[1];
-  console.log('LOCATION', location);
   var key = process.env.weatherKey;
   var weatherUrl = 'http://api.openweathermap.org/data/2.5/forecast?q=' + location + '&units=imperial&APPID=' + process.env.weatherKey;
   unirest.get(weatherUrl, function(data){
