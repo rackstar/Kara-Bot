@@ -337,5 +337,6 @@ module.exports = {
   getTableData: getTableData,
   select: select,
   populateDB: populateDB,
-  msgsAfterTs: msgsAfterTs
+  msgsAfterTs: msgsAfterTs,
+  insert: dbInsert
 };
