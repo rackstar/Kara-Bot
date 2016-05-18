@@ -1,4 +1,5 @@
 var Heroku = require('heroku-client');
+var db = require('../db/postgres');
 
 require('dotenv').load();
 
@@ -7,7 +8,7 @@ var heroku = new Heroku({
 });
 
 // create app
-function createBot(env) {
+function createBot(env, teamId) {
   heroku.post('/apps',
     {
       // random name
@@ -18,10 +19,13 @@ function createBot(env) {
         console.log(err);
       } else {
         var botAppId = app.id;
-        var botName = app.name
+        var botName = app.name;
+
         buildBot(botAppId);
-        // setTimeout? allow heroku to build app first
         setEnv(botAppId, env);
+
+        // save heroku app id and app name
+        db.updateAuth(teamId, botAppId, botName);
       }
     }
   );
