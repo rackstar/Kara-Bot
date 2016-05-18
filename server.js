@@ -56,8 +56,8 @@ var addAndUpdateTables = function(){
   var queryClient = new pg.Client(connectionString);
   queryClient.connect();
   //add tables
-  queryClient.query('CREATE TABLE IF NOT EXISTS auth(auth_id SERIAL PRIMARY KEY, scope VARCHAR(40), user_id VARCHAR(40), team_name VARCHAR(40), team_id VARCHAR(40), bot_id VARCHAR(40), bot_token VARCHAR(40), jira_user VARCHAR(40), jira_password VARCHAR(40))');
-  queryClient.query('CREATE TABLE IF NOT EXISTS teaminfo(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
+  queryClient.query('CREATE TABLE IF NOT EXISTS auth(auth_id SERIAL PRIMARY KEY, heroku_app_id VARCHAR(60), heroku_app_name VARCHAR(40), github_token VARCHAR(60), slack_app_token VARCHAR(60), user_id VARCHAR(40), team_name VARCHAR(40), team_id VARCHAR(40), bot_id VARCHAR(40), bot_token VARCHAR(60))');
+  queryClient.query('CREATE TABLE IF NOT EXISTS channels(channel_id SERIAL PRIMARY KEY, channel_name VARCHAR(40), slack_channel_id VARCHAR(40))');
   queryClient.query('CREATE TABLE IF NOT EXISTS users(user_id SERIAL PRIMARY KEY, username VARCHAR(40) not null, slack_user_id VARCHAR(40), firstname VARCHAR(40), lastname VARCHAR(40), email VARCHAR(40), is_bot BOOLEAN)');
   queryClient.query('CREATE TABLE IF NOT EXISTS messages(message_id SERIAL PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, message_text TEXT, slack_ts VARCHAR(40), slack_user_id VARCHAR(40), username VARCHAR(40), channel_id VARCHAR(40) not null)');
   var addTables = queryClient.query('CREATE TABLE IF NOT EXISTS channel_user(join_id SERIAL PRIMARY KEY, slack_user_id VARCHAR(40), channel_id VARCHAR(40) not null)');

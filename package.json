@@ -41,6 +41,7 @@
     "github": "^0.2.4",
     "google-auth-library": "^0.9.7",
     "googleapis": "^5.2.1",
+    "heroku-client": "^2.4.3",
     "jira-connector": "^2.3.0",
     "jquery": "^2.2.1",
     "lodash": "^3.10.1",

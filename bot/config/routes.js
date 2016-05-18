@@ -5,6 +5,8 @@ var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller.js');
 var tone = require('../../db/watson/tone.js');
+var slackAuth = require('../oauth/slackAuth.js');
+var githubAuth = require('../oauth/githubAuth.js');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -27,6 +29,7 @@ module.exports = function routes(app) {
   app.post('/unwatch', slashCommands.unwatch);
 
   // receive incoming POST requests from JIRA webhooks
+  // TO DO - change to '/jira'?
   app.post('/', jiraController.handleJiraWebhooksIssues);
 
   // get highest priority JIRA issues on request
@@ -46,10 +49,14 @@ module.exports = function routes(app) {
   app.post('/api/watson/user', tone.user);
   app.post('/api/watson/channel', tone.channel);
 
+  // Slack Oauth
   app.get('/auth', function(req, res){
-    auth(req, res);
+    slackAuth(req, res);
     res.sendFile(path.resolve(__dirname, '../../public', 'auth.html'))
-  })
+  });
+
+  app.get('/auth/github', githubAuth)
+
   app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
   });
