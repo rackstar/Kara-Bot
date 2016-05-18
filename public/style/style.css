@@ -65,3 +65,10 @@ body > div > div > div:nth-child(2) > div > div.react-bs-table > div.react-bs-co
 .navbar-toggle {
   background-color: #eee;
 }
+
+div.page-header {
+  color: #eee;
+}
+h5 {
+  color: #eee;
+}

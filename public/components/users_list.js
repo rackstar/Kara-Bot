@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { fetchUsers, fetchUser } from '../actions/index';
 import { Link } from 'react-router';
+import { PageHeader } from 'react-bootstrap';
 import { BootstrapTable, TableHeaderColumn } from 'react-bootstrap-table';
 
 class UsersList extends Component {
@@ -36,7 +37,9 @@ class UsersList extends Component {
   render() {
     return (
       <div>
-        <h1>Users</h1>
+        <PageHeader>
+          <h1>Users</h1>
+        </PageHeader>
         <BootstrapTable data={this.props.all} striped={true} hover={true} condensed={true} pagination={true} search={true} selectRow={this.selectRowProp} exportCSV={true}>
           <TableHeaderColumn dataField="username" width="100" isKey={true} dataSort={true}>Username</TableHeaderColumn>
           <TableHeaderColumn dataField="firstname" width="100" dataSort={true}>First Name</TableHeaderColumn>
