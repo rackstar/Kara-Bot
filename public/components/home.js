@@ -15,7 +15,7 @@ export default class Home extends Component {
           <p>Let KaraBot help your Engineering team by letting you know when a Pull Request was submitted or merged in
           GitHub, notifying you when a highest priority issue was submitted in JIRA, keeping track of you team's Google
           Calendar, or even just letting you know what the weather is going to be for the next few days!</p>
-          <Button bsStyle="primary" onClick={ ()=> this.setState({ open: !this.state.open })}>
+          <Button bsStyle="info" onClick={ ()=> this.setState({ open: !this.state.open })}>
             Learn More
           </Button>
           <a href="https://slack.com/oauth/authorize?scope=bot,channels:read,channels:history,users:read&client_id=38425829201.43206739334&state=random123" style={{marginLeft: 5}}>
@@ -23,7 +23,7 @@ export default class Home extends Component {
           </a>
         </Jumbotron>
         <Collapse in={this.state.open}>
-          <div style={{width: 800, height: 600, margin: '0 auto'}}>
+          <div style={{width: 'auto', height: 600, margin: '0 auto'}}>
           <Carousel interval={18000}>
             <Carousel.Item>
               <Image style={{width: 800, height: 600}} src="../style/images/github.gif"/>

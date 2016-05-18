@@ -6,6 +6,16 @@ p.navbar-text.navbar-right {
   margin-right: 15px;
 }
 
+.navbar-collapse {
+  background-color: #033d62;
+}
+#bs-example-navbar-collapse-1 a {
+  color: #eee;
+}
+#bs-example-navbar-collapse-1 a:hover {
+  color: #336699;
+}
+
 body {
   padding-top: 70px;
 }
@@ -20,4 +30,14 @@ body {
 
 #auth-button {
   float: right;
+  background-color: #9ec7ea;
+}
+
+.jumbotron {
+  background-color: #3674ab;
+  color:#eee;
+}
+
+.table {
+  font-color: black;
 }
