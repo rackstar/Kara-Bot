@@ -1,12 +1,15 @@
 var request = require('request');
 var helper = require('../../db/postgres.js');
 var heroku = require('../../heroku/heroku');
+var db = require('../../db/postgres');
 
 require('dotenv').config();
 
 module.exports = function auth(req, res) {
-  var code = req.body.code;
-  // var state = req.body.state;
+  var code = req.query.code;
+  console.log('SLACK AUTH');
+  console.log(code, 'CODE', req.params, 'PARAMS', req);
+  // var state = req.query.state;
 
   // security check
   // if (req.body.state !== /*state that was given*/) {
@@ -40,18 +43,41 @@ module.exports = function auth(req, res) {
       var botId = body.bot.bot_user_id;
       var botToken = body.bot.bot_access_token;
 
+      var columns = '(slack_app_token, user_id, team_name, team_id, bot_id, bot_token)';
+      var values = [appToken, userId, teamName, teamId, botId, botToken];
+      var valuesHolder = 'values($1, $2, $3, $4, $5, $6)'
+      // save to database
+      db.insert('auth', columns, values, valuesHolder);
+
       var env = {
+        // slack
         token: body.bot.bot_access_token,
-        APP_TOKEN: body.access_token
+        APP_TOKEN: body.access_token,
+
+        // watson
+        toneUser: process.env.toneUser,
+        tonePw: process.env.tonePw,
+        transPW: process.env.transPW,
+        transUsername: process.env.transUsername,
+
+        // weather
+        weatherKey: process.env.weatherKey
       };
 
-      // save to database
-      // res.status(201);
-      // create multiple node instances for each registration
-      // delete tokens if authorisation are revoked / kill node instance
+      // TO DO - delete tokens if authorisation are revoked / kill bot app
 
-      // create bot
-      heroku.createBot(env);
+      // select(cb, table, column, value, property)
+      // get auth database id of user registered
+      db.select(function(data) {
+          // create bot, pass in auth database id
+          var authId = data[0];
+          heroku.createBot(env, authId);
+        },
+        'auth',
+        'bot_token',
+        botToken,
+        'auth_id'
+      );
     }
   });
 };
