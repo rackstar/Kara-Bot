@@ -56,7 +56,7 @@ body {
   color: #eee;
 }
 
-body > div > div > div:nth-child(2) > div > div.react-bs-table > div.react-bs-container-header.table-header-wrapper > table > thead > tr > th:nth-child(1) {
+th:nth-child(1) {
   background-color: #033d62;
 }
 
