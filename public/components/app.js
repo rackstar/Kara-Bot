@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
 
 import Header from './nav_header';
+import Home from './home';
 
 export default class App extends Component {
   static contextTypes = {
@@ -21,7 +22,7 @@ export default class App extends Component {
       if (authHash.id_token) {
         idToken = authHash.id_token
         localStorage.setItem('userToken', authHash.id_token);
-        this.context.router.push('/');
+        window.location = '';
       }
       if (authHash.error) {
         console.log("Error signing in", authHash);
@@ -57,6 +58,7 @@ export default class App extends Component {
       return (
         <div>
           <Header idToken={this.state.idToken} signIn={this.showLock.bind(this)} />
+          <Home />
         </div>
       );
     }
