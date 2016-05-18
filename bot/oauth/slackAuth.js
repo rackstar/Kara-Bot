@@ -7,12 +7,10 @@ require('dotenv').config();
 
 module.exports = function auth(req, res) {
   var code = req.query.code;
-  console.log('SLACK AUTH');
-  console.log(code, 'CODE', req.params, 'PARAMS', req);
   // var state = req.query.state;
 
   // security check
-  // if (req.body.state !== /*state that was given*/) {
+  // if (req.query.state !== /*state that was given*/) {
   //   // end the auth process
   // }
 

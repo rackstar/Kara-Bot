@@ -6,6 +6,7 @@ var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller.js');
 var tone = require('../../db/watson/tone.js');
 var slackAuth = require('../oauth/slackAuth.js');
+var githubAuth = require('../oauth/githubAuth.js');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
@@ -52,7 +53,9 @@ module.exports = function routes(app) {
   app.get('/auth', function(req, res){
     slackAuth(req, res);
     res.sendFile(path.resolve(__dirname, '../../public', 'auth.html'))
-  })
+  });
+
+  app.get('/auth/github', githubAuth)
 
   app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));

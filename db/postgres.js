@@ -358,5 +358,5 @@ module.exports = {
   populateDB: populateDB,
   msgsAfterTs: msgsAfterTs,
   insert: dbInsert,
-  update: update
+  updateAuth: updateAuth
 };

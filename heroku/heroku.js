@@ -23,7 +23,7 @@ function createBot(env, teamId) {
 
         buildBot(botAppId);
         setEnv(botAppId, env);
-
+        // TO DO - bug in saving heroku info?
         // save heroku app id and app name
         db.updateAuth(teamId, botAppId, botName);
       }
