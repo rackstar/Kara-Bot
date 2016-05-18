@@ -19,7 +19,7 @@ function createBot(env) {
       } else {
         var botAppId = app.id;
         var botName = app.name
-        build(botAppId);
+        buildBot(botAppId);
         // setTimeout? allow heroku to build app first
         setEnv(botAppId, env);
       }
@@ -63,5 +63,6 @@ function setEnv(appId, env) {
 // save info to database
 
 module.exports = {
-  createBot: createBot
+  createBot: createBot,
+  setEnv: setEnv
 }
