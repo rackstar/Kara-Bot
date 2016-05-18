@@ -47,7 +47,7 @@ module.exports = function routes(app) {
   app.post('/api/watson/channel', tone.channel);
 
   app.get('/auth', function(req, res){
-    
+    auth(req, res);
     res.sendFile(path.resolve(__dirname, '../../public', 'auth.html'))
   })
   app.get('*', function (req, res) {
