@@ -96,7 +96,6 @@ function cnew(bot, message) {
     bot.reply(message, errorText + 'that time range');
     return;
   }
-
   // time inputs have passed validation
   var startDate = new Date;
   var endDate = new Date;
