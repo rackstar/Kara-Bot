@@ -27,9 +27,9 @@ function githubAuth() {
 function repoInfo(repos) {
   var info = [];
 
-  repos.forEach(function repoMsg(repo) {
+  repos.forEach(function repoMsg(repo, i) {
     var repoLinked = helper.hyperLink(repo.full_name, repo.html_url);
-    info.push(repoLinked + '\n');
+    info.push(i + 1 + '  ' + repoLinked + '\n');
   });
   return info.join('');
 };
@@ -54,11 +54,11 @@ function repoList(repoInfo, argument) {
     slackMessage.text = 'Here is your most recent repository:';
   }
   // HELP
-    // if (argument.toLowerCase() === 'help') {
-    //   slackMessage.text = 'How to use show repo';
-    //   // TO DO - change to show repos
-    //   slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo <number>` will show you `<number>` of your most recent repositories';
-    // }
+  // if (argument.toLowerCase() === 'help') {
+  //   slackMessage.text = 'How to use show repo';
+  //   // TO DO - change to show repos
+  //   slackMessage.attachments[0].text = '`/repo` will show you all your current repositories.\n`/repo <number>` will show you `<number>` of your most recent repositories';
+  // }
   return slackMessage;
 }
 
@@ -93,83 +93,109 @@ function getRepo(bot, message) {
 
 // watch
 function watchRepo(bot, message) {
-  var userRepo = message.match[1].split('/');
-  var user = userRepo[0];
-  var repo = userRepo[1];
-  bot.reply(message, 'BeepBop.. Targeting repo.');
+  var watchArg = message.match[1];
+  var userRepo;
 
-  // TO DO - help fail validation (*\/*)
-  // /watch help
-  if (repo.toLowerCase() === 'help') {
-    var helpMessage = {
-      text: 'How to use /watch',
-      attachments: [{
-        text: '`/watch` will show you all current watched repositories.\n`/watch <user>/<repo>` will subscribe you to the repository\'s events',
-        color: 'good',
-        mrkdwn_in: ['text']
-      }]
-    };
-    bot.reply(message, helpMessage);
-    return;
-  }
+  github.repos.getAll(
+    {
+      type: 'all',
+      sort: 'updated'
+    },
+    function responseRepo(err, repos) {
+      if (err) {
+        bot.reply(message, 'I\'m sorry, I cannot process your request right now');
+        return;
+      }
 
-  // validation for repo
-  // TO DO - whitespace validation for repo
-  if (repo === undefined || repo === '' || repo === ' ') {
-    bot.reply(message, 'empty value for repo, please read /watch help');
-    return;
-  }
+      repos.forEach(function repoMsg(repo, i) {
+        if ((i + 1) === Number(watchArg) || watchArg === repo.full_name) {
+          userRepo = repo.full_name.split('/');
+        }
+      });
 
-  var hookData = {
-    name: 'web',
-    active: true,
-    user: user,
-    repo: repo,
-    events: [
-      'commit_comment',
-      'create',
-      'delete',
-      'deployment_status',
-      'issues',
-      'issue_comment',
-      'pull_request',
-      'pull_request_review_comment',
-      'push',
-      'release',
-      'fork'
-    ],
-    config: {
-      url: process.env.serverUrl,
-      content_type: 'json'
-    }
-  };
+      if (!userRepo) {
+        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time');
+        return;
+      }
 
+      var user = userRepo[0];
+      var repo = userRepo[1];
 
-  github.repos.createHook(hookData, function resHook(err, data) {
-    if (err) {
-      err = JSON.parse(err);
-      var errorMsg = {
-        text: user + '/' + repo + ' ' + err.message
+      bot.reply(message, 'BeepBop.. Targeting repo.');
+      var hookData = {
+        name: 'web',
+        active: true,
+        user: user,
+        repo: repo,
+        events: [
+          'commit_comment',
+          'create',
+          'delete',
+          'deployment_status',
+          'issues',
+          'issue_comment',
+          'pull_request',
+          'pull_request_review_comment',
+          'push',
+          'release',
+          'fork'
+        ],
+        config: {
+          url: process.env.serverUrl,
+          content_type: 'json'
+        }
       };
 
-      // send error logs instead if available
-      if (err.errors !== undefined) {
-        errorMsg.text = 'I am already watching ' + user + '/' + repo;
-        bot.reply(message, errorMsg);
-        // TO DO enable error logging for other types of errors
-        // errorMsg = err.errors[0].message;
-      }
 
-    } else {
-      if (data.active) {
-        var text = {
-          text: 'I am now watching ' + user + '/' + repo + '\'s every move'
-        };
-        bot.reply(message, text);
-      }
+      github.repos.createHook(hookData, function resHook(err, data) {
+        if (err) {
+          err = JSON.parse(err);
+          var errorMsg = {
+            text: user + '/' + repo + ' ' + err.message
+          };
+
+          // send error logs instead if available
+          if (err.errors !== undefined) {
+            errorMsg.text = 'I am already watching ' + user + '/' + repo;
+            bot.reply(message, errorMsg);
+            // TO DO enable error logging for other types of errors
+            // errorMsg = err.errors[0].message;
+          }
+
+        } else {
+          if (data.active) {
+            var text = {
+              text: 'I am now watching ' + user + '/' + repo + '\'s every move'
+            };
+            bot.reply(message, text);
+          }
+        }
+      });
     }
-  });
-};
+  );
+}
+
+// TO DO - help fail validation (*\/*)
+// /watch help
+// if (repo.toLowerCase() === 'help') {
+//   var helpMessage = {
+//     text: 'How to use /watch',
+//     attachments: [{
+//       text: '`/watch` will show you all current watched repositories.\n`/watch <user>/<repo>` will subscribe you to the repository\'s events',
+//       color: 'good',
+//       mrkdwn_in: ['text']
+//     }]
+//   };
+//   bot.reply(message, helpMessage);
+//   return;
+// }
+
+// validation for repo
+// TO DO - whitespace validation for repo
+// if (repo === undefined || repo === '' || repo === ' ') {
+//   bot.reply(message, 'empty value for repo, please read /watch help');
+//   return;
+// }
 
 // TO DO - user can select events to subscribe to
 
@@ -185,58 +211,83 @@ var findHookId = exports.findHookId = function findHookId(err, hooks, callback) 
 };
 
 function unwatchRepo(bot, message) {
-  var userRepo = message.match[1].split('/');
-  var user = userRepo[0];
-  var repo = userRepo[1];
-  var initialResponse = 'Hmmm..';
+  var unwatchArg = message.match[1];
 
-  // send an initial response to avoid timeout error
-  bot.reply(message, initialResponse);
-
-  // unwatch help
-  if (repo.toLowerCase() === 'help') {
-    var helpMessage = {
-      text: 'How to use /unwatch',
-      attachments: [{
-        text: '`/unwatch <user>/<repo>` will unsubscribe from the repository\'s events',
-        color: 'good',
-        mrkdwn_in: ['text']
-      }]
-    };
-    bot.reply(message, helpMessagse);
-    return;
-  }
-
-  // get list of hooks
-  github.repos.getHooks(
+  github.repos.getAll(
     {
-      user: user,
-      repo: repo
+      type: 'all',
+      sort: 'updated'
     },
-    // find the id of hook associated to the app
-    function getHookCb(err, hooks) {
-      findHookId(err, hooks, function deleteHook(id) {
-        // delete hook
-        github.repos.deleteHook(
-          {
-            user: user,
-            repo: repo,
-            id: id
-          },
-          function deleteHookCb(err, response) {
-            if (response.meta.status === '204 No Content') {
-              // TO DO - if deleted already inform user
-              var deleteConfirmation = {
-                text: 'Ok! I\'ll stop notifying you of ' + userRepo.join('/') + '\'s events'
-              };
-              bot.reply(message, deleteConfirmation);
-            }
-          }
-        );
+    function responseRepo(err, repos) {
+      if (err) {
+        bot.reply(message, 'I\'m sorry, I cannot process your request right now');
+        return;
+      }
+
+      repos.forEach(function repoMsg(repo, i) {
+        if ((i + 1) === Number(unwatchArg) || unwatchArg === repo.full_name) {
+          userRepo = repo.full_name.split('/');
+        }
       });
+
+      if (!userRepo) {
+        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time');
+        return;
+      }
+
+      var user = userRepo[0];
+      var repo = userRepo[1];
+      var initialResponse = 'Hmmm..';
+
+      // send an initial response to avoid timeout error
+      bot.reply(message, initialResponse);
+
+      // unwatch help
+      if (repo.toLowerCase() === 'help') {
+        var helpMessage = {
+          text: 'How to use /unwatch',
+          attachments: [{
+            text: '`/unwatch <user>/<repo>` will unsubscribe from the repository\'s events',
+            color: 'good',
+            mrkdwn_in: ['text']
+          }]
+        };
+        bot.reply(message, helpMessagse);
+        return;
+      }
+
+      // get list of hooks
+      github.repos.getHooks(
+        {
+          user: user,
+          repo: repo
+        },
+        // find the id of hook associated to the app
+        function getHookCb(err, hooks) {
+          findHookId(err, hooks, function deleteHook(id) {
+            // delete hook
+            github.repos.deleteHook(
+              {
+                user: user,
+                repo: repo,
+                id: id
+              },
+              function deleteHookCb(err, response) {
+                if (response.meta.status === '204 No Content') {
+                  // TO DO - if deleted already inform user
+                  var deleteConfirmation = {
+                    text: 'Ok! I\'ll stop notifying you of ' + userRepo.join('/') + '\'s events'
+                  };
+                  bot.reply(message, deleteConfirmation);
+                }
+              }
+            );
+          });
+        }
+      );
     }
   );
-};
+}
 
 // function to format new PR message to Slack, utilised by webHookReceiver
 function prMessage(data) {
