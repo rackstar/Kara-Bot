@@ -25,6 +25,7 @@ export default class Chart extends Component {
       "method": "POST",
       "headers":
         {
+          "Authorization": `Bearer ${localStorage.getItem('userToken')}`,
           "cache-control": "no-cache",
           "content-type": "application/x-www-form-urlencoded"
         },
