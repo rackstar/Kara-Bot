@@ -226,7 +226,7 @@ function listFreeSlots(auth, cb, param1, param2) {
     console.log(events);
     if (events.length === 0) {
       console.log('No upcoming events found.');
-      cData = '*' + 'KaraBot Sub Calendar' + '*``' + param1.toString().slice(0, 10) + '\n';
+      cData = '*' + 'KaraBot Sub Calendar' + '*```' + param1.toString().slice(0, 10) + '\n';
       cData += ' no events found```';
       cb(cData);
     } else {

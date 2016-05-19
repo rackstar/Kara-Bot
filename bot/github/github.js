@@ -1,7 +1,7 @@
 var GitHubApi = require('github');
 var helper = require('../config/helper');
 
-var github = exports.api = new GitHubApi({
+var github = new GitHubApi({
   version: '3.0.0',
   debug: true,
   protocol: 'https',
@@ -12,7 +12,7 @@ var github = exports.api = new GitHubApi({
   }
 });
 
-require('dotenv').config();
+require('dotenv').load();
 
 // Authentication
 function githubAuth() {
@@ -402,7 +402,8 @@ function webHook(req, res) {
 };
 
 module.exports = {
-  auth: auth,
+  api: github,
+  auth: githubAuth,
   repoInfo: repoInfo,
   repoList: repoList,
   getRepo: getRepo,

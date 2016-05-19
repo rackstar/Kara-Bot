@@ -6,7 +6,7 @@ var calendar = require('./basic_convo/calendar');
 var github = require('./github/github');
 var weather = require('./weather/weather')
 var translate = require('./watson/translation');
-var tone = require('.watson/tone');
+var tone = require('./watson/tone');
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -41,7 +41,7 @@ controller.hears(['life, the universe and everything', 'life the universe and ev
   directMessage, egg.hitch);
 controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
-//Get highest priority issues
+// Jira
 controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
 
 // Google Calendar

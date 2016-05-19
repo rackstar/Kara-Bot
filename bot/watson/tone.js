@@ -1,5 +1,5 @@
 var watson = require('watson-developer-cloud');
-var db = require('../postgres');
+var db = require('../../db/postgres');
 var Chart = require('quiche');
 
 require('dotenv').load();

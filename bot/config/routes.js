@@ -4,7 +4,7 @@ var github = require('../github/github');
 var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
 var dbController = require('../../db/postgres-controller');
-var tone = require('../../db/watson/tone');
+var tone = require('../watson/tone');
 var slackAuth = require('../oauth/slackAuth');
 var githubAuth = require('../oauth/githubAuth');
 
@@ -51,11 +51,11 @@ module.exports = function routes(app) {
 
   // Slack Oauth
   app.get('/auth', function(req, res){
-    slackAuth(req, res);
+    slackAuth(req);
     res.sendFile(path.resolve(__dirname, '../../public', 'auth.html'))
   });
 
-  app.get('/auth/github', githubAuth)
+  app.get('/auth/github', githubAuth);
 
   app.get('*', function (req, res) {
     res.sendFile(path.resolve(__dirname, '../../public', 'index.html'));
