@@ -5,7 +5,6 @@ export const FETCH_CHANNELS = 'FETCH_CHANNELS';
 export const FETCH_CHAT = 'FETCH_CHAT';
 export const FETCH_USERS = 'FETCH_USERS';
 export const FETCH_USER = 'FETCH_USER';
-export const BOT_ACTIVITY = 'BOT_ACTIVITY';
 
 const ROOT_URL = '/api';
 
@@ -41,15 +40,6 @@ export function fetchUser(id) {
 
   return {
     type: FETCH_USER,
-    payload: request
-  };
-}
-
-export function botActivity() {
-  const request = axios.get(`${ROOT_URL}/getbot`);
-
-  return {
-    type: BOT_ACTIVITY,
     payload: request
   };
 }

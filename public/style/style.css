@@ -56,7 +56,7 @@ body {
   color: #eee;
 }
 
-body > div > div > div:nth-child(2) > div > div.react-bs-table > div.react-bs-container-header.table-header-wrapper > table > thead > tr > th:nth-child(1) {
+th:nth-child(1) {
   background-color: #033d62;
 }
 
@@ -87,8 +87,8 @@ h5 {
 }
 
 .extraversion_big5 {
- fill:  #6495ED;
- background:  #6495ED;
+ fill:  #944dff;
+ background:  #944dff;
 }
 
 .agreeableness_big5 {
@@ -99,4 +99,8 @@ h5 {
 .neuroticism_big5 {
  fill:  #DC143C;
  background:  #DC143C;
+}
+
+.chartLoad {
+  color: #eee;
 }

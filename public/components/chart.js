@@ -25,6 +25,7 @@ export default class Chart extends Component {
       "method": "POST",
       "headers":
         {
+          "Authorization": `Bearer ${localStorage.getItem('userToken')}`,
           "cache-control": "no-cache",
           "content-type": "application/x-www-form-urlencoded"
         },
@@ -100,7 +101,7 @@ export default class Chart extends Component {
     } else {
 
       return (
-        <h3>
+        <h3 className="chartLoad">
           Loading chart...
         </h3>
       );
