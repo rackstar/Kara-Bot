@@ -12,8 +12,11 @@ module.exports = {
 function getHighestPriorityIssues(bot, message) {
   var issueMessages = [];
   unirest.get('http://localhost:5000/getHighestPriorityIssues', function (res) {
-    console.log('RESPONSE', res.body)
-    if (res.body.length > 0) {
+
+    // error handler
+    if (res.body.error) {
+      bot.reply(message, 'I\'m sorry I cannot process your request right now :confused:');
+    } else if (res.body.length > 0) {
       res.body.forEach(function (issue) {
         issueMessages.push('*' + issue.title + '*\n*Description*: ' +
           issue.summary + '\n' +

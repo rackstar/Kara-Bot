@@ -88,6 +88,13 @@ module.exports = {
   getHighestPriorityIssues: function (req, res) {
     var highestPriorityIssues = []
     jira.search.search({ jql: 'project=10000' }, function (error, project) {
+
+      // handle error
+      if (error) {
+        res.send({error: error});
+        return;
+      }
+
       var highestPriorityIssues = [];
       for (var i = 0; i < project.issues.length; i++){
         if (project.issues[i].fields.priority.id === '1') {
