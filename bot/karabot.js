@@ -1,12 +1,12 @@
 var Botkit = require('botkit');
-var chat = require('./basic_convo/chat.js');
-var egg = require('./basic_convo/egg.js');
-var jira = require('./jira/jira.js');
-var calendar = require('./basic_convo/calendar.js');
-var github = require('./github/github.js');
-var weather = require('./weather/weather.js')
-var translate = require('../db/watson/translation.js');
-var tone = require('../db/watson/tone.js');
+var chat = require('./basic_convo/chat');
+var egg = require('./basic_convo/egg');
+var jira = require('./jira/jira');
+var calendar = require('./basic_convo/calendar');
+var github = require('./github/github');
+var weather = require('./weather/weather')
+var translate = require('./watson/translation');
+var tone = require('./watson/tone');
 
 var directMessage = 'direct_message,direct_mention,mention';
 
@@ -28,7 +28,7 @@ if (!process.env.token) {
 }
 
 // Translation
-controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, translate.translate);
+controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, translate);
 
 // Commands
 controller.hears(['hello'], directMessage, chat.greet);
@@ -41,7 +41,7 @@ controller.hears(['life, the universe and everything', 'life the universe and ev
   directMessage, egg.hitch);
 controller.hears(['master code', 'konami code'], directMessage, egg.konami);
 
-//Get highest priority issues
+// Jira
 controller.hears(['jira priority 1', 'jira priority one', 'jira highest priority', 'highest priority jira'], directMessage, jira.getHighestPriorityIssues);
 
 // Google Calendar

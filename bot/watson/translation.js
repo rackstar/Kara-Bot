@@ -24,7 +24,7 @@ function watsonTranslate(text, target, cb) {
     });
 }
 
-exports.translate = function translate(bot, message) {
+function translate(bot, message) {
   var text = message.match[2];
   var lang = message.match[1];
   var language;
@@ -57,3 +57,5 @@ exports.translate = function translate(bot, message) {
     bot.reply(message, slackMessage);
   });
 };
+
+module.exports = translate;

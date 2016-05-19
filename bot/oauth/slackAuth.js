@@ -5,7 +5,11 @@ var db = require('../../db/postgres');
 
 require('dotenv').config();
 
-module.exports = function auth(req, res) {
+module.exports = function auth(req) {
+  if (req.query.error) {
+    return;
+  }
+
   var code = req.query.code;
   // var state = req.query.state;
 
