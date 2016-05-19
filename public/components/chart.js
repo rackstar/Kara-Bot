@@ -101,7 +101,7 @@ export default class Chart extends Component {
     } else {
 
       return (
-        <h3>
+        <h3 className="chartLoad">
           Loading chart...
         </h3>
       );
