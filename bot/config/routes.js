@@ -3,10 +3,10 @@ var kara = require('../karabot');
 var github = require('../github/github');
 var slashCommands = require('../github/githubSlashCommands');
 var jiraController = require('../../server/jira/jiraController');
-var dbController = require('../../db/postgres-controller.js');
-var tone = require('../../db/watson/tone.js');
-var slackAuth = require('../oauth/slackAuth.js');
-var githubAuth = require('../oauth/githubAuth.js');
+var dbController = require('../../db/postgres-controller');
+var tone = require('../../db/watson/tone');
+var slackAuth = require('../oauth/slackAuth');
+var githubAuth = require('../oauth/githubAuth');
 
 function errorLogger(error, req, res, next) {
   // log the error then send it to the next middleware
