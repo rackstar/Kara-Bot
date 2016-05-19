@@ -77,7 +77,7 @@ function getRepo(bot, message) {
     function responseRepo(err, repos) {
       if (err) {
         console.log(err);
-        bot.reply(message, 'I\'m sorry I cannot process your request right now');
+        bot.reply(message, 'I\'m sorry I cannot process your request right now :confused:');
       }
       // process only the number of repos required
       if (numberOfRepos) {
@@ -103,7 +103,7 @@ function watchRepo(bot, message) {
     },
     function responseRepo(err, repos) {
       if (err) {
-        bot.reply(message, 'I\'m sorry, I cannot process your request right now');
+        bot.reply(message, 'I\'m sorry, I cannot process your request right now :confused:');
         return;
       }
 
@@ -114,7 +114,7 @@ function watchRepo(bot, message) {
       });
 
       if (!userRepo) {
-        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time');
+        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time :confused:');
         return;
       }
 
@@ -200,14 +200,15 @@ function watchRepo(bot, message) {
 // TO DO - user can select events to subscribe to
 
 // call back function that finds id of hook and deletes it, utilised by unwatchRepo
-var findHookId = exports.findHookId = function findHookId(err, hooks, callback) {
-  hooks.forEach(function hookId(hook) {
+function findHookId(hooks, callback) {
+  var hookId;
+  hooks.forEach(function findId(hook) {
     // find the relevant hook
     if (hook.config.url === process.env.serverUrl) {
-      // pass in id to callback
-      callback(hook.id);
+      hookId = hook.id
     }
   });
+  callback(hookId);
 };
 
 function unwatchRepo(bot, message) {
@@ -220,7 +221,7 @@ function unwatchRepo(bot, message) {
     },
     function responseRepo(err, repos) {
       if (err) {
-        bot.reply(message, 'I\'m sorry, I cannot process your request right now');
+        bot.reply(message, 'I\'m sorry, I cannot process your request right now :confused:');
         return;
       }
 
@@ -231,16 +232,15 @@ function unwatchRepo(bot, message) {
       });
 
       if (!userRepo) {
-        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time');
+        bot.reply(message, 'I\'m sorry, I can\'t find that repository at this time :confused:');
         return;
       }
 
       var user = userRepo[0];
       var repo = userRepo[1];
-      var initialResponse = 'Hmmm..';
 
-      // send an initial response to avoid timeout error
-      bot.reply(message, initialResponse);
+      // initial response
+      bot.reply(message, 'Hmm..');
 
       // unwatch help
       if (repo.toLowerCase() === 'help') {
@@ -264,7 +264,15 @@ function unwatchRepo(bot, message) {
         },
         // find the id of hook associated to the app
         function getHookCb(err, hooks) {
-          findHookId(err, hooks, function deleteHook(id) {
+          if (err) {
+            bot.reply(message, 'I\'m sorry, I can not process your request right now :confused:')
+          }
+          findHookId(hooks, function deleteHook(id) {
+            if (id === undefined) {
+              bot.reply(message, 'It seems that I am not currently watching ' + user + '/' + repo);
+              return;
+            }
+
             // delete hook
             github.repos.deleteHook(
               {
@@ -274,7 +282,6 @@ function unwatchRepo(bot, message) {
               },
               function deleteHookCb(err, response) {
                 if (response.meta.status === '204 No Content') {
-                  // TO DO - if deleted already inform user
                   var deleteConfirmation = {
                     text: 'Ok! I\'ll stop notifying you of ' + userRepo.join('/') + '\'s events'
                   };
@@ -460,5 +467,6 @@ module.exports = {
   getRepo: getRepo,
   watchRepo: watchRepo,
   unwatchRepo: unwatchRepo,
+  findHookId: findHookId,
   webHookReceiver: webHook
 }
