@@ -15,7 +15,7 @@ var github = exports.api = new GitHubApi({
 require('dotenv').config();
 
 // Authentication
-exports.auth = function githubAuth() {
+function githubAuth() {
   github.authenticate({
     type: 'basic',
     username: process.env.username,
@@ -24,7 +24,7 @@ exports.auth = function githubAuth() {
 };
 
 // formats each repo info, utilised by getRepo
-var repoInfo = exports.repoInfo = function repoInfo(repos) {
+function repoInfo(repos) {
   var info = [];
 
   repos.forEach(function repoMsg(repo) {
@@ -35,7 +35,7 @@ var repoInfo = exports.repoInfo = function repoInfo(repos) {
 };
 
 // formats repo message, utilised by getRepo
-var repoList = exports.repoList = function repoList(repoInfo, argument) {
+function repoList(repoInfo, argument) {
   var slackMessage = {
     text: 'Here are your ' + argument + ' most recent repositories:',
     attachments: [{
@@ -63,7 +63,7 @@ var repoList = exports.repoList = function repoList(repoInfo, argument) {
 }
 
 // Repo
-exports.getRepo = function getRepo(bot, message) {
+function getRepo(bot, message) {
   var numberOfRepos = message.match[1];
   var list;
 
@@ -92,7 +92,7 @@ exports.getRepo = function getRepo(bot, message) {
 };
 
 // watch
-exports.watchRepo = function watchRepo(bot, message) {
+function watchRepo(bot, message) {
   var userRepo = message.match[1].split('/');
   var user = userRepo[0];
   var repo = userRepo[1];
@@ -184,7 +184,7 @@ var findHookId = exports.findHookId = function findHookId(err, hooks, callback) 
   });
 };
 
-exports.unwatchRepo = function unwatchRepo(bot, message) {
+function unwatchRepo(bot, message) {
   var userRepo = message.match[1].split('/');
   var user = userRepo[0];
   var repo = userRepo[1];
@@ -381,7 +381,7 @@ function checkPRqueue(user, repo) {
   );
 }
 
-exports.webHookReceiver = function webHook(req, res) {
+function webHook(req, res) {
   var event = req.headers['x-github-event'];
   var user = req.body.repository.owner.name;
   var repo = req.body.repository.name;
@@ -400,3 +400,13 @@ exports.webHookReceiver = function webHook(req, res) {
 
   res.sendStatus(200);
 };
+
+module.exports = {
+  auth: auth,
+  repoInfo: repoInfo,
+  repoList: repoList,
+  getRepo: getRepo,
+  watchRepo: watchRepo,
+  unwatchRepo: unwatchRepo,
+  webHookReceiver: webHook
+}
