@@ -157,13 +157,14 @@ function channelList(bot, message) {
 
   db.slackRequest(db.channelListForm, function channelListCb(res) {
     res.channels.forEach(function channelName(channel, i) {
-      channels += (i + 1).toString() + ' ' + channel.name + '\n';
+      channels += (i + 1).toString() + '  ' + channel.name + '\n';
     });
 
     slackMessage = {
       text: '*Channels*',
       attachments: [{
-        text: channels
+        text: channels,
+        color: 'good'
       }]
     };
 
