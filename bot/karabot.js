@@ -28,7 +28,7 @@ if (!process.env.token) {
 }
 
 // Translation
-controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, translate.translate);
+controller.hears(['translate -([A-z]{2}) (.*)'], directMessage, translate);
 
 // Commands
 controller.hears(['hello'], directMessage, chat.greet);
