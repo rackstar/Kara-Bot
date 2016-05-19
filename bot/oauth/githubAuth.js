@@ -4,7 +4,10 @@ var heroku = require('../../heroku/heroku');
 require('dotenv').load();
 
 module.exports = function githubAuth (req, res) {
-  var code = req.query.code;
+  if (req.query.error) {
+    res.json(req.query);
+  }
+  var code = req.query.cnsode;
   // var state = req.query.state;
 
   // security check
