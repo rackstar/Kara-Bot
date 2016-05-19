@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import Faux from 'react-faux-dom';
-import D3 from 'D3';
+import d3 from 'd3';
 
 export default class Chart extends Component {
 
