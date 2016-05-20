@@ -59,6 +59,7 @@ controller.hears(['show (.*) repos', 'show (.*) repo', 'repo (.*)', 'repos (.*)'
   'show repos', 'repos', 'show repo'], directMessage, github.getRepo);
 controller.hears(['unwatch (.*)'], directMessage, github.unwatchRepo);
 controller.hears(['watch (.*)'], directMessage, github.watchRepo);
+controller.hears(['github help'], directMessage, github.help);
 
 // Tone
 controller.hears(['tone list', 'tone (channels?)'], directMessage, tone.channelList);

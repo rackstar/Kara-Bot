@@ -459,6 +459,17 @@ function webHook(req, res) {
   res.sendStatus(200);
 };
 
+function githubHelp(bot, message) {
+  var slackMessage = {
+    text: '*Github Commands*\n' +
+      '`show repos / show <number> repos` - lists all of your repositories or a specified number\n' +
+      '`watch <number> / watch <owner/repo>` - subscribes to a repo\'s events and be notified when a pull request is created, updated or merged\n' +
+      '`unwatch <number> or <owner/repo>` - unsubscribes from the repository\'s events\n' +
+      '`watch <number> / unwatch <number>` - repo numbers are available from `show repos` command'
+  };
+  bot.reply(message, slackMessage);
+}
+
 module.exports = {
   api: github,
   auth: githubAuth,
@@ -468,5 +479,6 @@ module.exports = {
   watchRepo: watchRepo,
   unwatchRepo: unwatchRepo,
   findHookId: findHookId,
-  webHookReceiver: webHook
-}
+  webHookReceiver: webHook,
+  help: githubHelp
+};
