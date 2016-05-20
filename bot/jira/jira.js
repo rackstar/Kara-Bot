@@ -11,7 +11,7 @@ module.exports = {
 
 function getHighestPriorityIssues(bot, message) {
   var issueMessages = [];
-  unirest.get('http://localhost:5000/getHighestPriorityIssues', function (res) {
+  unirest.get('http://karabot-eng.herokuapp.com/getHighestPriorityIssues', function (res) {
 
     // error handler
     if (res.body.error) {
